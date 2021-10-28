@@ -8,34 +8,6 @@
 	width: 95%;
 	margin: 15px auto 0 auto;
 }
-#environment-tab-bar {
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	flex-wrap: nowrap;
-	align-items: center;
-	height: 28px;
-	margin: 0;
-}
-.environment-tab {
-	height: 100%;
-	line-height: 28px;
-	cursor: pointer;
-	text-align: center;
-	width: 90px;
-	padding: 0 10px;
-	background-color: var(--regular-color);
-	color: var(--secondary-text-color);
-	border: none;
-	outline: none;
-	transition: 0.1s;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-}
-.environment-tab:hover {
-	background-color: var(--selected-color);
-}
 .tool-bar {
 	width: fit-content;
 	height: fit-content;

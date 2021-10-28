@@ -99,3 +99,47 @@ body {
 	margin: 0;
 	padding: 0;
 }
+#environment-tab-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	flex-wrap: nowrap;
+	align-items: center;
+	height: 28px;
+	margin: 0;
+}
+.environment-tab {
+	height: 100%;
+	line-height: 28px;
+	cursor: pointer;
+	text-align: center;
+	width: 90px;
+	padding: 0 10px;
+	background-color: var(--regular-color);
+	color: var(--secondary-text-color);
+	border: none;
+	outline: none;
+	transition: 0.1s;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.environment-tab:hover {
+	background-color: var(--selected-color);
+}
+#new-environment-button {
+	cursor: pointer;
+	height: 22px;
+	width: 22px;
+	padding: 0;
+	margin: 4px;
+	text-align: center;
+	background-color: var(--regular-color);
+	color: var(--secondary-text-color);
+	border: none;
+	outline: none;
+	transition: 0.1s;
+}
+#new-environment-button:hover {
+	background-color: var(--selected-color);
+}
