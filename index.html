@@ -14,39 +14,58 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik&display=swap" rel="stylesheet" />
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" crossorigin="anonymous" />
+
+		<script src="javascript/point.js"></script>
+		<script src="javascript/state.js"></script>
+		<script src="javascript/transition.js"></script>
+		<script src="javascript/automaton.js"></script>
+		<script src="javascript/editor.js"></script>
+		<script src="javascript/environment.js"></script>
+		<script src="javascript/index.js"></script>
 	</head>
 	<body>
 		<div id="header-wrap">
-			<div id="logo"><span class="yellow-text">js</span>FLAP <span id="sub-logo">by Elijah Cirioli</span></div>
+			<div id="logo">
+				<span class="yellow-text">js</span>FLAP <a href="https://elijahcirioli.com" target="_blank" id="sub-logo">by Elijah Cirioli</a>
+			</div>
 			<div id="menu-bar">
-				<button class="menu-item">File</button>
-				<button class="menu-item">Edit</button>
-				<button class="menu-item">View</button>
-				<button class="menu-item">Tools</button>
+				<div class="menu-item">
+					<p class="menu-item-title">File</p>
+					<div class="menu-child-wrap">
+						<button class="menu-child-item">New</button>
+						<button class="menu-child-item">Open</button>
+						<button class="menu-child-item">Save</button>
+						<button class="menu-child-item">Close</button>
+					</div>
+				</div>
+				<div class="menu-item">
+					<p class="menu-item-title">Edit</p>
+					<div class="menu-child-wrap">
+						<button class="menu-child-item">Copy</button>
+						<button class="menu-child-item">Paste</button>
+						<button class="menu-child-item">Undo</button>
+						<button class="menu-child-item">Redo</button>
+					</div>
+				</div>
+				<div class="menu-item">
+					<p class="menu-item-title">View</p>
+					<div class="menu-child-wrap">
+						<button class="menu-child-item">Zoom in</button>
+						<button class="menu-child-item">Zoom out</button>
+						<button class="menu-child-item">State color</button>
+						<button class="menu-child-item">Editor color</button>
+					</div>
+				</div>
+				<div class="menu-item">
+					<p class="menu-item-title">Tools</p>
+					<div class="menu-child-wrap">
+						<button class="menu-child-item">Compare equivalence</button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="content-wrap">
-			<div id="environment-tab-bar">
-				<div class="active environment-tab">Untitled 1</div>
-				<div class="environment-tab">Other DFA bruh asjksaj</div>
-			</div>
-			<div class="environment-wrap">
-				<div class="tool-bar">
-					<button class="tool-item active"><i class="fas fa-mouse-pointer"></i></button>
-					<button class="tool-item"><i class="fas fa-circle"></i></button>
-					<button class="tool-item"><i class="fas fa-long-arrow-alt-right"></i></button>
-					<button class="tool-item"><i class="fas fa-link"></i></button>
-					<button class="tool-item"><i class="fas fa-trash-alt"></i></button>
-				</div>
-				<div class="editor">
-					<div class="editor-state-container"></div>
-					<canvas class="editor-canvas"></canvas>
-				</div>
-				<div class="environment-sidebar">
-					<div class="sidebar-item run-wrap"></div>
-					<div class="sidebar-item messages-wrap"></div>
-				</div>
-			</div>
+			<div id="environment-tab-bar"></div>
 		</div>
 	</body>
 </html>

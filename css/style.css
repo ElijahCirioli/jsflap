@@ -5,6 +5,7 @@ body {
 	--accent-color: #ffbe39;
 	--selected-color: #4a507b;
 	--regular-color: #2c304d;
+	--state-color: #ffbe39;
 	margin: 0;
 	padding: 0;
 	width: 100%;
@@ -28,6 +29,8 @@ body {
 }
 #sub-logo {
 	font-size: 1rem;
+	color: var(--text-color);
+	text-decoration: none;
 }
 .yellow-text {
 	color: var(--accent-color);
@@ -44,15 +47,50 @@ body {
 .menu-item {
 	height: 100%;
 	cursor: pointer;
-	text-align: center;
-	width: 3.5rem;
+	text-align: left;
+	width: fit-content;
+	padding: 0 10px;
 	background-color: var(--header-color);
 	color: var(--text-color);
 	border: none;
 	outline: none;
-	transition: background-color 0.2s;
+	transition: background-color 0.1s;
+	position: relative;
 }
 .menu-item:hover {
+	background-color: var(--selected-color);
+}
+.menu-item-title {
+	margin: 0;
+}
+.menu-child-wrap {
+	display: none;
+	position: absolute;
+	z-index: 10;
+	left: 0;
+	top: 1.3rem;
+}
+.menu-item:hover .menu-child-wrap {
+	display: block;
+}
+.menu-child-item {
+	height: 100%;
+	cursor: pointer;
+	text-align: left;
+	width: 100%;
+	min-width: fit-content;
+	white-space: nowrap;
+	height: 1.3rem;
+	background-color: var(--regular-color);
+	color: var(--text-color);
+	border: none;
+	outline: none;
+	transition: background-color 0.1s;
+	position: relative;
+	margin: 0;
+	padding: 0 10px;
+}
+.menu-child-item:hover {
 	background-color: var(--selected-color);
 }
 #content-wrap {
