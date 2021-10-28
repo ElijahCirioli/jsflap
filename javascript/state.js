@@ -5,6 +5,7 @@ class State {
 		this.name = name;
 		this.element = element;
 		this.radius = 26;
+		element.attr("id", id);
 	}
 
 	setName(newName) {

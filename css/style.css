@@ -131,6 +131,8 @@ body {
 	cursor: pointer;
 	height: 22px;
 	width: 22px;
+	min-width: 22px;
+	min-height: 22px;
 	padding: 0;
 	margin: 4px;
 	text-align: center;

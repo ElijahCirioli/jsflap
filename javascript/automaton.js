@@ -4,10 +4,18 @@ class Automaton {
 		this.transitions = new Set();
 	}
 
+	getStateById(id) {
+		return this.states.get(id);
+	}
+
 	addState(pos, name, element) {
 		const id = this.getNextId();
 		const state = new State(pos, id, name, element);
 		this.states.set(id, state);
+	}
+
+	addTransition(fromState, toState) {
+		this.transitions.add(new Transition(fromState, toState));
 	}
 
 	drawAllStates() {
@@ -16,9 +24,17 @@ class Automaton {
 		});
 	}
 
+	drawAllTransitions(canvas) {
+		const context = canvas.getContext("2d");
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		this.transitions.forEach((t) => {
+			t.draw(context);
+		});
+	}
+
 	getNextId() {
 		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-		const idLength = 10;
+		const idLength = 15;
 		while (true) {
 			let str = "";
 			for (let i = 0; i < idLength; i++) {
