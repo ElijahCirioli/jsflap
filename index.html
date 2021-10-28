@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>jsFLAP</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="css/mobile-style.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="css/environment-style.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik&display=swap" rel="stylesheet" />
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" crossorigin="anonymous" />
+	</head>
+	<body>
+		<div id="header-wrap">
+			<div id="logo"><span class="yellow-text">js</span>FLAP <span id="sub-logo">by Elijah Cirioli</span></div>
+			<div id="menu-bar">
+				<button class="menu-item">File</button>
+				<button class="menu-item">Edit</button>
+				<button class="menu-item">View</button>
+				<button class="menu-item">Tools</button>
+			</div>
+		</div>
+		<div id="content-wrap">
+			<div id="environment-tab-bar">
+				<div class="active environment-tab">Untitled 1</div>
+				<div class="environment-tab">Other DFA bruh asjksaj</div>
+			</div>
+			<div class="environment-wrap">
+				<div class="tool-bar">
+					<button class="tool-item active"><i class="fas fa-mouse-pointer"></i></button>
+					<button class="tool-item"><i class="fas fa-circle"></i></button>
+					<button class="tool-item"><i class="fas fa-long-arrow-alt-right"></i></button>
+					<button class="tool-item"><i class="fas fa-link"></i></button>
+					<button class="tool-item"><i class="fas fa-trash-alt"></i></button>
+				</div>
+				<div class="editor">
+					<div class="editor-state-container"></div>
+					<canvas class="editor-canvas"></canvas>
+				</div>
+				<div class="environment-sidebar">
+					<div class="sidebar-item run-wrap"></div>
+					<div class="sidebar-item messages-wrap"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

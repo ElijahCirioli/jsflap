@@ -1,0 +1,63 @@
+body {
+	--text-color: #ededed;
+	--secondary-text-color: #bababa;
+	--header-color: #34395b;
+	--accent-color: #ffbe39;
+	--selected-color: #4a507b;
+	--regular-color: #2c304d;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	padding-bottom: 30px;
+	background-color: #181b2f;
+	color: var(--text-color);
+	font-family: "Rubik", sans-serif;
+	font-size: 1rem;
+}
+#header-wrap {
+	background-color: var(--header-color);
+	padding: 5px 0 0 20px;
+	margin: 0;
+}
+#logo {
+	font-size: 2.2rem;
+	height: 2.2rem;
+	margin: 0;
+	text-align: left;
+	font-family: "Fredoka One", cursive;
+}
+#sub-logo {
+	font-size: 1rem;
+}
+.yellow-text {
+	color: var(--accent-color);
+}
+#menu-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	flex-wrap: nowrap;
+	align-items: center;
+	height: 1.3rem;
+	margin: 12px 0 0 -5px;
+}
+.menu-item {
+	height: 100%;
+	cursor: pointer;
+	text-align: center;
+	width: 3.5rem;
+	background-color: var(--header-color);
+	color: var(--text-color);
+	border: none;
+	outline: none;
+	transition: background-color 0.2s;
+}
+.menu-item:hover {
+	background-color: var(--selected-color);
+}
+#content-wrap {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}

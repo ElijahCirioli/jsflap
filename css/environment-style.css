@@ -1,0 +1,94 @@
+.environment-wrap {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 20px;
+	width: 95%;
+	margin: 15px auto 0 auto;
+}
+#environment-tab-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	flex-wrap: nowrap;
+	align-items: center;
+	height: 28px;
+	margin: 0;
+}
+.environment-tab {
+	height: 100%;
+	line-height: 28px;
+	cursor: pointer;
+	text-align: center;
+	width: 90px;
+	padding: 0 10px;
+	background-color: var(--regular-color);
+	color: var(--secondary-text-color);
+	border: none;
+	outline: none;
+	transition: 0.2s;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.tool-bar {
+	width: fit-content;
+	height: fit-content;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+}
+.tool-item {
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+	background-color: var(--regular-color);
+	color: var(--secondary-text-color);
+	border: none;
+	outline: none;
+	transition: 0.2s;
+	cursor: pointer;
+}
+.active {
+	background-color: var(--selected-color);
+	color: var(--text-color);
+}
+.editor {
+	min-height: 200px;
+	min-width: 200px;
+	height: calc(100vh - 150px);
+	max-height: calc(100vh - 150px);
+	flex-grow: 1;
+	background-color: var(--text-color);
+	overflow: hidden;
+}
+.editor-canvas {
+	width: 100%;
+	height: 100%;
+}
+.editor-state-container {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.environment-sidebar {
+	width: 250px;
+	height: fit-content;
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 30px;
+}
+.sidebar-item {
+	min-height: 150px;
+	width: 100%;
+	background-color: var(--regular-color);
+}
