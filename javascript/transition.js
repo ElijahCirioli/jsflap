@@ -21,6 +21,10 @@ class Transition {
 		this.label = newLabel;
 	}
 
+	equals(t) {
+		return this.from === t.from && this.to === t.to && this.label === t.label;
+	}
+
 	draw(context) {
 		context.lineWidth = 2;
 		context.strokeStyle = "#2c304d";

@@ -26,6 +26,8 @@ class Editor {
 			this.createShadowState();
 		} else if (this.tool === "transition") {
 			this.statesWrap.children(".state").css("cursor", "crosshair");
+		} else if (this.tool === "trash") {
+			this.statesWrap.children(".state").css("cursor", "pointer");
 		}
 	}
 
@@ -155,6 +157,17 @@ class Editor {
 	}
 
 	setupStateListeners(state) {
+		// click on state
+		state.click((e) => {
+			e.stopPropagation();
+			const id = $(e.currentTarget).attr("id");
+			const state = this.automaton.getStateById(id);
+			if (this.tool === "trash") {
+				this.automaton.removeState(state);
+				this.automaton.drawAllTransitions(this.canvas);
+			}
+		});
+
 		// put mouse down on state
 		state.on("mousedown", (e) => {
 			e.stopPropagation();

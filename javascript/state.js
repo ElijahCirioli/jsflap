@@ -4,7 +4,10 @@ class State {
 		this.id = id;
 		this.name = name;
 		this.element = element;
+		this.isFinal = false;
+		this.isInitial = false;
 		this.radius = 26;
+		this.transitions = new Map();
 		element.attr("id", id);
 	}
 
@@ -14,6 +17,50 @@ class State {
 
 	getName() {
 		return this.name;
+	}
+
+	getElement() {
+		return this.element;
+	}
+
+	isFinal() {
+		return this.isFinal;
+	}
+
+	setFinal(final) {
+		this.isFinal = final;
+	}
+
+	isInitial() {
+		return this.isInitial;
+	}
+
+	setInitial(initial) {
+		this.isInitial = initial;
+	}
+
+	addTransition(transition) {
+		const label = transition.getLabel();
+		// check if this label is in the hashmap
+		if (this.transitions.has(label)) {
+			// make sure an identical transition doesn't already exist
+			for (const t of this.transitions.get(label)) {
+				if (t.equals(transition)) {
+					return;
+				}
+			}
+			this.transitions.get(label).push(transition);
+		} else {
+			this.transitions.set(label, [transition]);
+		}
+	}
+
+	getTransitions() {
+		return this.transitions;
+	}
+
+	clearTransitions() {
+		this.transitions = new Map();
 	}
 
 	draw() {

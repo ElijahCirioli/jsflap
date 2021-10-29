@@ -1,7 +1,12 @@
 class Automaton {
 	constructor() {
 		this.states = new Map();
-		this.transitions = new Set();
+		this.finalStates = new Set();
+		this.final;
+	}
+
+	getStates() {
+		return this.states;
 	}
 
 	getStateById(id) {
@@ -14,8 +19,56 @@ class Automaton {
 		this.states.set(id, state);
 	}
 
+	removeState(state) {
+		this.removeTransitionsToState(state);
+		this.states.delete(state.id);
+		state.getElement().remove();
+	}
+
 	addTransition(fromState, toState) {
-		this.transitions.add(new Transition(fromState, toState));
+		fromState.addTransition(new Transition(fromState, toState));
+	}
+
+	getTransitionsFromState(state) {
+		return state.getTransitions();
+	}
+
+	removeTransitionsToState(state) {
+		this.states.forEach((s) => {
+			s.getTransitions().forEach((transitions, label) => {
+				for (let i = 0; i < transitions.length; i++) {
+					const t = transitions[i];
+					if (t.getToState() === state) {
+						transitions.splice(i, 1);
+						i--;
+						if (transitions.length === 0) {
+							s.getTransitions().delete(label);
+						}
+					}
+				}
+			});
+		});
+	}
+
+	removeTransitionsFromState(state) {
+		state.clearTransitions();
+	}
+
+	getTransitionsBetweenStates(fromState, toState) {
+		const result = new Map();
+		const initialTransitions = fromState.getTransitions();
+		initialTransitions.forEach((label) => {
+			for (const t of label) {
+				if (t.getToState() === toState) {
+					if (result.has(label)) {
+						result.get(label).push(t);
+					} else {
+						result.set(label, [t]);
+					}
+				}
+			}
+		});
+		return result;
 	}
 
 	drawAllStates() {
@@ -27,8 +80,12 @@ class Automaton {
 	drawAllTransitions(canvas) {
 		const context = canvas.getContext("2d");
 		context.clearRect(0, 0, canvas.width, canvas.height);
-		this.transitions.forEach((t) => {
-			t.draw(context);
+		this.states.forEach((s) => {
+			s.getTransitions().forEach((label) => {
+				for (const t of label) {
+					t.draw(context);
+				}
+			});
 		});
 	}
 
