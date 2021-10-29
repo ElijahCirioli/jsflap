@@ -8,4 +8,24 @@ class Point {
 		this.x += p.x;
 		this.y += p.y;
 	}
+
+	distance(p) {
+		return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+	}
+
+	normalizeEndPoint(start, newLength) {
+		// avoid divide by zero
+		const fullLength = Math.max(this.distance(start), 0.001);
+		const shortenedEnd = new Point(
+			start.x + (newLength * (this.x - start.x)) / fullLength,
+			start.y + (newLength * (this.y - start.y)) / fullLength
+		);
+		return shortenedEnd;
+	}
+
+	static shortenedEndPoint(start, end, distance) {
+		const fullLength = start.distance(end);
+		const newLength = Math.max(fullLength - distance, 0);
+		return end.normalizeEndPoint(start, newLength);
+	}
 }

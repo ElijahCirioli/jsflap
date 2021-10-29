@@ -39,6 +39,10 @@ class State {
 		this.isInitial = initial;
 	}
 
+	getPos() {
+		return this.pos;
+	}
+
 	addTransition(transition) {
 		const label = transition.getLabel();
 		// check if this label is in the hashmap
@@ -61,6 +65,10 @@ class State {
 
 	clearTransitions() {
 		this.transitions = new Map();
+	}
+
+	radiusPoint(otherPoint) {
+		return Point.shortenedEndPoint(otherPoint, this.pos, this.radius);
 	}
 
 	draw() {

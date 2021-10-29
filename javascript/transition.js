@@ -3,6 +3,7 @@ class Transition {
 		this.from = fromState;
 		this.to = toState;
 		this.label = "";
+		this.color = "#2c304d";
 	}
 
 	getToState() {
@@ -26,11 +27,38 @@ class Transition {
 	}
 
 	draw(context) {
+		const endPos = this.to.radiusPoint(this.from.pos);
+		Transition.drawArrow(context, this.from.pos, endPos, this.color);
+	}
+
+	static drawArrow(context, start, end, color) {
+		const arrowLength = 10;
+		const arrowWidth = 6;
+
+		// calculate arrow vertices
+		const length = start.distance(end);
+		const shortenedEnd = end.normalizeEndPoint(start, Math.max(length - arrowLength, 0));
+		const displacement = new Point(end.x - start.x, end.y - start.y);
+		const scaledSlopes = displacement.normalizeEndPoint(new Point(0, 0), arrowWidth);
+		const pointLeft = new Point(shortenedEnd.x - scaledSlopes.y, shortenedEnd.y + scaledSlopes.x);
+		const pointRight = new Point(shortenedEnd.x + scaledSlopes.y, shortenedEnd.y - scaledSlopes.x);
+
+		// draw line
 		context.lineWidth = 2;
-		context.strokeStyle = "#2c304d";
+		context.strokeStyle = color;
 		context.beginPath();
-		context.moveTo(this.from.pos.x, this.from.pos.y);
-		context.lineTo(this.to.pos.x, this.to.pos.y);
+		context.moveTo(start.x, start.y);
+		context.lineTo(shortenedEnd.x, shortenedEnd.y);
 		context.stroke();
+
+		// draw tip
+		context.fillStyle = color;
+		context.beginPath();
+		context.moveTo(shortenedEnd.x, shortenedEnd.y);
+		context.lineTo(pointRight.x, pointRight.y);
+		context.lineTo(end.x, end.y);
+		context.lineTo(pointLeft.x, pointLeft.y);
+		context.lineTo(shortenedEnd.x, shortenedEnd.y);
+		context.fill();
 	}
 }

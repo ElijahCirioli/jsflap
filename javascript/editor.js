@@ -86,12 +86,8 @@ class Editor {
 		}
 		this.automaton.drawAllTransitions(this.canvas);
 		const context = this.canvas.getContext("2d");
-		context.lineWidth = 2;
-		context.strokeStyle = "rgba(139, 138, 150, 0.5)";
-		context.beginPath();
-		context.moveTo(this.startState.pos.x, this.startState.pos.y);
-		context.lineTo(pos.x, pos.y);
-		context.stroke();
+		const arrowColor = "rgba(139, 138, 150, 0.5)";
+		Transition.drawArrow(context, this.startState.getPos(), pos, arrowColor);
 	}
 
 	startTransition(element) {
@@ -189,8 +185,9 @@ class Editor {
 			e.stopPropagation();
 			const id = $(e.currentTarget).attr("id");
 			const state = this.automaton.getStateById(id);
-			if (this.tool === "transition") {
-				this.drawShadowTransition(state.pos);
+			if (this.tool === "transition" && this.startState) {
+				const boundaryPoint = state.radiusPoint(this.startState.getPos());
+				this.drawShadowTransition(boundaryPoint);
 			}
 		});
 	}
