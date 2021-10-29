@@ -43,6 +43,10 @@ class State {
 		return this.pos;
 	}
 
+	setPos(newPos) {
+		this.pos = newPos;
+	}
+
 	addTransition(transition) {
 		const label = transition.getLabel();
 		// check if this label is in the hashmap

@@ -3,6 +3,7 @@ class Editor {
 		this.parent = parent;
 		this.tool = "point";
 		this.startState = undefined;
+		this.selectedStates = new Set();
 		this.automaton = new Automaton();
 
 		this.editorWrap = this.parent.children(".editor");
@@ -10,6 +11,7 @@ class Editor {
 		this.statesWrap = this.editorWrap.children(".editor-state-container");
 		this.shadowState = undefined;
 
+		this.stopDrag();
 		this.resizeCanvas();
 		this.setupListeners();
 	}
@@ -19,15 +21,19 @@ class Editor {
 
 		this.statesWrap.children(".shadow-state").remove();
 		this.startState = undefined;
+		this.selectedStates.clear();
+		this.stopDrag();
+		this.automaton.drawAllTransitions(this.canvas);
+		const stateElements = this.statesWrap.children(".state");
 		if (this.tool === "point") {
-			this.statesWrap.children(".state").css("cursor", "grab");
+			stateElements.css("cursor", "grab");
 		} else if (this.tool === "state") {
-			this.statesWrap.children(".state").css("cursor", "pointer");
+			stateElements.css("cursor", "pointer");
 			this.createShadowState();
 		} else if (this.tool === "transition") {
-			this.statesWrap.children(".state").css("cursor", "crosshair");
+			stateElements.css("cursor", "crosshair");
 		} else if (this.tool === "trash") {
-			this.statesWrap.children(".state").css("cursor", "pointer");
+			stateElements.css("cursor", "pointer");
 		}
 	}
 
@@ -61,8 +67,8 @@ class Editor {
 		const name = this.automaton.getNextName();
 		const element = $(`<div class="state"><p class="state-name">${name}</p></div>`);
 		this.statesWrap.append(element);
-		this.setupStateListeners(element);
 		this.automaton.addState(pos, name, element);
+		this.setupStateListeners(element);
 		this.draw();
 	}
 
@@ -103,6 +109,20 @@ class Editor {
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
+	stopDrag() {
+		this.statesWrap.children(".state").css("cursor", "grab");
+		this.clicked = false;
+		this.lastMousePos = undefined;
+	}
+
+	startDrag(pos) {
+		this.selectedStates.forEach((s) => {
+			s.getElement().css("cursor", "grabbing");
+		});
+		this.clicked = true;
+		this.lastMousePos = pos;
+	}
+
 	setupListeners() {
 		// resize window
 		$(window).resize((e) => {
@@ -117,7 +137,9 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
-			if (this.tool === "state") {
+			if (this.tool === "point") {
+				this.selectedStates.clear();
+			} else if (this.tool === "state") {
 				this.createState(pos);
 			}
 		});
@@ -130,7 +152,14 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
-			if (this.tool === "state") {
+			if (this.tool === "point" && this.clicked && this.lastMousePos) {
+				const stateOffset = new Point(pos.x - this.lastMousePos.x, pos.y - this.lastMousePos.y);
+				this.selectedStates.forEach((s) => {
+					s.getPos().add(stateOffset);
+				});
+				this.lastMousePos = pos;
+				this.draw();
+			} else if (this.tool === "state") {
 				this.moveShadowState(pos);
 			} else if (this.tool === "transition") {
 				this.drawShadowTransition(pos);
@@ -140,10 +169,31 @@ class Editor {
 		// lift mouse up on editor
 		this.editorWrap.on("mouseup", (e) => {
 			e.stopPropagation();
+			this.stopDrag();
+
+			if (this.tool === "transition") {
+				this.startState = undefined;
+				this.automaton.drawAllTransitions(this.canvas);
+			}
+		});
+
+		// put mouse down on editor
+		this.editorWrap.on("mousedown", (e) => {
+			e.stopPropagation();
 			const offset = $(this.editorWrap).offset();
 			const xPos = Math.round(e.clientX - offset.left);
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
+
+			if (this.tool === "point") {
+				this.startDrag(pos);
+			}
+		});
+
+		// take mouse out of editor
+		this.editorWrap.on("mouseleave", (e) => {
+			e.stopPropagation();
+			this.stopDrag();
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
@@ -153,6 +203,10 @@ class Editor {
 	}
 
 	setupStateListeners(state) {
+		// get the object associated with this element
+		const id = state.attr("id");
+		const stateObj = this.automaton.getStateById(id);
+
 		// click on state
 		state.click((e) => {
 			e.stopPropagation();
@@ -167,7 +221,15 @@ class Editor {
 		// put mouse down on state
 		state.on("mousedown", (e) => {
 			e.stopPropagation();
-			if (this.tool === "transition" && !this.startState) {
+			const offset = $(this.editorWrap).offset();
+			const xPos = Math.round(e.clientX - offset.left);
+			const yPos = Math.round(e.clientY - offset.top);
+			const pos = new Point(xPos, yPos);
+
+			if (this.tool === "point") {
+				this.selectedStates.add(stateObj);
+				this.startDrag(pos);
+			} else if (this.tool === "transition" && !this.startState) {
 				this.startTransition($(e.currentTarget));
 			}
 		});
@@ -175,18 +237,19 @@ class Editor {
 		// lift mouse up on state
 		state.on("mouseup", (e) => {
 			e.stopPropagation();
-			if (this.tool === "transition" && this.startState) {
+			this.stopDrag();
+
+			if (this.tool === "point") {
+				this.selectedStates.delete(stateObj);
+			} else if (this.tool === "transition" && this.startState) {
 				this.endTransition($(e.currentTarget));
 			}
 		});
 
 		// move mouse on state
 		state.on("mousemove", (e) => {
-			e.stopPropagation();
-			const id = $(e.currentTarget).attr("id");
-			const state = this.automaton.getStateById(id);
 			if (this.tool === "transition" && this.startState) {
-				const boundaryPoint = state.radiusPoint(this.startState.getPos());
+				const boundaryPoint = stateObj.radiusPoint(this.startState.getPos());
 				this.drawShadowTransition(boundaryPoint);
 			}
 		});

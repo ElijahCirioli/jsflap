@@ -11,6 +11,10 @@ class Environment {
 		return this.content;
 	}
 
+	getName() {
+		return this.name;
+	}
+
 	createContent() {
 		const content = $(`
 			<div class="environment-wrap">
