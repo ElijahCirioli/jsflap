@@ -21,7 +21,7 @@ class Editor {
 
 		this.statesWrap.children(".shadow-state").remove();
 		this.startState = undefined;
-		this.selectedStates.clear();
+		this.unselectAllStates();
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas);
 		const stateElements = this.statesWrap.children(".state");
@@ -123,6 +123,21 @@ class Editor {
 		this.lastMousePos = pos;
 	}
 
+	selectState(state) {
+		state.getElement().addClass("selected");
+		this.selectedStates.add(state);
+	}
+
+	unselectState(state) {
+		state.getElement().removeClass("selected");
+		this.selectedStates.delete(state);
+	}
+
+	unselectAllStates() {
+		this.statesWrap.children(".state").removeClass("selected");
+		this.selectedStates.clear();
+	}
+
 	setupListeners() {
 		// resize window
 		$(window).resize((e) => {
@@ -138,7 +153,7 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point") {
-				this.selectedStates.clear();
+				this.unselectAllStates();
 			} else if (this.tool === "state") {
 				this.createState(pos);
 			}
@@ -227,7 +242,7 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point") {
-				this.selectedStates.add(stateObj);
+				this.selectState(stateObj);
 				this.startDrag(pos);
 			} else if (this.tool === "transition" && !this.startState) {
 				this.startTransition($(e.currentTarget));
@@ -240,7 +255,7 @@ class Editor {
 			this.stopDrag();
 
 			if (this.tool === "point") {
-				this.selectedStates.delete(stateObj);
+				this.unselectState(stateObj);
 			} else if (this.tool === "transition" && this.startState) {
 				this.endTransition($(e.currentTarget));
 			}
@@ -251,6 +266,7 @@ class Editor {
 			if (this.tool === "transition" && this.startState) {
 				const boundaryPoint = stateObj.radiusPoint(this.startState.getPos());
 				this.drawShadowTransition(boundaryPoint);
+				e.stopPropagation();
 			}
 		});
 	}

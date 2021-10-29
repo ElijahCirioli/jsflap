@@ -6,6 +6,8 @@ body {
 	--selected-color: #4a507b;
 	--regular-color: #2c304d;
 	--state-color: #ffbe39;
+	--selected-state-color: #ffd659;
+	--glow-color: #5468a8;
 	margin: 0;
 	padding: 0;
 	width: 100%;
