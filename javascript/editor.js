@@ -110,7 +110,9 @@ class Editor {
 	}
 
 	stopDrag() {
-		this.statesWrap.children(".state").css("cursor", "grab");
+		if (this.tool === "point") {
+			this.statesWrap.children(".state").css("cursor", "grab");
+		}
 		this.clicked = false;
 		this.lastMousePos = undefined;
 	}
