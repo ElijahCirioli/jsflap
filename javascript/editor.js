@@ -118,9 +118,7 @@ class Editor {
 	}
 
 	startDrag(pos) {
-		this.selectedStates.forEach((s) => {
-			s.getElement().css("cursor", "grabbing");
-		});
+		this.statesWrap.children(".selected").css("cursor", "grabbing");
 		this.clicked = true;
 		this.lastMousePos = pos;
 	}
@@ -155,7 +153,9 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point") {
-				this.unselectAllStates();
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+				}
 			} else if (this.tool === "state") {
 				this.createState(pos);
 			}
@@ -191,19 +191,6 @@ class Editor {
 			if (this.tool === "transition") {
 				this.startState = undefined;
 				this.automaton.drawAllTransitions(this.canvas);
-			}
-		});
-
-		// put mouse down on editor
-		this.editorWrap.on("mousedown", (e) => {
-			e.stopPropagation();
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
-
-			if (this.tool === "point") {
-				this.startDrag(pos);
 			}
 		});
 
@@ -244,8 +231,19 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point") {
-				this.selectState(stateObj);
-				this.startDrag(pos);
+				if (controlKey || shiftKey) {
+					if (this.selectedStates.has(stateObj)) {
+						this.unselectState(stateObj);
+					} else {
+						this.selectState(stateObj);
+					}
+				} else {
+					if (!this.selectedStates.has(stateObj)) {
+						this.unselectAllStates();
+					}
+					this.selectState(stateObj);
+					this.startDrag(pos);
+				}
 			} else if (this.tool === "transition" && !this.startState) {
 				this.startTransition($(e.currentTarget));
 			}
@@ -257,7 +255,9 @@ class Editor {
 			this.stopDrag();
 
 			if (this.tool === "point") {
-				this.unselectState(stateObj);
+				if (!controlKey && !shiftKey && this.selectedStates.size === 1) {
+					this.unselectState(stateObj);
+				}
 			} else if (this.tool === "transition" && this.startState) {
 				this.endTransition($(e.currentTarget));
 			}

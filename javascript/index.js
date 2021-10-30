@@ -1,6 +1,9 @@
 let environments = [];
 let activeEnvironment = undefined;
 
+let controlKey = false;
+let shiftKey = false;
+
 function createEnvironment() {
 	unselectAllEnvironments();
 	const name = getNextEnvironmentName();
@@ -45,4 +48,26 @@ $("document").ready(() => {
 	$("#new-environment-button").click((e) => {
 		createEnvironment();
 	});
+
+	document.onkeydown = (e) => {
+		e = window.event || e;
+		e.preventDefault();
+
+		if (e.code === "ControlLeft" || e.code === "ControlRight") {
+			controlKey = true;
+		} else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+			shiftKey = true;
+		}
+	};
+
+	document.onkeyup = (e) => {
+		e = window.event || e;
+		e.preventDefault();
+
+		if (e.code === "ControlLeft" || e.code === "ControlRight") {
+			controlKey = false;
+		} else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+			shiftKey = false;
+		}
+	};
 });
