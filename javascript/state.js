@@ -19,6 +19,10 @@ class State {
 		return this.name;
 	}
 
+	getId() {
+		return this.id;
+	}
+
 	getElement() {
 		return this.element;
 	}
@@ -67,12 +71,39 @@ class State {
 		return this.transitions;
 	}
 
+	getTransitionsToState(other) {
+		const result = new Map();
+		this.transitions.forEach((label) => {
+			for (const t of label) {
+				if (t.getToState() === other) {
+					if (result.has(label)) {
+						result.get(label).push(t);
+					} else {
+						result.set(label, [t]);
+					}
+				}
+			}
+		});
+		return result;
+	}
+
+	hasTransitionToState(other) {
+		return this.getTransitionsToState(other).size > 0;
+	}
+
 	clearTransitions() {
 		this.transitions = new Map();
 	}
 
-	radiusPoint(otherPoint) {
-		return Point.shortenedEndPoint(otherPoint, this.pos, this.radius);
+	radiusPoint(otherPoint, offsetAngle) {
+		if (otherPoint.equals(this.pos)) {
+			return otherPoint;
+		}
+		const angle = Math.atan2(otherPoint.y - this.pos.y, otherPoint.x - this.pos.x) + offsetAngle;
+		const vector = new Point(Math.cos(angle), Math.sin(angle));
+		vector.normalize(this.radius);
+		vector.add(this.pos);
+		return vector;
 	}
 
 	draw() {

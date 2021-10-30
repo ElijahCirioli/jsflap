@@ -27,8 +27,41 @@ class Transition {
 	}
 
 	draw(context) {
-		const endPos = this.to.radiusPoint(this.from.pos);
-		Transition.drawArrow(context, this.from.pos, endPos, this.color);
+		if (this.to === this.from) {
+			// self loop
+		} else if (this.to.hasTransitionToState(this.from)) {
+			// matched inverse transitions
+			const startPos = this.from.radiusPoint(this.to.pos, Math.PI / 4);
+			const endPos = this.to.radiusPoint(this.from.pos, -Math.PI / 4);
+			this.drawCurvedArrow(context, startPos, endPos, this.color);
+		} else {
+			// normal straight arrow
+			const endPos = this.to.radiusPoint(this.from.pos, 0);
+			Transition.drawArrow(context, this.from.pos, endPos, this.color);
+		}
+	}
+
+	drawCurvedArrow(context, start, end, color) {
+		const arrowLength = 10;
+		const arrowWidth = 6;
+		const curveAngle = 0.4;
+		const curveAmount = Math.min(60, start.distance(end) / 2 - 5);
+
+		// calculate bezier points
+		const angle1 = Math.atan2(end.y - start.y, end.x - start.x) + curveAngle;
+		const angle2 = Math.atan2(start.y - end.y, start.x - end.x) - curveAngle;
+		const control1 = new Point(Math.cos(angle1) * curveAmount, Math.sin(angle1) * curveAmount);
+		control1.add(start);
+		const control2 = new Point(Math.cos(angle2) * curveAmount, Math.sin(angle2) * curveAmount);
+		control2.add(end);
+
+		// draw line
+		context.lineWidth = 2;
+		context.strokeStyle = color;
+		context.beginPath();
+		context.moveTo(start.x, start.y);
+		context.bezierCurveTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y);
+		context.stroke();
 	}
 
 	static drawArrow(context, start, end, color) {

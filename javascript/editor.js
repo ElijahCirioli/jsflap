@@ -170,6 +170,7 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point" && this.clicked && this.lastMousePos) {
+				// drag selected states
 				const stateOffset = new Point(pos.x - this.lastMousePos.x, pos.y - this.lastMousePos.y);
 				this.selectedStates.forEach((s) => {
 					s.getPos().add(stateOffset);
@@ -266,7 +267,7 @@ class Editor {
 		// move mouse on state
 		state.on("mousemove", (e) => {
 			if (this.tool === "transition" && this.startState) {
-				const boundaryPoint = stateObj.radiusPoint(this.startState.getPos());
+				const boundaryPoint = stateObj.radiusPoint(this.startState.getPos(), 0);
 				this.drawShadowTransition(boundaryPoint);
 				e.stopPropagation();
 			}

@@ -55,20 +55,7 @@ class Automaton {
 	}
 
 	getTransitionsBetweenStates(fromState, toState) {
-		const result = new Map();
-		const initialTransitions = fromState.getTransitions();
-		initialTransitions.forEach((label) => {
-			for (const t of label) {
-				if (t.getToState() === toState) {
-					if (result.has(label)) {
-						result.get(label).push(t);
-					} else {
-						result.set(label, [t]);
-					}
-				}
-			}
-		});
-		return result;
+		return fromState.getTransitionsToState(toState);
 	}
 
 	drawAllStates() {
