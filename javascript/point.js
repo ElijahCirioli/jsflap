@@ -14,6 +14,10 @@ class Point {
 		this.y -= p.y;
 	}
 
+	clone() {
+		return new Point(this.x, this.y);
+	}
+
 	equals(p) {
 		return this.x === p.x && this.y === p.y;
 	}

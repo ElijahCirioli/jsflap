@@ -36,6 +36,7 @@ class Environment {
 					</button>
 				</div>
 				<div class="editor">
+					<div class="editor-label-container"></div>
 					<div class="editor-state-container"></div>
 					<canvas class="editor-canvas"></canvas>
 				</div>

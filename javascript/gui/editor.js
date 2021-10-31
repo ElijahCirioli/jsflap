@@ -9,8 +9,9 @@ class Editor {
 		this.editorWrap = this.parent.children(".editor");
 		this.canvas = this.editorWrap.children(".editor-canvas")[0];
 		this.statesWrap = this.editorWrap.children(".editor-state-container");
-		this.shadowState = undefined;
-		this.shadowTransition = undefined;
+		this.labelsWrap = this.editorWrap.children(".editor-label-container");
+		this.previewState = undefined;
+		this.previewTransition = undefined;
 
 		this.stopDrag();
 		this.resizeCanvas();
@@ -22,7 +23,6 @@ class Editor {
 
 		this.statesWrap.children(".shadow-state").remove();
 		this.startState = undefined;
-		this.unselectAllStates();
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas);
 		const stateElements = this.statesWrap.children(".state");
@@ -30,9 +30,11 @@ class Editor {
 			stateElements.css("cursor", "grab");
 		} else if (this.tool === "state") {
 			stateElements.css("cursor", "pointer");
-			this.createShadowState();
+			this.unselectAllStates();
+			this.createPreviewState();
 		} else if (this.tool === "transition") {
 			stateElements.css("cursor", "crosshair");
+			this.unselectAllStates();
 		} else if (this.tool === "trash") {
 			stateElements.css("cursor", "pointer");
 		}
@@ -73,46 +75,46 @@ class Editor {
 		this.draw();
 	}
 
-	createShadowState() {
-		this.shadowState = $("<div class='state shadow-state'></div>");
-		this.statesWrap.append(this.shadowState);
+	createPreviewState() {
+		this.previewState = $("<div class='state shadow-state'></div>");
+		this.statesWrap.append(this.previewState);
 	}
 
-	moveShadowState(pos) {
-		if (!this.shadowState) {
+	movePreviewState(pos) {
+		if (!this.previewState) {
 			return;
 		}
 		const elementPos = new Point(pos.x - 25, pos.y - 25);
-		this.shadowState.css("top", elementPos.y + "px");
-		this.shadowState.css("left", elementPos.x + "px");
+		this.previewState.css("top", elementPos.y + "px");
+		this.previewState.css("left", elementPos.x + "px");
 	}
 
-	createShadowTransition(state) {
-		if (this.shadowTransition && this.shadowTransition.getToState() === state) {
+	createPreviewTransition(state) {
+		if (this.previewTransition && this.previewTransition.getToState() === state) {
 			return;
 		}
-		this.removeShadowTransition();
-		this.shadowTransition = this.automaton.addTransition(this.startState, state);
-		this.shadowTransition.makePreview();
+		this.removePreviewTransition();
+		this.previewTransition = this.automaton.addTransition(this.startState, state);
+		this.previewTransition.makePreview();
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
-	removeShadowTransition() {
-		if (this.shadowTransition) {
-			this.shadowTransition.getFromState().removeTransition(this.shadowTransition);
-			this.shadowTransition = undefined;
+	removePreviewTransition() {
+		if (this.previewTransition) {
+			this.previewTransition.getFromState().removeTransition(this.previewTransition);
+			this.previewTransition = undefined;
 		}
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
-	statelessShadowTransition(pos) {
-		if (this.shadowTransition) {
-			this.removeShadowTransition();
+	statelessPreviewTransition(pos) {
+		if (this.previewTransition) {
+			this.removePreviewTransition();
 		}
 		this.automaton.drawAllTransitions(this.canvas);
 		const context = this.canvas.getContext("2d");
-		const shadowColor = "rgba(139, 138, 150, 0.5)";
-		Arrow.drawArrow(context, this.startState.pos, pos, shadowColor);
+		const previewColor = "rgba(139, 138, 150, 0.5)";
+		Arrow.drawArrow(context, this.startState.pos, pos, previewColor);
 	}
 
 	startTransition(element) {
@@ -197,9 +199,9 @@ class Editor {
 				this.lastMousePos = pos;
 				this.draw();
 			} else if (this.tool === "state") {
-				this.moveShadowState(pos);
+				this.movePreviewState(pos);
 			} else if (this.tool === "transition" && this.startState) {
-				this.statelessShadowTransition(pos);
+				this.statelessPreviewTransition(pos);
 			}
 		});
 
@@ -210,7 +212,7 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
-				this.removeShadowTransition();
+				this.removePreviewTransition();
 			}
 		});
 
@@ -221,7 +223,7 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
-				this.removeShadowTransition();
+				this.removePreviewTransition();
 			}
 		});
 	}
@@ -237,7 +239,14 @@ class Editor {
 			const id = $(e.currentTarget).attr("id");
 			const state = this.automaton.getStateById(id);
 			if (this.tool === "trash") {
-				this.automaton.removeState(state);
+				if (this.selectedStates.has(state)) {
+					this.selectedStates.forEach((s) => {
+						this.automaton.removeState(s);
+					});
+				} else {
+					this.automaton.removeState(state);
+				}
+				this.unselectAllStates();
 				this.automaton.drawAllTransitions(this.canvas);
 			}
 		});
@@ -266,6 +275,7 @@ class Editor {
 				}
 			} else if (this.tool === "transition" && !this.startState) {
 				this.startTransition($(e.currentTarget));
+				this.createPreviewTransition(stateObj);
 			}
 		});
 
@@ -279,7 +289,7 @@ class Editor {
 					this.unselectState(stateObj);
 				}
 			} else if (this.tool === "transition" && this.startState) {
-				this.removeShadowTransition();
+				this.removePreviewTransition();
 				this.endTransition($(e.currentTarget));
 			}
 		});
@@ -287,7 +297,7 @@ class Editor {
 		// move mouse on state
 		state.on("mousemove", (e) => {
 			if (this.tool === "transition" && this.startState) {
-				this.createShadowTransition(stateObj);
+				this.createPreviewTransition(stateObj);
 				e.stopPropagation();
 			}
 		});

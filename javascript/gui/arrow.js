@@ -66,4 +66,28 @@ class Arrow {
 		const tipAngle = Math.atan2(end.y - start.y, end.x - start.x) - curveAngle;
 		this.drawArrowTip(context, end, tipAngle, color);
 	}
+
+	static drawSelfArrow(context, start, end, color) {
+		// calculate constants
+		const inset = 5;
+		const height = 50;
+		const tipAngle = Math.atan2(height, inset);
+
+		// calculate bezier points
+		const control1 = new Point(start.x + inset, start.y - height);
+		const control2 = new Point(end.x - inset, end.y - height);
+		const endPoint = new Point(-Math.cos(tipAngle) * this.arrowLength, -Math.sin(tipAngle) * this.arrowLength);
+		endPoint.add(end);
+
+		// draw line
+		context.lineWidth = 2;
+		context.strokeStyle = color;
+		context.beginPath();
+		context.moveTo(start.x, start.y);
+		context.bezierCurveTo(control1.x, control1.y, control2.x, control2.y, endPoint.x, endPoint.y);
+		context.stroke();
+
+		// draw tip
+		this.drawArrowTip(context, end, tipAngle, color);
+	}
 }
