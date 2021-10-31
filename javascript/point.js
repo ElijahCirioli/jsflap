@@ -9,6 +9,11 @@ class Point {
 		this.y += p.y;
 	}
 
+	subtract(p) {
+		this.x -= p.x;
+		this.y -= p.y;
+	}
+
 	equals(p) {
 		return this.x === p.x && this.y === p.y;
 	}
@@ -17,8 +22,12 @@ class Point {
 		return Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
 	}
 
+	magnitude() {
+		return this.distance(new Point(0, 0));
+	}
+
 	normalize(newLength) {
-		const length = Math.max(this.distance(new Point(0, 0)), 0.001);
+		const length = Math.max(this.magnitude(), 0.001);
 		this.x *= newLength / length;
 		this.y *= newLength / length;
 	}

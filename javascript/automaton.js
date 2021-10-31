@@ -26,7 +26,9 @@ class Automaton {
 	}
 
 	addTransition(fromState, toState) {
-		fromState.addTransition(new Transition(fromState, toState));
+		const transition = new Transition(fromState, toState);
+		fromState.addTransition(transition);
+		return transition;
 	}
 
 	getTransitionsFromState(state) {

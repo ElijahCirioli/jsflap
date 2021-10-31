@@ -67,6 +67,25 @@ class State {
 		}
 	}
 
+	removeTransition(transition) {
+		const label = transition.getLabel();
+		// check if this label is in the hashmap
+		if (this.transitions.has(label)) {
+			const labelTransitions = this.transitions.get(label);
+			for (let i = 0; i < labelTransitions.length; i++) {
+				const t = labelTransitions[i];
+				if (t === transition) {
+					labelTransitions.splice(i, 1);
+					i--;
+				}
+			}
+			// remove the array if it's empty
+			if (labelTransitions.length === 0) {
+				this.transitions.delete(label);
+			}
+		}
+	}
+
 	getTransitions() {
 		return this.transitions;
 	}
@@ -95,13 +114,13 @@ class State {
 		this.transitions = new Map();
 	}
 
-	radiusPoint(otherPoint, offsetAngle) {
+	radiusPoint(otherPoint, offsetAngle, offsetRadius) {
 		if (otherPoint.equals(this.pos)) {
 			return otherPoint;
 		}
 		const angle = Math.atan2(otherPoint.y - this.pos.y, otherPoint.x - this.pos.x) + offsetAngle;
 		const vector = new Point(Math.cos(angle), Math.sin(angle));
-		vector.normalize(this.radius);
+		vector.normalize(this.radius + offsetRadius);
 		vector.add(this.pos);
 		return vector;
 	}

@@ -10,6 +10,7 @@ class Editor {
 		this.canvas = this.editorWrap.children(".editor-canvas")[0];
 		this.statesWrap = this.editorWrap.children(".editor-state-container");
 		this.shadowState = undefined;
+		this.shadowTransition = undefined;
 
 		this.stopDrag();
 		this.resizeCanvas();
@@ -86,14 +87,32 @@ class Editor {
 		this.shadowState.css("left", elementPos.x + "px");
 	}
 
-	drawShadowTransition(pos) {
-		if (!this.startState) {
+	createShadowTransition(state) {
+		if (this.shadowTransition && this.shadowTransition.getToState() === state) {
 			return;
+		}
+		this.removeShadowTransition();
+		this.shadowTransition = this.automaton.addTransition(this.startState, state);
+		this.shadowTransition.setColor("rgba(139, 138, 150, 0.5)");
+		this.automaton.drawAllTransitions(this.canvas);
+	}
+
+	removeShadowTransition() {
+		if (this.shadowTransition) {
+			this.shadowTransition.getFromState().removeTransition(this.shadowTransition);
+			this.shadowTransition = undefined;
+		}
+		this.automaton.drawAllTransitions(this.canvas);
+	}
+
+	statelessShadowTransition(pos) {
+		if (this.shadowTransition) {
+			this.removeShadowTransition();
 		}
 		this.automaton.drawAllTransitions(this.canvas);
 		const context = this.canvas.getContext("2d");
-		const arrowColor = "rgba(139, 138, 150, 0.5)";
-		Transition.drawArrow(context, this.startState.getPos(), pos, arrowColor);
+		const shadowColor = "rgba(139, 138, 150, 0.5)";
+		Arrow.drawArrow(context, this.startState.pos, pos, shadowColor);
 	}
 
 	startTransition(element) {
@@ -179,8 +198,8 @@ class Editor {
 				this.draw();
 			} else if (this.tool === "state") {
 				this.moveShadowState(pos);
-			} else if (this.tool === "transition") {
-				this.drawShadowTransition(pos);
+			} else if (this.tool === "transition" && this.startState) {
+				this.statelessShadowTransition(pos);
 			}
 		});
 
@@ -191,7 +210,7 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
-				this.automaton.drawAllTransitions(this.canvas);
+				this.removeShadowTransition();
 			}
 		});
 
@@ -202,7 +221,7 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
-				this.automaton.drawAllTransitions(this.canvas);
+				this.removeShadowTransition();
 			}
 		});
 	}
@@ -260,6 +279,7 @@ class Editor {
 					this.unselectState(stateObj);
 				}
 			} else if (this.tool === "transition" && this.startState) {
+				this.removeShadowTransition();
 				this.endTransition($(e.currentTarget));
 			}
 		});
@@ -267,8 +287,7 @@ class Editor {
 		// move mouse on state
 		state.on("mousemove", (e) => {
 			if (this.tool === "transition" && this.startState) {
-				const boundaryPoint = stateObj.radiusPoint(this.startState.getPos(), 0);
-				this.drawShadowTransition(boundaryPoint);
+				this.createShadowTransition(stateObj);
 				e.stopPropagation();
 			}
 		});
