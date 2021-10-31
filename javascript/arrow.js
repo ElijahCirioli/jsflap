@@ -43,7 +43,7 @@ class Arrow {
 	static drawCurvedArrow(context, start, end, color) {
 		// calculate constants
 		const curveAngle = 0.4;
-		const curveAmount = Math.min(60, start.distance(end) / 2 - 5);
+		const curveAmount = Math.min(50, start.distance(end) / 2 - 5);
 
 		// calculate bezier points
 		const angle1 = Math.atan2(end.y - start.y, end.x - start.x) + curveAngle;

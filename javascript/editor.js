@@ -93,7 +93,7 @@ class Editor {
 		}
 		this.removeShadowTransition();
 		this.shadowTransition = this.automaton.addTransition(this.startState, state);
-		this.shadowTransition.setColor("rgba(139, 138, 150, 0.5)");
+		this.shadowTransition.makePreview();
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
