@@ -51,37 +51,35 @@ class State {
 		this.pos = newPos;
 	}
 
-	addTransition(transition) {
-		const label = transition.getLabel();
-		// check if this label is in the hashmap
-		if (this.transitions.has(label)) {
-			// make sure an identical transition doesn't already exist
-			for (const t of this.transitions.get(label)) {
-				if (t.equals(transition)) {
-					return;
-				}
-			}
-			this.transitions.get(label).push(transition);
+	addTransition(toState, label) {
+		// check if this toState is in the hashmap
+		if (this.transitions.has(toState.getId())) {
+			// add the label to the set
+			this.transitions.get(toState.getId()).addLabel(label);
+			return this.transitions.get(toState.getId());
 		} else {
-			this.transitions.set(label, [transition]);
+			// add the toState to the set
+			const t = new Transition(this, toState, label);
+			this.transitions.set(toState.getId(), t);
+			return t;
 		}
 	}
 
-	removeTransition(transition) {
-		const label = transition.getLabel();
-		// check if this label is in the hashmap
-		if (this.transitions.has(label)) {
-			const labelTransitions = this.transitions.get(label);
-			for (let i = 0; i < labelTransitions.length; i++) {
-				const t = labelTransitions[i];
-				if (t === transition) {
-					labelTransitions.splice(i, 1);
-					i--;
+	removeTransition(toState, label) {
+		// check if this toState is in the hashmap
+		if (this.transitions.has(toState.getId())) {
+			const t = this.getTransitionsToState(toState);
+			if (label) {
+				// delete the label from the set
+				t.removeLabel(label);
+
+				// delete the whole transition if all the labels are gone
+				if (t.getLabels().size === 0) {
+					this.transitions.delete(toState.getId());
 				}
-			}
-			// remove the array if it's empty
-			if (labelTransitions.length === 0) {
-				this.transitions.delete(label);
+			} else {
+				// remove all labels
+				this.transitions.delete(toState.getId());
 			}
 		}
 	}
@@ -91,26 +89,17 @@ class State {
 	}
 
 	getTransitionsToState(other) {
-		const result = new Map();
-		this.transitions.forEach((label) => {
-			for (const t of label) {
-				if (t.getToState() === other) {
-					if (result.has(label)) {
-						result.get(label).push(t);
-					} else {
-						result.set(label, [t]);
-					}
-				}
-			}
-		});
-		return result;
+		return this.transitions.get(other.getId());
 	}
 
 	hasTransitionToState(other) {
-		return this.getTransitionsToState(other).size > 0;
+		return this.transitions.has(other.getId());
 	}
 
 	clearTransitions() {
+		this.transitions.forEach((t) => {
+			t.removeElement();
+		});
 		this.transitions = new Map();
 	}
 

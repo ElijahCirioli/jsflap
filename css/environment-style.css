@@ -139,7 +139,6 @@
 	cursor: text;
 	pointer-events: all;
 	position: absolute;
-	opacity: 0.5;
 	transform-origin: top left;
 }
 .label-input {
@@ -151,4 +150,17 @@
 	font-size: 1rem;
 	text-align: center;
 	color: var(--regular-color);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 0;
+	transition: background 0.1s;
+}
+.label-input:focus {
+	background: rgba(139, 138, 150, 0.5);
+	border: 1px solid var(--regular-color);
+	-webkit-box-shadow: 0px 0px 8px 4px var(--glow-color);
+	-moz-box-shadow: 0px 0px 8px 4px var(--glow-color);
+	box-shadow: 0px 0px 6px 2px var(--glow-color);
+}
+.label-input:hover {
 }

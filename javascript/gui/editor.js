@@ -94,14 +94,16 @@ class Editor {
 			return;
 		}
 		this.removePreviewTransition();
-		this.previewTransition = this.automaton.addTransition(this.startState, state);
+		this.previewTransition = this.automaton.addTransition(this.startState, state, "x");
 		this.previewTransition.makePreview();
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
 	removePreviewTransition() {
 		if (this.previewTransition) {
-			this.previewTransition.getFromState().removeTransition(this.previewTransition);
+			const fromState = this.previewTransition.getFromState();
+			const toState = this.previewTransition.getToState();
+			fromState.removeTransition(toState, "x");
 			this.previewTransition = undefined;
 		}
 		this.automaton.drawAllTransitions(this.canvas);
@@ -125,9 +127,14 @@ class Editor {
 	endTransition(element) {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
-		const labelElement = $(`<form class="label-form"><input type="text" class="label-input"></form>`);
-		this.labelsWrap.append(labelElement);
-		this.automaton.addTransition(this.startState, endState, labelElement);
+
+		if (this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
+			this.automaton.addTransition(this.startState, endState, "");
+		} else {
+			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" class="label-input"></form>`);
+			this.labelsWrap.append(labelElement);
+			this.automaton.addTransition(this.startState, endState, "", labelElement);
+		}
 		this.startState = undefined;
 		this.automaton.drawAllTransitions(this.canvas);
 	}

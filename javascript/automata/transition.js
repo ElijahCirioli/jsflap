@@ -1,15 +1,13 @@
 class Transition {
-	constructor(fromState, toState, element) {
+	constructor(fromState, toState, label) {
 		this.from = fromState;
 		this.to = toState;
-		this.label = "";
+		this.labels = new Set();
 		this.color = "#2c304d";
 		this.preview = false;
-		this.id = fromState.getId() + toState.getId();
-		if (element) {
-			this.element = element;
-			this.element.attr("id", this.id);
-			this.element.attr("name", this.id);
+		this.id = fromState.getId() + "-" + toState.getId();
+		if (label) {
+			this.labels.add(label);
 		}
 	}
 
@@ -21,12 +19,16 @@ class Transition {
 		return this.from;
 	}
 
-	getLabel() {
-		return this.label;
+	getLabels() {
+		return this.labels;
 	}
 
-	setLabel(newLabel) {
-		this.label = newLabel;
+	addLabel(label) {
+		this.labels.add(label);
+	}
+
+	removeLabel(label) {
+		this.labels.delete(label);
 	}
 
 	setColor(newColor) {
@@ -43,7 +45,13 @@ class Transition {
 	}
 
 	equals(t) {
-		return this.from === t.from && this.to === t.to && this.label === t.label;
+		return this.from === t.from && this.to === t.to && this.labels.equals(t.labels);
+	}
+
+	addElement(element) {
+		this.element = element;
+		this.element.attr("id", this.id);
+		this.element.attr("name", this.id);
 	}
 
 	draw(context) {
@@ -67,11 +75,6 @@ class Transition {
 		}
 
 		if (this.element) {
-			context.fillStyle = "red";
-			context.beginPath();
-			context.arc(labelPoint.x, labelPoint.y, 3, 0, 7);
-			context.fill();
-
 			this.moveLabel(labelPoint);
 		}
 	}
@@ -93,5 +96,11 @@ class Transition {
 		this.element.css("left", left + "px");
 		this.element.css("top", top + "px");
 		this.element.css("transform", `rotate(${angle}rad)`);
+	}
+
+	removeElement() {
+		if (this.element) {
+			this.element.remove();
+		}
 	}
 }
