@@ -51,7 +51,6 @@ $("document").ready(() => {
 
 	document.onkeydown = (e) => {
 		e = window.event || e;
-		e.preventDefault();
 
 		if (e.code === "ControlLeft" || e.code === "ControlRight") {
 			controlKey = true;

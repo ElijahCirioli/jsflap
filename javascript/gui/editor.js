@@ -21,7 +21,7 @@ class Editor {
 	setTool(newTool) {
 		this.tool = newTool;
 
-		this.statesWrap.children(".shadow-state").remove();
+		this.statesWrap.children(".preview-state").remove();
 		this.startState = undefined;
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas);
@@ -76,7 +76,7 @@ class Editor {
 	}
 
 	createPreviewState() {
-		this.previewState = $("<div class='state shadow-state'></div>");
+		this.previewState = $("<div class='state preview-state'></div>");
 		this.statesWrap.append(this.previewState);
 	}
 
@@ -114,7 +114,7 @@ class Editor {
 		this.automaton.drawAllTransitions(this.canvas);
 		const context = this.canvas.getContext("2d");
 		const previewColor = "rgba(139, 138, 150, 0.5)";
-		Arrow.drawArrow(context, this.startState.pos, pos, previewColor);
+		Arrow.drawArrow(context, this.startState.pos, pos, this.startState.pos, pos, previewColor);
 	}
 
 	startTransition(element) {
@@ -123,9 +123,11 @@ class Editor {
 	}
 
 	endTransition(element) {
-		const id = element.attr("id");
-		const endState = this.automaton.getStateById(id);
-		this.automaton.addTransition(this.startState, endState);
+		const endId = element.attr("id");
+		const endState = this.automaton.getStateById(endId);
+		const labelElement = $(`<form class="label-form"><input type="text" class="label-input"></form>`);
+		this.labelsWrap.append(labelElement);
+		this.automaton.addTransition(this.startState, endState, labelElement);
 		this.startState = undefined;
 		this.automaton.drawAllTransitions(this.canvas);
 	}

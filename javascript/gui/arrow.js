@@ -22,7 +22,7 @@ class Arrow {
 		context.fill();
 	}
 
-	static drawArrow(context, start, end, color) {
+	static drawArrow(context, start, end, centerStart, centerEnd, color) {
 		// calculate constants
 		const length = start.distance(end);
 		const shortenedEnd = end.normalizeEndPoint(start, Math.max(length - this.arrowLength, 0));
@@ -38,6 +38,16 @@ class Arrow {
 
 		// draw tip
 		this.drawArrowTip(context, end, angle, color);
+
+		// return a point above the middle of the arrow
+		const multiplier = Math.sign(start.x - end.x);
+		const center = new Point((centerStart.x + centerEnd.x) / 2, (centerStart.y + centerEnd.y) / 2);
+		const orthogonalAngle = angle + Math.PI / 2;
+		const labelOffset = 22;
+		return new Point(
+			center.x + Math.cos(orthogonalAngle) * labelOffset * multiplier,
+			center.y + Math.sin(orthogonalAngle) * labelOffset * multiplier
+		);
 	}
 
 	static drawCurvedArrow(context, start, end, color) {
@@ -65,9 +75,17 @@ class Arrow {
 		// draw tip
 		const tipAngle = Math.atan2(end.y - start.y, end.x - start.x) - curveAngle;
 		this.drawArrowTip(context, end, tipAngle, color);
+
+		// return a point above the apex of the curve
+		const orthogonalAngle = Math.atan2(end.y - start.y, end.x - start.x) + Math.PI / 2;
+		const labelOffset = start.x > end.x ? 18 : -2;
+		return new Point(
+			(control1.x + control2.x) / 2 + Math.cos(orthogonalAngle) * labelOffset,
+			(control1.y + control2.y) / 2 + Math.sin(orthogonalAngle) * labelOffset
+		);
 	}
 
-	static drawSelfArrow(context, start, end, color) {
+	static drawSelfArrow(context, start, end, center, color) {
 		// calculate constants
 		const inset = 5;
 		const height = 50;
@@ -89,5 +107,10 @@ class Arrow {
 
 		// draw tip
 		this.drawArrowTip(context, end, tipAngle, color);
+
+		// return a point above the apex of the curve
+		const labelOffset = 12;
+		const labelOffsetX = 1;
+		return new Point(center.x + labelOffsetX, start.y - height - labelOffset);
 	}
 }
