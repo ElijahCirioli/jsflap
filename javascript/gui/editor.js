@@ -94,8 +94,10 @@ class Editor {
 			return;
 		}
 		this.removePreviewTransition();
-		this.previewTransition = this.automaton.addTransition(this.startState, state, "x");
-		this.previewTransition.makePreview();
+		if (!this.automaton.hasTransitionBetweenStates(this.startState, state)) {
+			this.previewTransition = this.automaton.addTransition(this.startState, state, "PREVIEW");
+			this.previewTransition.makePreview();
+		}
 		this.automaton.drawAllTransitions(this.canvas);
 	}
 
@@ -103,7 +105,7 @@ class Editor {
 		if (this.previewTransition) {
 			const fromState = this.previewTransition.getFromState();
 			const toState = this.previewTransition.getToState();
-			fromState.removeTransition(toState, "x");
+			fromState.removeTransition(toState, "PREVIEW");
 			this.previewTransition = undefined;
 		}
 		this.automaton.drawAllTransitions(this.canvas);
@@ -128,15 +130,15 @@ class Editor {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
 
-		if (this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
-			this.automaton.addTransition(this.startState, endState, "");
-		} else {
+		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
 			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" class="label-input"></form>`);
 			this.labelsWrap.append(labelElement);
-			this.automaton.addTransition(this.startState, endState, "", labelElement);
+			const t = this.automaton.addTransition(this.startState, endState, "", labelElement);
+			this.setupLabelListeners(labelElement, t);
 		}
+		const t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
 		this.startState = undefined;
-		this.automaton.drawAllTransitions(this.canvas);
+		t.focusElement();
 	}
 
 	stopDrag() {
@@ -308,6 +310,91 @@ class Editor {
 			if (this.tool === "transition" && this.startState) {
 				this.createPreviewTransition(stateObj);
 				e.stopPropagation();
+			}
+		});
+	}
+
+	setupLabelListeners(label, transition) {
+		const input = label.children(".label-input");
+
+		label.on("mouseup", (e) => {
+			e.stopPropagation();
+		});
+
+		input.on("focusout", (e) => {
+			if (transition.labels.size === 0) {
+				this.automaton.removeTransitionBetweenStates(transition);
+			}
+			this.automaton.drawAllTransitions(this.canvas);
+		});
+
+		input.on("focusin", (e) => {
+			console.log("focusin");
+			this.automaton.drawAllTransitions(this.canvas);
+			if (input.val().length > 0) {
+				transition.addDelimeterToInput();
+			}
+		});
+
+		label.on("keydown", (e) => {
+			e = window.event || e;
+			const key = e.key;
+			e.preventDefault();
+
+			const selectionStart = input[0].selectionStart;
+			const selectionEnd = input[0].selectionEnd;
+
+			if (key === "Enter") {
+				// lose focus when they press enter
+				input.blur();
+			} else {
+				if (key === "Backspace" || key === "Delete") {
+					// delete individual lambda
+					const str = input.val();
+					const chunkLength = transition.delimeter.length + 1;
+					if (selectionStart === selectionEnd) {
+						let startAdjusted;
+						if (key === "Backspace") {
+							startAdjusted = chunkLength * Math.floor((selectionStart - 1) / chunkLength);
+						} else if (key === "Delete") {
+							startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
+						}
+						const char = str.substring(startAdjusted, startAdjusted + 1);
+						if (char !== "") {
+							if (char === lambdaChar) {
+								transition.removeLabel("");
+							} else {
+								transition.removeLabel(char);
+							}
+						}
+					} else {
+						// delete text ranges
+						const startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
+						const endAdjusted = chunkLength * Math.floor((selectionEnd - 1) / chunkLength) + 1;
+						const adjustedSelection = str.substring(startAdjusted, endAdjusted);
+						const chars = adjustedSelection.split(transition.delimeter);
+						for (const c of chars) {
+							if (c !== "") {
+								if (c === lambdaChar) {
+									transition.removeLabel("");
+								} else {
+									transition.removeLabel(c);
+								}
+							}
+						}
+					}
+				} else if (key.length === 1) {
+					// add labels
+					if (key === ",") {
+						transition.addLabel("");
+					} else {
+						transition.addLabel(key);
+					}
+				}
+				this.automaton.drawAllTransitions(this.canvas);
+				if (input.val().length > 0) {
+					transition.addDelimeterToInput();
+				}
 			}
 		});
 	}

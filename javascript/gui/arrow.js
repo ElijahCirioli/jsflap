@@ -78,7 +78,7 @@ class Arrow {
 
 		// return a point above the apex of the curve
 		const orthogonalAngle = Math.atan2(end.y - start.y, end.x - start.x) + Math.PI / 2;
-		const labelOffset = start.x > end.x ? 18 : -2;
+		const labelOffset = start.x > end.x ? 17 : -3;
 		return new Point(
 			(control1.x + control2.x) / 2 + Math.cos(orthogonalAngle) * labelOffset,
 			(control1.y + control2.y) / 2 + Math.sin(orthogonalAngle) * labelOffset
@@ -109,8 +109,8 @@ class Arrow {
 		this.drawArrowTip(context, end, tipAngle, color);
 
 		// return a point above the apex of the curve
-		const labelOffset = 12;
-		const labelOffsetX = 1;
+		const labelOffset = 10;
+		const labelOffsetX = 2;
 		return new Point(center.x + labelOffsetX, start.y - height - labelOffset);
 	}
 }

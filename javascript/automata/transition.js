@@ -6,7 +6,8 @@ class Transition {
 		this.color = "#2c304d";
 		this.preview = false;
 		this.id = fromState.getId() + "-" + toState.getId();
-		if (label) {
+		this.delimeter = ", ";
+		if (label !== undefined) {
 			this.labels.add(label);
 		}
 	}
@@ -54,6 +55,14 @@ class Transition {
 		this.element.attr("name", this.id);
 	}
 
+	getElement() {
+		return this.element;
+	}
+
+	focusElement() {
+		this.element.children(".label-input").focus();
+	}
+
 	draw(context) {
 		let labelPoint;
 		if (this.to === this.from) {
@@ -75,22 +84,54 @@ class Transition {
 		}
 
 		if (this.element) {
-			this.moveLabel(labelPoint);
+			this.drawLabel(labelPoint);
 		}
 	}
 
-	moveLabel(pos) {
+	addDelimeterToInput() {
+		let str = this.element.children(".label-input").val();
+		str += this.delimeter;
+		this.element.children(".label-input").val(str);
+	}
+
+	generateLabelText() {
+		let str = "";
+		this.labels.forEach((char) => {
+			if (char === "") {
+				str += lambdaChar + this.delimeter;
+			} else {
+				str += char + this.delimeter;
+			}
+		});
+		str = str.substring(0, str.length - this.delimeter.length).trim();
+		this.element.children(".label-input").val(str);
+	}
+
+	adjustLabeSize() {
+		const text = this.element.children(".label-input").val();
+		const sensor = $(`<p class="width-sensor">${text}</p>`);
+		this.element.append(sensor);
+		const width = Math.round(sensor.width()) + 14;
+		this.element.children(".label-input").width(width);
+		sensor.remove();
+	}
+
+	drawLabel(pos) {
+		console.log(this.labels);
+
+		this.generateLabelText();
+		this.adjustLabeSize();
+
 		const fromPos = this.from.getPos();
 		const toPos = this.to.getPos();
-		const width = this.element.width();
-		const height = this.element.width();
+		const width = this.element.outerWidth();
 
 		let angle = Math.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x);
 		if (fromPos.x > toPos.x) {
 			angle += Math.PI;
 		}
 
-		const top = pos.y - (Math.sin(angle) * height) / 2;
+		const top = pos.y - (Math.sin(angle) * width) / 2;
 		const left = pos.x - (Math.cos(angle) * width) / 2;
 
 		this.element.css("left", left + "px");

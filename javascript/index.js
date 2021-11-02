@@ -1,5 +1,6 @@
 let environments = [];
 let activeEnvironment = undefined;
+let lambdaChar = "\u03BB";
 
 let controlKey = false;
 let shiftKey = false;
@@ -61,7 +62,6 @@ $("document").ready(() => {
 
 	document.onkeyup = (e) => {
 		e = window.event || e;
-		e.preventDefault();
 
 		if (e.code === "ControlLeft" || e.code === "ControlRight") {
 			controlKey = false;

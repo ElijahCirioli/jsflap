@@ -50,6 +50,10 @@ class Automaton {
 		state.clearTransitions();
 	}
 
+	removeTransitionBetweenStates(transition) {
+		transition.getFromState().removeTransition(transition.getToState());
+	}
+
 	getTransitionsBetweenStates(fromState, toState) {
 		return fromState.getTransitionsToState(toState);
 	}
