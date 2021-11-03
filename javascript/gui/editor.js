@@ -26,10 +26,13 @@ class Editor {
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas);
 		const stateElements = this.statesWrap.children(".state");
+		const labelElements = this.labelsWrap.children(".label-form");
+		labelElements.css("pointer-events", "all");
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
 		} else if (this.tool === "state") {
 			stateElements.css("cursor", "pointer");
+			labelElements.css("pointer-events", "none");
 			this.unselectAllStates();
 			this.createPreviewState();
 		} else if (this.tool === "transition") {
@@ -135,10 +138,14 @@ class Editor {
 			this.labelsWrap.append(labelElement);
 			const t = this.automaton.addTransition(this.startState, endState, "", labelElement);
 			this.setupLabelListeners(labelElement, t);
+			t.focusElement();
+			t.selectLabelText();
+		} else {
+			const t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
+			t.focusElement();
 		}
-		const t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
+
 		this.startState = undefined;
-		t.focusElement();
 	}
 
 	stopDrag() {
@@ -329,11 +336,7 @@ class Editor {
 		});
 
 		input.on("focusin", (e) => {
-			console.log("focusin");
 			this.automaton.drawAllTransitions(this.canvas);
-			if (input.val().length > 0) {
-				transition.addDelimeterToInput();
-			}
 		});
 
 		label.on("keydown", (e) => {
@@ -341,18 +344,48 @@ class Editor {
 			const key = e.key;
 			e.preventDefault();
 
+			const str = input.val();
 			const selectionStart = input[0].selectionStart;
 			const selectionEnd = input[0].selectionEnd;
+			const chunkLength = transition.delimeter.length + 1;
 
 			if (key === "Enter") {
 				// lose focus when they press enter
 				input.blur();
 			} else {
-				if (key === "Backspace" || key === "Delete") {
-					// delete individual lambda
-					const str = input.val();
-					const chunkLength = transition.delimeter.length + 1;
-					if (selectionStart === selectionEnd) {
+				let newCursorPos = selectionStart;
+
+				if (selectionStart !== selectionEnd) {
+					if (key === "Backspace" || key === "Delete" || key.length === 1) {
+						// delete multiple labels
+						const startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
+						const endAdjusted = chunkLength * Math.floor((selectionEnd - 1) / chunkLength) + 1;
+						const adjustedSelection = str.substring(startAdjusted, endAdjusted);
+						const chars = adjustedSelection.split(transition.delimeter);
+						for (const c of chars) {
+							if (c !== "") {
+								if (c === lambdaChar) {
+									transition.removeLabel("");
+								} else {
+									transition.removeLabel(c);
+								}
+							}
+						}
+						newCursorPos = startAdjusted - transition.delimeter.length;
+
+						if (key.length === 1) {
+							// add labels
+							if (key === ",") {
+								transition.addLabel("");
+							} else {
+								transition.addLabel(key);
+							}
+							newCursorPos = chunkLength * 1000;
+						}
+					}
+				} else {
+					if (key === "Backspace" || key === "Delete") {
+						// delete individual label
 						let startAdjusted;
 						if (key === "Backspace") {
 							startAdjusted = chunkLength * Math.floor((selectionStart - 1) / chunkLength);
@@ -367,34 +400,23 @@ class Editor {
 								transition.removeLabel(char);
 							}
 						}
-					} else {
-						// delete text ranges
-						const startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
-						const endAdjusted = chunkLength * Math.floor((selectionEnd - 1) / chunkLength) + 1;
-						const adjustedSelection = str.substring(startAdjusted, endAdjusted);
-						const chars = adjustedSelection.split(transition.delimeter);
-						for (const c of chars) {
-							if (c !== "") {
-								if (c === lambdaChar) {
-									transition.removeLabel("");
-								} else {
-									transition.removeLabel(c);
-								}
-							}
+						newCursorPos = startAdjusted - transition.delimeter.length;
+					} else if (key === "ArrowRight") {
+						newCursorPos = chunkLength * Math.ceil(selectionStart / chunkLength) + 1;
+					} else if (key === "ArrowLeft") {
+						newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 1);
+					} else if (key.length === 1) {
+						// add labels
+						if (key === ",") {
+							transition.addLabel("");
+						} else {
+							transition.addLabel(key);
 						}
-					}
-				} else if (key.length === 1) {
-					// add labels
-					if (key === ",") {
-						transition.addLabel("");
-					} else {
-						transition.addLabel(key);
+						newCursorPos = chunkLength * 1000;
 					}
 				}
 				this.automaton.drawAllTransitions(this.canvas);
-				if (input.val().length > 0) {
-					transition.addDelimeterToInput();
-				}
+				input[0].setSelectionRange(newCursorPos, newCursorPos);
 			}
 		});
 	}

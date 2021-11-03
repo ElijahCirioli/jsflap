@@ -135,6 +135,10 @@
 .editor:hover .preview-state {
 	display: block;
 }
+.final-state {
+	outline: 1px solid var(--regular-color);
+	outline-offset: -5px;
+}
 .label-form {
 	cursor: text;
 	pointer-events: all;
@@ -161,6 +165,7 @@
 	-webkit-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	-moz-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	box-shadow: 0px 0px 6px 2px var(--glow-color);
+	z-index: 20;
 }
 .label-input:hover {
 	background-color: rgba(150, 150, 150, 0.5);

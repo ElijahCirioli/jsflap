@@ -61,6 +61,7 @@ class Transition {
 
 	focusElement() {
 		this.element.children(".label-input").focus();
+		this.element.children(".label-input")[0].setSelectionRange(9999, 9999);
 	}
 
 	draw(context) {
@@ -88,10 +89,10 @@ class Transition {
 		}
 	}
 
-	addDelimeterToInput() {
-		let str = this.element.children(".label-input").val();
-		str += this.delimeter;
-		this.element.children(".label-input").val(str);
+	selectLabelText() {
+		const input = this.element.children(".label-input");
+		const str = input.val();
+		input[0].setSelectionRange(0, str.length);
 	}
 
 	generateLabelText() {
