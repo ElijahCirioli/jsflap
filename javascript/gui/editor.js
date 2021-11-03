@@ -70,10 +70,11 @@ class Editor {
 	}
 
 	createState(pos) {
+		const firstState = this.automaton.getStates().size === 0;
 		const name = this.automaton.getNextName();
 		const element = $(`<div class="state"><p class="state-name">${name}</p></div>`);
 		this.statesWrap.append(element);
-		this.automaton.addState(pos, name, element);
+		this.automaton.addState(pos, name, element, firstState);
 		this.setupStateListeners(element);
 		this.draw();
 	}
@@ -121,7 +122,7 @@ class Editor {
 		this.automaton.drawAllTransitions(this.canvas);
 		const context = this.canvas.getContext("2d");
 		const previewColor = "rgba(139, 138, 150, 0.5)";
-		Arrow.drawArrow(context, this.startState.pos, pos, this.startState.pos, pos, previewColor);
+		Arrow.drawArrow(context, this.startState.getPos(), pos, this.startState.getPos(), pos, previewColor);
 	}
 
 	startTransition(element) {
@@ -177,6 +178,40 @@ class Editor {
 		this.selectedStates.clear();
 	}
 
+	createRightClickMenu(state, pos) {
+		this.labelsWrap.children(".right-click-menu").remove();
+		const menu = $(`
+		<div class="right-click-menu">
+			<button class="menu-child-item" id="make-final-button">Final</button>
+			<button class="menu-child-item" id="make-initial-button">Initial</button>
+			<button class="menu-child-item" id="rename-button">Rename</button>
+		</div>`);
+		menu.css("top", pos.y + "px");
+		menu.css("left", pos.x + "px");
+		this.labelsWrap.append(menu);
+
+		menu.children("#make-final-button").click((e) => {
+			e.stopPropagation();
+			const newFinalStatus = !state.isFinal();
+			if (newFinalStatus) {
+				// make selected states final
+				this.selectedStates.forEach((s) => {
+					this.automaton.addFinalState(s);
+				});
+			} else {
+				// make selected states not final
+				this.selectedStates.forEach((s) => {
+					this.automaton.removeFinalState(s);
+				});
+			}
+		});
+
+		menu.children("#make-initial-button").click((e) => {
+			e.stopPropagation();
+			this.automaton.setInitialState(state);
+		});
+	}
+
 	setupListeners() {
 		// resize window
 		$(window).resize((e) => {
@@ -190,6 +225,8 @@ class Editor {
 			const xPos = Math.round(e.clientX - offset.left);
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
+
+			this.labelsWrap.children(".right-click-menu").remove();
 
 			if (this.tool === "point") {
 				if (!controlKey && !shiftKey) {
@@ -277,6 +314,8 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
+			this.labelsWrap.children(".right-click-menu").remove();
+
 			if (this.tool === "point") {
 				if (controlKey || shiftKey) {
 					if (this.selectedStates.has(stateObj)) {
@@ -319,6 +358,19 @@ class Editor {
 				e.stopPropagation();
 			}
 		});
+
+		// right click on state
+		state.on("contextmenu", (e) => {
+			e.preventDefault();
+
+			const offset = $(this.editorWrap).offset();
+			const xPos = Math.round(e.clientX - offset.left);
+			const yPos = Math.round(e.clientY - offset.top);
+			const pos = new Point(xPos, yPos);
+
+			this.selectState(stateObj);
+			this.createRightClickMenu(stateObj, pos);
+		});
 	}
 
 	setupLabelListeners(label, transition) {
@@ -333,6 +385,7 @@ class Editor {
 				this.automaton.removeTransitionBetweenStates(transition);
 			}
 			this.automaton.drawAllTransitions(this.canvas);
+			input[0].setSelectionRange(0, 0);
 		});
 
 		input.on("focusin", (e) => {

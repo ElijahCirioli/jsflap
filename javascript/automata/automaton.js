@@ -2,7 +2,7 @@ class Automaton {
 	constructor() {
 		this.states = new Map();
 		this.finalStates = new Set();
-		this.final;
+		this.initialState = undefined;
 	}
 
 	getStates() {
@@ -13,16 +13,23 @@ class Automaton {
 		return this.states.get(id);
 	}
 
-	addState(pos, name, element) {
+	addState(pos, name, element, initial) {
 		const id = this.getNextId();
 		const state = new State(pos, id, name, element);
 		this.states.set(id, state);
+		if (initial) {
+			this.setInitialState(state);
+		}
 	}
 
 	removeState(state) {
+		if (this.initialState === state) {
+			this.initialState = undefined;
+		}
 		this.removeTransitionsToState(state);
 		this.removeTransitionsFromState(state);
-		this.states.delete(state.id);
+		this.finalStates.delete(state);
+		this.states.delete(state.getId());
 		state.getElement().remove();
 	}
 
@@ -60,6 +67,31 @@ class Automaton {
 
 	hasTransitionBetweenStates(fromState, toState) {
 		return fromState.hasTransitionToState(toState);
+	}
+
+	setInitialState(state) {
+		if (this.initialState) {
+			this.initialState.setInitial(false);
+		}
+		state.setInitial(true);
+		this.initialState = state;
+	}
+
+	addFinalState(state) {
+		this.finalStates.add(state);
+		state.setFinal(true);
+	}
+
+	removeFinalState(state) {
+		this.finalStates.delete(state);
+		state.setFinal(false);
+	}
+
+	removeAllFinalStates() {
+		this.finalStates.forEach((s) => {
+			s.setFinal(false);
+		});
+		this.finalStates = new Set();
 	}
 
 	drawAllStates() {

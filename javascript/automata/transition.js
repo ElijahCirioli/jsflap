@@ -68,20 +68,20 @@ class Transition {
 		let labelPoint;
 		if (this.to === this.from) {
 			// self loop
-			const abovePoint = this.from.pos.clone();
+			const abovePoint = this.from.getPos().clone();
 			abovePoint.subtract(new Point(0, 100));
 			const startPos = this.from.radiusPoint(abovePoint, -Math.PI / 5, -1);
 			const endPos = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
-			labelPoint = Arrow.drawSelfArrow(context, startPos, endPos, this.from.pos, this.color);
+			labelPoint = Arrow.drawSelfArrow(context, startPos, endPos, this.from.getPos(), this.color);
 		} else if (this.to.hasTransitionToState(this.from)) {
 			// matched inverse transitions
-			const startPos = this.from.radiusPoint(this.to.pos, Math.PI / 4, -1);
-			const endPos = this.to.radiusPoint(this.from.pos, -Math.PI / 4, 0);
+			const startPos = this.from.radiusPoint(this.to.getPos(), Math.PI / 4, -1);
+			const endPos = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
 			labelPoint = Arrow.drawCurvedArrow(context, startPos, endPos, this.color);
 		} else {
 			// normal straight arrow
-			const endPos = this.to.radiusPoint(this.from.pos, 0, 0);
-			labelPoint = Arrow.drawArrow(context, this.from.pos, endPos, this.from.pos, this.to.pos, this.color);
+			const endPos = this.to.radiusPoint(this.from.getPos(), 0, 0);
+			labelPoint = Arrow.drawArrow(context, this.from.getPos(), endPos, this.from.getPos(), this.to.getPos(), this.color);
 		}
 
 		if (this.element) {
@@ -112,14 +112,13 @@ class Transition {
 		const text = this.element.children(".label-input").val();
 		const sensor = $(`<p class="width-sensor">${text}</p>`);
 		this.element.append(sensor);
-		const width = Math.round(sensor.width()) + 14;
-		this.element.children(".label-input").width(width);
+		const textWidth = Math.round(sensor.width()) + 14;
+		const distance = this.from.getPos().distance(this.to.getPos());
+		this.element.children(".label-input").width(textWidth);
 		sensor.remove();
 	}
 
 	drawLabel(pos) {
-		console.log(this.labels);
-
 		this.generateLabelText();
 		this.adjustLabeSize();
 

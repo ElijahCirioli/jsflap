@@ -4,8 +4,8 @@ class State {
 		this.id = id;
 		this.name = name;
 		this.element = element;
-		this.isFinal = false;
-		this.isInitial = false;
+		this.final = false;
+		this.initial = false;
 		this.radius = 26;
 		this.transitions = new Map();
 		element.attr("id", id);
@@ -28,19 +28,38 @@ class State {
 	}
 
 	isFinal() {
-		return this.isFinal;
+		return this.final;
 	}
 
 	setFinal(final) {
-		this.isFinal = final;
+		this.final = final;
+		if (final) {
+			this.element.addClass("final-state");
+		} else {
+			this.element.removeClass("final-state");
+		}
 	}
 
 	isInitial() {
-		return this.isInitial;
+		return this.initial;
 	}
 
 	setInitial(initial) {
-		this.isInitial = initial;
+		this.initial = initial;
+		if (initial) {
+			const scale = this.radius * 0.8;
+			const p1 = new Point(0, 0);
+			const p2 = new Point(0, 2 * scale);
+			const p3 = new Point(scale, scale);
+			const indicator = $(`
+			<svg class="initial-state" width="${scale}" height="${2 * scale}">
+				<polygon points="${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}"/>
+			</svg>`);
+			indicator.css("top", this.radius - 1 - scale);
+			this.element.append(indicator);
+		} else {
+			this.element.children(".initial-state").remove();
+		}
 	}
 
 	getPos() {
@@ -116,7 +135,7 @@ class State {
 
 	draw() {
 		const elementPos = new Point(this.pos.x - this.radius, this.pos.y - this.radius);
-		this.element.css("top", elementPos.y + "px");
-		this.element.css("left", elementPos.x + "px");
+		this.element.css("top", elementPos.y);
+		this.element.css("left", elementPos.x);
 	}
 }
