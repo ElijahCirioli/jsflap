@@ -35,14 +35,17 @@ class Editor {
 		labelElements.children(".label-input").css("cursor", "text");
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
+			this.unselectAllTransitions();
 		} else if (this.tool === "state") {
 			stateElements.css("cursor", "pointer");
 			labelElements.css("pointer-events", "none");
 			this.unselectAllStates();
+			this.unselectAllTransitions();
 			this.createPreviewState();
 		} else if (this.tool === "transition") {
 			stateElements.css("cursor", "crosshair");
 			this.unselectAllStates();
+			this.unselectAllTransitions();
 		} else if (this.tool === "trash") {
 			stateElements.css("cursor", "pointer");
 			labelElements.children(".label-input").css("cursor", "pointer");
@@ -316,13 +319,7 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			this.labelsWrap.children(".right-click-menu").remove();
-
-			if (this.tool === "point") {
-				if (!controlKey && !shiftKey) {
-					this.unselectAllStates();
-					this.unselectAllTransitions();
-				}
-			} else if (this.tool === "state") {
+			if (this.tool === "state") {
 				this.createState(pos);
 			}
 		});
@@ -376,8 +373,18 @@ class Editor {
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
+
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+					this.unselectAllTransitions();
+				}
 			} else if (this.tool === "point") {
 				this.removeSelectionBox();
+
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+					this.unselectAllTransitions();
+				}
 			}
 		});
 
@@ -526,7 +533,14 @@ class Editor {
 					this.selectTransition(transition);
 				}
 			} else if (this.tool === "trash") {
-				this.automaton.removeTransition(transition);
+				if (this.selectedTransitions.has(transition)) {
+					this.selectedTransitions.forEach((t) => {
+						this.automaton.removeTransition(t);
+					});
+				} else {
+					this.automaton.removeTransition(transition);
+				}
+				this.unselectAllTransitions();
 				this.automaton.drawAllTransitions(this.canvas);
 				this.triggerTest();
 			}
@@ -558,21 +572,20 @@ class Editor {
 			const str = input.val();
 			const selectionStart = input[0].selectionStart;
 			const selectionEnd = input[0].selectionEnd;
-			const chunkLength = transition.delimeter.length + 1;
+			const chunkLength = transition.getDelimeter().length + 1;
 
 			if (key === "Enter") {
 				// lose focus when they press enter
 				input.blur();
 			} else {
 				let newCursorPos = selectionStart;
-
 				if (selectionStart !== selectionEnd) {
 					if (key === "Backspace" || key === "Delete" || key.length === 1) {
 						// delete multiple labels
 						const startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
 						const endAdjusted = chunkLength * Math.floor((selectionEnd - 1) / chunkLength) + 1;
 						const adjustedSelection = str.substring(startAdjusted, endAdjusted);
-						const chars = adjustedSelection.split(transition.delimeter);
+						const chars = adjustedSelection.split(transition.getDelimeter());
 						for (const c of chars) {
 							if (c !== "") {
 								if (c === lambdaChar) {
@@ -582,19 +595,7 @@ class Editor {
 								}
 							}
 						}
-						newCursorPos = startAdjusted - transition.delimeter.length;
-
-						if (key.length === 1) {
-							// add labels
-							this.selectedTransitions.forEach((t) => {
-								if (key === ",") {
-									t.addLabel("");
-								} else {
-									t.addLabel(key);
-								}
-							});
-							newCursorPos = chunkLength * 1000;
-						}
+						newCursorPos = startAdjusted - transition.getDelimeter().length;
 					}
 				} else {
 					if (key === "Backspace" || key === "Delete") {
@@ -613,27 +614,31 @@ class Editor {
 								transition.removeLabel(char);
 							}
 						}
-						newCursorPos = startAdjusted - transition.delimeter.length;
-					} else if (key === "ArrowRight") {
-						newCursorPos = chunkLength * Math.ceil(selectionStart / chunkLength) + 1;
-					} else if (key === "ArrowLeft") {
-						newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 1);
-					} else if (key.length === 1) {
-						// add labels
-						this.selectedTransitions.forEach((t) => {
-							if (key === ",") {
-								t.addLabel("");
-							} else {
-								t.addLabel(key);
-							}
-						});
-						newCursorPos = chunkLength * 1000;
+						newCursorPos = startAdjusted - transition.getDelimeter().length;
 					}
 				}
-				this.automaton.drawAllTransitions(this.canvas);
+
+				if (key === "ArrowRight") {
+					newCursorPos = chunkLength * Math.ceil(selectionEnd / chunkLength) + 1;
+				} else if (key === "ArrowLeft") {
+					newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 0);
+				}
+				if (key.length === 1) {
+					// add labels
+					this.selectedTransitions.forEach((t) => {
+						if (key === ",") {
+							t.addLabel("");
+						} else {
+							t.addLabel(key);
+						}
+					});
+					newCursorPos = chunkLength * 1000;
+				}
+
 				input[0].setSelectionRange(newCursorPos, newCursorPos);
+				this.automaton.drawAllTransitions(this.canvas);
+				this.triggerTest();
 			}
-			this.triggerTest();
 		});
 	}
 }

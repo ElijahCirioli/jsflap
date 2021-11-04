@@ -184,7 +184,6 @@
 .small-text-label {
 	font-size: 0.75rem;
 	height: 0.9rem;
-	transition: width 0.15s;
 }
 .width-sensor {
 	font-family: "Rubik", sans-serif;

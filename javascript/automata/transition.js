@@ -24,6 +24,10 @@ class Transition {
 		return this.id;
 	}
 
+	getDelimeter() {
+		return this.delimeter;
+	}
+
 	getLabels() {
 		return this.labels;
 	}
@@ -112,7 +116,7 @@ class Transition {
 				str += char + this.delimeter;
 			}
 		});
-		str = str.substring(0, str.length - this.delimeter.length).trim();
+		str = str.substring(0, str.length - this.delimeter.length);
 		this.element.children(".label-input").val(str);
 	}
 
