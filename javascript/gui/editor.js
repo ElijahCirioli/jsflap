@@ -4,7 +4,9 @@ class Editor {
 		this.triggerTest = callback;
 		this.tool = "point";
 		this.startState = undefined;
+		this.selectionBoxPoint = undefined;
 		this.selectedStates = new Set();
+		this.selectedTransitions = new Set();
 		this.automaton = new Automaton();
 
 		this.editorWrap = this.parent.children(".editor");
@@ -24,11 +26,13 @@ class Editor {
 
 		this.statesWrap.children(".preview-state").remove();
 		this.startState = undefined;
+		this.removeSelectionBox();
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas);
 		const stateElements = this.statesWrap.children(".state");
 		const labelElements = this.labelsWrap.children(".label-form");
 		labelElements.css("pointer-events", "all");
+		labelElements.children(".label-input").css("cursor", "text");
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
 		} else if (this.tool === "state") {
@@ -41,6 +45,8 @@ class Editor {
 			this.unselectAllStates();
 		} else if (this.tool === "trash") {
 			stateElements.css("cursor", "pointer");
+			labelElements.children(".label-input").css("cursor", "pointer");
+		} else if (this.tool === "chain") {
 		}
 	}
 
@@ -130,12 +136,14 @@ class Editor {
 	startTransition(element) {
 		const id = element.attr("id");
 		this.startState = this.automaton.getStateById(id);
+		this.labelsWrap.children(".label-form").css("pointer-events", "none");
 	}
 
 	endTransition(element) {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
 
+		this.labelsWrap.children(".label-form").css("pointer-events", "all");
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
 			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`);
 			this.labelsWrap.append(labelElement);
@@ -143,9 +151,12 @@ class Editor {
 			this.setupLabelListeners(labelElement, t);
 			t.focusElement();
 			t.selectLabelText();
+			this.unselectAllTransitions();
+			this.selectTransition(t);
 		} else {
 			const t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
 			t.focusElement();
+			this.selectTransition(t);
 		}
 
 		this.triggerTest();
@@ -179,6 +190,60 @@ class Editor {
 	unselectAllStates() {
 		this.statesWrap.children(".state").removeClass("selected");
 		this.selectedStates.clear();
+	}
+
+	selectTransition(transition) {
+		transition.getElement().children(".label-input").addClass("selected-label");
+		this.selectedTransitions.add(transition);
+	}
+
+	unselectTransition(transition) {
+		transition.getElement().children(".label-input").removeClass("selected-label");
+		this.selectedTransitions.delete(transition);
+	}
+
+	unselectAllTransitions() {
+		this.labelsWrap.children(".label-form").children(".label-input").removeClass("selected-label");
+		this.selectedTransitions.clear();
+	}
+
+	startSelectionBox(pos) {
+		this.labelsWrap.children(".selection-box").remove();
+		this.selectionBoxPoint = pos;
+		const selectionBox = $(`<div class="selection-box"></div>`);
+		selectionBox.css("top", pos.y);
+		selectionBox.css("left", pos.x);
+		this.labelsWrap.append(selectionBox);
+	}
+
+	moveSelectionBox(pos) {
+		if (!this.selectionBoxPoint) {
+			return;
+		}
+		// draw the box
+		const selectionBox = this.labelsWrap.children(".selection-box");
+		if (pos.x > this.selectionBoxPoint.x) {
+			selectionBox.css("left", this.selectionBoxPoint.x);
+			selectionBox.css("width", pos.x - this.selectionBoxPoint.x);
+		} else {
+			selectionBox.css("left", pos.x);
+			selectionBox.css("width", this.selectionBoxPoint.x - pos.x);
+		}
+
+		if (pos.y > this.selectionBoxPoint.y) {
+			selectionBox.css("top", this.selectionBoxPoint.y);
+			selectionBox.css("height", pos.y - this.selectionBoxPoint.y);
+		} else {
+			selectionBox.css("top", pos.y);
+			selectionBox.css("height", this.selectionBoxPoint.y - pos.y);
+		}
+
+		// calculate intersections
+	}
+
+	removeSelectionBox() {
+		this.labelsWrap.children(".selection-box").remove();
+		this.selectionBoxPoint = undefined;
 	}
 
 	createRightClickMenu(state, pos) {
@@ -255,6 +320,7 @@ class Editor {
 			if (this.tool === "point") {
 				if (!controlKey && !shiftKey) {
 					this.unselectAllStates();
+					this.unselectAllTransitions();
 				}
 			} else if (this.tool === "state") {
 				this.createState(pos);
@@ -269,18 +335,35 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
-			if (this.tool === "point" && this.clicked && this.lastMousePos) {
-				// drag selected states
-				const stateOffset = new Point(pos.x - this.lastMousePos.x, pos.y - this.lastMousePos.y);
-				this.selectedStates.forEach((s) => {
-					s.getPos().add(stateOffset);
-				});
-				this.lastMousePos = pos;
-				this.draw();
+			if (this.tool === "point") {
+				if (this.clicked && this.lastMousePos) {
+					// drag selected states
+					const stateOffset = new Point(pos.x - this.lastMousePos.x, pos.y - this.lastMousePos.y);
+					this.selectedStates.forEach((s) => {
+						s.getPos().add(stateOffset);
+					});
+					this.lastMousePos = pos;
+					this.draw();
+				} else if (this.selectionBoxPoint) {
+					this.moveSelectionBox(pos);
+				}
 			} else if (this.tool === "state") {
 				this.movePreviewState(pos);
 			} else if (this.tool === "transition" && this.startState) {
 				this.statelessPreviewTransition(pos);
+			}
+		});
+
+		// put mouse down on editor
+		this.editorWrap.on("mousedown", (e) => {
+			e.stopPropagation();
+			const offset = $(this.editorWrap).offset();
+			const xPos = Math.round(e.clientX - offset.left);
+			const yPos = Math.round(e.clientY - offset.top);
+			const pos = new Point(xPos, yPos);
+
+			if (this.tool === "point") {
+				this.startSelectionBox(pos);
 			}
 		});
 
@@ -291,7 +374,10 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
+				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
+			} else if (this.tool === "point") {
+				this.removeSelectionBox();
 			}
 		});
 
@@ -302,7 +388,10 @@ class Editor {
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
+				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
+			} else if (this.tool === "point") {
+				this.removeSelectionBox();
 			}
 		});
 
@@ -415,13 +504,42 @@ class Editor {
 	setupLabelListeners(label, transition) {
 		const input = label.children(".label-input");
 
+		label.click((e) => {
+			e.stopPropagation();
+
+			if (this.tool === "point" || this.tool === "transition") {
+				if (controlKey || shiftKey) {
+					if (this.selectedTransitions.has(transition)) {
+						this.unselectTransition(transition);
+						input.blur();
+						if (this.selectedTransitions.size > 0) {
+							const first = this.selectedTransitions.values().next().value;
+							first.focusElement();
+						}
+					} else {
+						this.selectTransition(transition);
+					}
+				} else {
+					if (!this.selectedTransitions.has(transition)) {
+						this.unselectAllTransitions();
+					}
+					this.selectTransition(transition);
+				}
+			} else if (this.tool === "trash") {
+				this.automaton.removeTransition(transition);
+				this.automaton.drawAllTransitions(this.canvas);
+				this.triggerTest();
+			}
+		});
+
 		label.on("mouseup", (e) => {
+			this.removeSelectionBox();
 			e.stopPropagation();
 		});
 
 		input.on("focusout", (e) => {
 			if (transition.labels.size === 0) {
-				this.automaton.removeTransitionBetweenStates(transition);
+				this.automaton.removeTransition(transition);
 			}
 			this.automaton.drawAllTransitions(this.canvas);
 			this.triggerTest();
@@ -468,11 +586,13 @@ class Editor {
 
 						if (key.length === 1) {
 							// add labels
-							if (key === ",") {
-								transition.addLabel("");
-							} else {
-								transition.addLabel(key);
-							}
+							this.selectedTransitions.forEach((t) => {
+								if (key === ",") {
+									t.addLabel("");
+								} else {
+									t.addLabel(key);
+								}
+							});
 							newCursorPos = chunkLength * 1000;
 						}
 					}
@@ -500,11 +620,13 @@ class Editor {
 						newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 1);
 					} else if (key.length === 1) {
 						// add labels
-						if (key === ",") {
-							transition.addLabel("");
-						} else {
-							transition.addLabel(key);
-						}
+						this.selectedTransitions.forEach((t) => {
+							if (key === ",") {
+								t.addLabel("");
+							} else {
+								t.addLabel(key);
+							}
+						});
 						newCursorPos = chunkLength * 1000;
 					}
 				}

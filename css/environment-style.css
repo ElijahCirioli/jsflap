@@ -166,6 +166,7 @@
 	background-color: transparent;
 	border: 1px solid transparent;
 	border-radius: 0;
+	outline: none;
 	transition: background-color 0.1s, font-size 0.2s;
 }
 .label-input:focus {
@@ -183,6 +184,7 @@
 .small-text-label {
 	font-size: 0.75rem;
 	height: 0.9rem;
+	transition: width 0.15s;
 }
 .width-sensor {
 	font-family: "Rubik", sans-serif;
@@ -192,6 +194,17 @@
 	position: absolute;
 	visibility: hidden;
 	width: fit-content;
+	pointer-events: none;
+}
+.small-width-sensor {
+	font-family: "Rubik", sans-serif;
+	font-size: 0.75rem;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	visibility: hidden;
+	width: fit-content;
+	pointer-events: none;
 }
 .right-click-menu {
 	position: absolute;
@@ -312,4 +325,17 @@
 .rejected {
 	color: #f04d41;
 	font-size: 18px;
+}
+.selection-box {
+	position: absolute;
+	z-index: 20;
+	background-color: rgba(80, 125, 199, 0.4);
+	outline: 2px solid rgba(80, 125, 199, 0.8);
+}
+.selected-label {
+	background-color: rgba(150, 150, 150, 0.5);
+	border: 1px solid var(--regular-color);
+	-webkit-box-shadow: 0px 0px 6px 2px var(--glow-color);
+	-moz-box-shadow: 0px 0px 6px 2px var(--glow-color);
+	box-shadow: 0px 0px 6px 2px var(--glow-color);
 }
