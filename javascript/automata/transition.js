@@ -20,6 +20,10 @@ class Transition {
 		return this.from;
 	}
 
+	getId() {
+		return this.id;
+	}
+
 	getLabels() {
 		return this.labels;
 	}
@@ -30,6 +34,10 @@ class Transition {
 
 	removeLabel(label) {
 		this.labels.delete(label);
+	}
+
+	hasLabel(label) {
+		return this.labels.has(label);
 	}
 
 	setColor(newColor) {
@@ -109,11 +117,17 @@ class Transition {
 	}
 
 	adjustLabeSize() {
-		const text = this.element.children(".label-input").val();
-		const sensor = $(`<p class="width-sensor">${text}</p>`);
+		const label = this.element.children(".label-input");
+		label.removeClass("small-text-label");
+		const sensor = $(`<p class="width-sensor">${label.val()}</p>`);
 		this.element.append(sensor);
-		const textWidth = Math.round(sensor.width()) + 14;
-		const distance = this.from.getPos().distance(this.to.getPos());
+		let textWidth = Math.round(sensor.width()) + 14;
+		const distance = this.from.getPos().distance(this.to.getPos()) - 45;
+		if (this.from !== this.to && textWidth > distance) {
+			label.addClass("small-text-label");
+			sensor.addClass("small-text-label");
+			textWidth = Math.round(sensor.width()) + 5;
+		}
 		this.element.children(".label-input").width(textWidth);
 		sensor.remove();
 	}

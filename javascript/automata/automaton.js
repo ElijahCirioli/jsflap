@@ -1,7 +1,6 @@
 class Automaton {
 	constructor() {
 		this.states = new Map();
-		this.finalStates = new Set();
 		this.initialState = undefined;
 	}
 
@@ -28,7 +27,6 @@ class Automaton {
 		}
 		this.removeTransitionsToState(state);
 		this.removeTransitionsFromState(state);
-		this.finalStates.delete(state);
 		this.states.delete(state.getId());
 		state.getElement().remove();
 	}
@@ -77,21 +75,67 @@ class Automaton {
 		this.initialState = state;
 	}
 
+	removeInitialState() {
+		if (this.initialState) {
+			this.initialState.setInitial(false);
+		}
+		this.initialState = undefined;
+	}
+
 	addFinalState(state) {
-		this.finalStates.add(state);
 		state.setFinal(true);
 	}
 
 	removeFinalState(state) {
-		this.finalStates.delete(state);
 		state.setFinal(false);
 	}
 
 	removeAllFinalStates() {
-		this.finalStates.forEach((s) => {
+		this.states.forEach((s) => {
 			s.setFinal(false);
 		});
-		this.finalStates = new Set();
+	}
+
+	languageContains(word) {
+		if (!this.initialState) {
+			return false;
+		}
+		this.lambdaTransitions = new Set();
+		return this.parseRec(word, this.initialState);
+	}
+
+	parseRec(partialWord, state) {
+		const transitions = state.getTransitions();
+		for (const wrappedTransition of transitions) {
+			const t = wrappedTransition[1];
+			const toState = t.getToState();
+			// regular transition
+			if (partialWord.length > 0) {
+				const char = partialWord.substring(0, 1);
+				if (t.hasLabel(char) && this.parseRec(partialWord.substring(1), toState)) {
+					return true;
+				}
+			}
+			// lambda transition
+			if (t.hasLabel("")) {
+				// ignore if it's a self transition
+				if (t.getFromState() !== toState) {
+					// make sure we haven't taken this transition with this length before
+					const lambdaCode = partialWord.length + "-" + t.getId();
+					if (!this.lambdaTransitions.has(lambdaCode)) {
+						this.lambdaTransitions.add(lambdaCode);
+						if (this.parseRec(partialWord, toState)) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		if (partialWord.length === 0) {
+			return state.isFinal();
+		}
+
+		return false;
 	}
 
 	drawAllStates() {

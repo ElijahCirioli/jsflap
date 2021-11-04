@@ -1,6 +1,7 @@
 class Editor {
-	constructor(parent) {
+	constructor(parent, callback) {
 		this.parent = parent;
+		this.triggerTest = callback;
 		this.tool = "point";
 		this.startState = undefined;
 		this.selectedStates = new Set();
@@ -77,6 +78,7 @@ class Editor {
 		this.automaton.addState(pos, name, element, firstState);
 		this.setupStateListeners(element);
 		this.draw();
+		this.triggerTest();
 	}
 
 	createPreviewState() {
@@ -135,7 +137,7 @@ class Editor {
 		const endState = this.automaton.getStateById(endId);
 
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
-			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" class="label-input"></form>`);
+			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`);
 			this.labelsWrap.append(labelElement);
 			const t = this.automaton.addTransition(this.startState, endState, "", labelElement);
 			this.setupLabelListeners(labelElement, t);
@@ -146,6 +148,7 @@ class Editor {
 			t.focusElement();
 		}
 
+		this.triggerTest();
 		this.startState = undefined;
 	}
 
@@ -180,10 +183,12 @@ class Editor {
 
 	createRightClickMenu(state, pos) {
 		this.labelsWrap.children(".right-click-menu").remove();
+		const finalIcon = state.isFinal() ? "fa-check-square" : "fa-square";
+		const initialIcon = state.isInitial() ? "fa-check-square" : "fa-square";
 		const menu = $(`
 		<div class="right-click-menu">
-			<button class="menu-child-item" id="make-final-button">Final</button>
-			<button class="menu-child-item" id="make-initial-button">Initial</button>
+			<button class="menu-child-item" id="make-final-button"><i class="fas ${finalIcon}"></i> Final</button>
+			<button class="menu-child-item" id="make-initial-button"><i class="fas ${initialIcon}"></i> Initial</button>
 			<button class="menu-child-item" id="rename-button">Rename</button>
 		</div>`);
 		menu.css("top", pos.y + "px");
@@ -204,11 +209,30 @@ class Editor {
 					this.automaton.removeFinalState(s);
 				});
 			}
+			const newFinalIcon = newFinalStatus ? "fa-check-square" : "fa-square";
+			const iconElement = $(e.currentTarget).children("i");
+			iconElement.removeClass("fa-check-square");
+			iconElement.removeClass("fa-square");
+			iconElement.addClass(newFinalIcon);
+
+			this.triggerTest();
 		});
 
 		menu.children("#make-initial-button").click((e) => {
 			e.stopPropagation();
-			this.automaton.setInitialState(state);
+			const newInitialStatus = !state.isInitial();
+			if (newInitialStatus) {
+				this.automaton.setInitialState(state);
+			} else {
+				this.automaton.removeInitialState();
+			}
+			const newInitialIcon = newInitialStatus ? "fa-check-square" : "fa-square";
+			const iconElement = $(e.currentTarget).children("i");
+			iconElement.removeClass("fa-check-square");
+			iconElement.removeClass("fa-square");
+			iconElement.addClass(newInitialIcon);
+
+			this.triggerTest();
 		});
 	}
 
@@ -281,6 +305,11 @@ class Editor {
 				this.removePreviewTransition();
 			}
 		});
+
+		// click on something not in the editor
+		this.editorWrap.on("focusout", (e) => {
+			this.labelsWrap.children(".right-click-menu").remove();
+		});
 	}
 
 	setupStateListeners(state) {
@@ -303,12 +332,22 @@ class Editor {
 				}
 				this.unselectAllStates();
 				this.automaton.drawAllTransitions(this.canvas);
+				this.triggerTest();
 			}
 		});
 
 		// put mouse down on state
 		state.on("mousedown", (e) => {
+			e = window.event || e;
 			e.stopPropagation();
+
+			// try to stop right clicks
+			if ("which" in e && e.which == 3) {
+				return;
+			} else if ("button" in e && e.button == 2) {
+				return;
+			}
+
 			const offset = $(this.editorWrap).offset();
 			const xPos = Math.round(e.clientX - offset.left);
 			const yPos = Math.round(e.clientY - offset.top);
@@ -385,6 +424,7 @@ class Editor {
 				this.automaton.removeTransitionBetweenStates(transition);
 			}
 			this.automaton.drawAllTransitions(this.canvas);
+			this.triggerTest();
 			input[0].setSelectionRange(0, 0);
 		});
 
@@ -471,6 +511,7 @@ class Editor {
 				this.automaton.drawAllTransitions(this.canvas);
 				input[0].setSelectionRange(newCursorPos, newCursorPos);
 			}
+			this.triggerTest();
 		});
 	}
 }

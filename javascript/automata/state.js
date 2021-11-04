@@ -6,7 +6,7 @@ class State {
 		this.element = element;
 		this.final = false;
 		this.initial = false;
-		this.radius = 26;
+		this.radius = 25;
 		this.transitions = new Map();
 		element.attr("id", id);
 	}
@@ -94,10 +94,12 @@ class State {
 
 				// delete the whole transition if all the labels are gone
 				if (t.getLabels().size === 0) {
+					t.removeElement();
 					this.transitions.delete(toState.getId());
 				}
 			} else {
 				// remove all labels
+				t.removeElement();
 				this.transitions.delete(toState.getId());
 			}
 		}

@@ -3,7 +3,15 @@ class Environment {
 		this.tab = tabElement;
 		this.name = this.tab.text();
 		this.content = this.createContent();
-		this.editor = new Editor(this.content);
+
+		// wrap the callback function to preserve "this"
+		const callback = () => {
+			this.testAllInputs();
+		};
+
+		this.input = new InputContainer(this.content, callback);
+		this.editor = new Editor(this.content, callback);
+
 		this.setupListeners();
 	}
 
@@ -14,6 +22,17 @@ class Environment {
 	getName() {
 		return this.name;
 	}
+
+	testAllInputs() {
+		const words = this.input.aggregateAllInputs();
+		for (const word of words) {
+			const sanitizedWord = word[0].replaceAll(lambdaChar, "");
+			words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
+		}
+		this.input.displayValidity(words);
+	}
+
+	runUpdatedInputs(words) {}
 
 	createContent() {
 		const content = $(`
@@ -41,7 +60,7 @@ class Environment {
 					<canvas class="editor-canvas"></canvas>
 				</div>
 				<div class="environment-sidebar">
-					<div class="sidebar-item run-wrap"></div>
+					<div class="sidebar-item inputs-wrap"></div>
 					<div class="sidebar-item messages-wrap"></div>
 				</div>
 			</div>

@@ -8,11 +8,12 @@ body {
 	--state-color: #ffbe39;
 	--selected-state-color: #ffd659;
 	--glow-color: #5468a8;
+	--background-color: #181b2f;
 	margin: 0;
 	padding: 0;
 	width: 100%;
 	padding-bottom: 30px;
-	background-color: #181b2f;
+	background-color: var(--background-color);
 	color: var(--text-color);
 	font-family: "Rubik", sans-serif;
 	font-size: 1rem;
@@ -146,4 +147,20 @@ body {
 }
 #new-environment-button:hover {
 	background-color: var(--selected-color);
+}
+::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+::-webkit-scrollbar-track {
+	background: #d9d9d9;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--selected-color);
+	cursor: pointer;
+	transition: background 1s;
+	border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: var(--glow-color);
 }
