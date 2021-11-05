@@ -139,6 +139,7 @@ class Editor {
 	startTransition(element) {
 		const id = element.attr("id");
 		this.startState = this.automaton.getStateById(id);
+		this.unselectAllTransitions();
 		this.labelsWrap.children(".label-form").css("pointer-events", "none");
 	}
 
@@ -240,17 +241,57 @@ class Editor {
 			selectionBox.css("top", pos.y);
 			selectionBox.css("height", this.selectionBoxPoint.y - pos.y);
 		}
-
-		// calculate intersections
 	}
 
 	removeSelectionBox() {
+		if (!this.selectionBoxPoint) {
+			return;
+		}
+
+		// calculate intersections
+		const selectionBoxes = this.labelsWrap.children(".selection-box");
+		if (selectionBoxes.length > 0) {
+			const selectionBox = selectionBoxes[0];
+			this.statesWrap
+				.children(".state")
+				.toArray()
+				.forEach((stateElement) => {
+					if (this.elementBoundingBoxCollision(stateElement, selectionBox)) {
+						const state = this.automaton.getStateById($(stateElement).attr("id"));
+						this.selectState(state);
+					}
+				});
+			this.labelsWrap
+				.children(".label-form")
+				.toArray()
+				.forEach((labelElement) => {
+					if (this.elementBoundingBoxCollision(labelElement, selectionBox)) {
+						const ids = $(labelElement).attr("id").split("-");
+						const fromState = this.automaton.getStateById(ids[0]);
+						const toState = this.automaton.getStateById(ids[1]);
+						const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
+						this.selectTransition(transition);
+						transition.focusElement();
+					}
+				});
+		}
+
 		this.labelsWrap.children(".selection-box").remove();
 		this.selectionBoxPoint = undefined;
 	}
 
+	elementBoundingBoxCollision(el1, el2) {
+		// this doesn't deal with rotation. I'll have to do some fancy matrix stuff for that
+
+		const rect1 = el1.getBoundingClientRect();
+		const rect2 = el2.getBoundingClientRect();
+
+		return rect1.top <= rect2.bottom && rect1.right >= rect2.left && rect1.bottom >= rect2.top && rect1.left <= rect2.right;
+	}
+
 	createRightClickMenu(state, pos) {
-		this.labelsWrap.children(".right-click-menu").remove();
+		this.removeRightClickMenu();
+
 		const finalIcon = state.isFinal() ? "fa-check-square" : "fa-square";
 		const initialIcon = state.isInitial() ? "fa-check-square" : "fa-square";
 		const menu = $(`
@@ -262,6 +303,15 @@ class Editor {
 		menu.css("top", pos.y + "px");
 		menu.css("left", pos.x + "px");
 		this.labelsWrap.append(menu);
+
+		// stop propagation to save us from some issues
+		menu.on("mousedown", (e) => {
+			e.stopPropagation();
+		});
+
+		menu.on("mouseup", (e) => {
+			e.stopPropagation();
+		});
 
 		menu.children("#make-final-button").click((e) => {
 			e.stopPropagation();
@@ -302,6 +352,20 @@ class Editor {
 
 			this.triggerTest();
 		});
+
+		menu.children("#rename-button").click((e) => {
+			e.stopPropagation();
+			const name = state.getElement().children(".state-name");
+			name.attr("contenteditable", true);
+			name.focus();
+		});
+	}
+
+	removeRightClickMenu() {
+		// this has a weird jQuery error that I don't think is my fault so I'm just gonna wrap it in this
+		try {
+			this.labelsWrap.children(".right-click-menu").remove();
+		} catch (e) {}
 	}
 
 	setupListeners() {
@@ -318,7 +382,7 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
-			this.labelsWrap.children(".right-click-menu").remove();
+			this.removeRightClickMenu();
 			if (this.tool === "state") {
 				this.createState(pos);
 			}
@@ -360,6 +424,11 @@ class Editor {
 			const pos = new Point(xPos, yPos);
 
 			if (this.tool === "point") {
+				this.removeRightClickMenu();
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+					this.unselectAllTransitions();
+				}
 				this.startSelectionBox(pos);
 			}
 		});
@@ -370,21 +439,15 @@ class Editor {
 			this.stopDrag();
 
 			if (this.tool === "transition") {
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+					this.unselectAllTransitions();
+				}
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
-
-				if (!controlKey && !shiftKey) {
-					this.unselectAllStates();
-					this.unselectAllTransitions();
-				}
 			} else if (this.tool === "point") {
 				this.removeSelectionBox();
-
-				if (!controlKey && !shiftKey) {
-					this.unselectAllStates();
-					this.unselectAllTransitions();
-				}
 			}
 		});
 
@@ -404,7 +467,7 @@ class Editor {
 
 		// click on something not in the editor
 		this.editorWrap.on("focusout", (e) => {
-			this.labelsWrap.children(".right-click-menu").remove();
+			this.removeRightClickMenu();
 		});
 	}
 
@@ -449,7 +512,7 @@ class Editor {
 			const yPos = Math.round(e.clientY - offset.top);
 			const pos = new Point(xPos, yPos);
 
-			this.labelsWrap.children(".right-click-menu").remove();
+			this.removeRightClickMenu();
 
 			if (this.tool === "point") {
 				if (controlKey || shiftKey) {
@@ -461,6 +524,7 @@ class Editor {
 				} else {
 					if (!this.selectedStates.has(stateObj)) {
 						this.unselectAllStates();
+						this.unselectAllTransitions();
 					}
 					this.selectState(stateObj);
 					this.startDrag(pos);
@@ -480,6 +544,7 @@ class Editor {
 				if (!controlKey && !shiftKey && this.selectedStates.size === 1) {
 					this.unselectState(stateObj);
 				}
+				this.removeSelectionBox();
 			} else if (this.tool === "transition" && this.startState) {
 				this.removePreviewTransition();
 				this.endTransition($(e.currentTarget));
@@ -506,6 +571,21 @@ class Editor {
 			this.selectState(stateObj);
 			this.createRightClickMenu(stateObj, pos);
 		});
+
+		const name = state.children(".state-name");
+		name.on("focusout", (e) => {
+			state.children(".state-name").attr("contenteditable", false);
+			stateObj.setName(name.text());
+		});
+
+		name.on("keyup", (e) => {
+			stateObj.setName(name.text());
+			if (name.text().length > 5) {
+				name.addClass("state-name-small");
+			} else {
+				name.removeClass("state-name-small");
+			}
+		});
 	}
 
 	setupLabelListeners(label, transition) {
@@ -529,6 +609,7 @@ class Editor {
 				} else {
 					if (!this.selectedTransitions.has(transition)) {
 						this.unselectAllTransitions();
+						this.unselectAllStates();
 					}
 					this.selectTransition(transition);
 				}
@@ -544,6 +625,10 @@ class Editor {
 				this.automaton.drawAllTransitions(this.canvas);
 				this.triggerTest();
 			}
+		});
+
+		label.on("mousedown", (e) => {
+			e.stopPropagation();
 		});
 
 		label.on("mouseup", (e) => {
@@ -577,6 +662,7 @@ class Editor {
 			if (key === "Enter") {
 				// lose focus when they press enter
 				input.blur();
+				this.unselectAllTransitions();
 			} else {
 				let newCursorPos = selectionStart;
 				if (selectionStart !== selectionEnd) {
@@ -595,7 +681,7 @@ class Editor {
 								}
 							}
 						}
-						newCursorPos = startAdjusted - transition.getDelimeter().length;
+						newCursorPos = Math.max(startAdjusted - transition.getDelimeter().length, 0);
 					}
 				} else {
 					if (key === "Backspace" || key === "Delete") {
@@ -614,7 +700,7 @@ class Editor {
 								transition.removeLabel(char);
 							}
 						}
-						newCursorPos = startAdjusted - transition.getDelimeter().length;
+						newCursorPos = Math.max(startAdjusted - transition.getDelimeter().length, 0);
 					}
 				}
 
@@ -635,9 +721,10 @@ class Editor {
 					newCursorPos = chunkLength * 1000;
 				}
 
-				input[0].setSelectionRange(newCursorPos, newCursorPos);
 				this.automaton.drawAllTransitions(this.canvas);
 				this.triggerTest();
+
+				input[0].setSelectionRange(newCursorPos, newCursorPos);
 			}
 		});
 	}

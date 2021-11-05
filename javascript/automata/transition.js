@@ -78,6 +78,7 @@ class Transition {
 
 	draw(context) {
 		let labelPoint;
+
 		if (this.to === this.from) {
 			// self loop
 			const abovePoint = this.from.getPos().clone();

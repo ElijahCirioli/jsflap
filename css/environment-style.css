@@ -121,9 +121,16 @@
 	color: var(--regular-color);
 	font-size: 1rem;
 	font-weight: bold;
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	white-space: nowrap;
 	overflow: hidden;
+	transition: font-size 0.3s;
+}
+.state-name:focus {
+	outline: 1px solid var(--regular-color);
+}
+.state-name-small {
+	font-size: 0.8rem;
 }
 .preview-state {
 	display: none;
@@ -167,7 +174,7 @@
 	border: 1px solid transparent;
 	border-radius: 0;
 	outline: none;
-	transition: background-color 0.1s, font-size 0.2s;
+	transition: background-color 0.1s;
 }
 .label-input:focus {
 	background-color: rgba(150, 150, 150, 0.5);
