@@ -1,7 +1,7 @@
 class Environment {
 	constructor(tabElement) {
 		this.tab = tabElement;
-		this.name = this.tab.text();
+		this.name = this.tab.children(".environment-tab-name").text();
 		this.content = this.createContent();
 
 		// wrap the callback function to preserve "this"
@@ -69,6 +69,10 @@ class Environment {
 		return content;
 	}
 
+	removeContent() {
+		this.content.remove();
+	}
+
 	setupListeners() {
 		this.content
 			.children(".tool-bar")
@@ -81,5 +85,20 @@ class Environment {
 				const tool = target.attr("id").split("-")[0];
 				this.editor.setTool(tool);
 			});
+
+		this.tab.children(".environment-tab-name").on("keyup change", (e) => {
+			const rawText = this.tab.children(".environment-tab-name").text();
+			// try to remove all newline characters
+			this.name = rawText.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, " ");
+			this.tab.children(".environment-tab-name").text(this.name);
+		});
+
+		this.tab.children(".environment-tab-name").on("keydown", (e) => {
+			e = window.event || e;
+			const key = e.key;
+			if (key === "Enter") {
+				e.preventDefault();
+			}
+		});
 	}
 }

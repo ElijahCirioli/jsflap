@@ -117,19 +117,46 @@ body {
 	line-height: 28px;
 	cursor: pointer;
 	text-align: center;
-	width: 90px;
-	padding: 0 10px;
+	width: 100px;
+	padding: 0 8px;
 	background-color: var(--regular-color);
 	color: var(--secondary-text-color);
 	border: none;
 	outline: none;
 	transition: 0.1s;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
 }
 .environment-tab:hover {
 	background-color: var(--selected-color);
+}
+.environment-tab-name {
+	font-size: 1rem;
+	font-family: "Rubik", sans-serif;
+	font-weight: 100;
+	max-height: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	flex-grow: 1;
+}
+.environment-tab-name:focus {
+	outline: 1px solid var(--text-color);
+	outline-offset: -1px;
+}
+.environment-tab-delete-button {
+	background: transparent;
+	outline: none;
+	border: none;
+	width: 1rem;
+	height: 1rem;
+	color: #8c8c8c;
+	cursor: pointer;
+	transition: color 0.1s;
+}
+.environment-tab-delete-button:hover {
+	color: #f04d41;
 }
 #new-environment-button {
 	cursor: pointer;
@@ -137,7 +164,7 @@ body {
 	width: 22px;
 	min-width: 22px;
 	min-height: 22px;
-	padding: 0;
+	padding: 2px 0 0 0;
 	margin: 4px;
 	text-align: center;
 	background-color: var(--regular-color);
@@ -148,6 +175,9 @@ body {
 }
 #new-environment-button:hover {
 	background-color: var(--selected-color);
+}
+#new-environment-button:active {
+	color: var(--accent-color);
 }
 ::-webkit-scrollbar {
 	width: 5px;
