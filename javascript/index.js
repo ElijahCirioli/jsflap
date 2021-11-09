@@ -7,6 +7,7 @@ let shiftKey = false;
 
 function createEnvironment() {
 	unselectAllEnvironments();
+	$(".environment-tab").children(".environment-tab-name").attr("contenteditable", false);
 	const name = getNextEnvironmentName();
 	const newTab = $(`
 	<div class="active environment-tab">
@@ -100,20 +101,22 @@ $("document").ready(() => {
 
 	document.onkeydown = (e) => {
 		e = window.event || e;
+		const key = e.key;
 
-		if (e.code === "ControlLeft" || e.code === "ControlRight") {
+		if (key === "Control") {
 			controlKey = true;
-		} else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+		} else if (key === "Shift") {
 			shiftKey = true;
 		}
 	};
 
 	document.onkeyup = (e) => {
 		e = window.event || e;
+		const key = e.key;
 
-		if (e.code === "ControlLeft" || e.code === "ControlRight") {
+		if (key === "Control") {
 			controlKey = false;
-		} else if (e.code === "ShiftLeft" || e.code === "ShiftRight") {
+		} else if (key === "Shift") {
 			shiftKey = false;
 		}
 	};

@@ -46,6 +46,7 @@
 	background-color: var(--text-color);
 	overflow: hidden;
 	position: relative;
+	outline: none;
 }
 .editor-canvas {
 	width: 100%;

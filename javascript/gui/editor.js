@@ -271,7 +271,9 @@ class Editor {
 						const toState = this.automaton.getStateById(ids[1]);
 						const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
 						this.selectTransition(transition);
-						transition.focusElement();
+						if (this.selectedStates.size === 0) {
+							transition.focusElement();
+						}
 					}
 				});
 		}
@@ -469,6 +471,26 @@ class Editor {
 		this.editorWrap.on("focusout", (e) => {
 			this.removeRightClickMenu();
 		});
+
+		this.editorWrap.on("keydown", (e) => {
+			e = window.event || e;
+			const key = e.key;
+
+			if (key === "Delete" || key === "Backspace") {
+				e.preventDefault();
+
+				this.selectedTransitions.forEach((t) => {
+					this.automaton.removeTransition(t);
+				});
+				this.selectedStates.forEach((s) => {
+					this.automaton.removeState(s);
+				});
+
+				this.unselectAllStates();
+				this.automaton.drawAllTransitions(this.canvas);
+				this.triggerTest();
+			}
+		});
 	}
 
 	setupStateListeners(state) {
@@ -658,6 +680,11 @@ class Editor {
 			const selectionStart = input[0].selectionStart;
 			const selectionEnd = input[0].selectionEnd;
 			const chunkLength = transition.getDelimeter().length + 1;
+
+			// make sure deleting text doesn't delete the whole transition
+			if (key === "Delete" || key === "Backspace") {
+				e.stopPropagation();
+			}
 
 			if (key === "Enter") {
 				// lose focus when they press enter
