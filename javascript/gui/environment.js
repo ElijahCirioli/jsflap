@@ -23,6 +23,10 @@ class Environment {
 		return this.name;
 	}
 
+	getTab() {
+		return this.tab;
+	}
+
 	testAllInputs() {
 		const words = this.input.aggregateAllInputs();
 		for (const word of words) {
@@ -55,6 +59,14 @@ class Environment {
 					</button>
 				</div>
 				<div class="editor">
+					<div class="editor-zoom-container">
+						<div class="zoom-in-out-wrap">
+							<button class="zoom-button" id="zoom-in-button"><i class="fas fa-plus"></i></button>
+							<button class="zoom-button" id="zoom-out-button"><i class="fas fa-minus"></i></button>
+						</div>
+						<button class="zoom-button" id="zoom-fit-button"><i class="fas fa-expand"></i></button>
+						<button class="zoom-button" id="zoom-home-button"><i class="fas fa-home"></i></button>
+					</div>
 					<div class="editor-label-container"></div>
 					<div class="editor-state-container"></div>
 					<canvas class="editor-canvas"></canvas>
@@ -87,10 +99,7 @@ class Environment {
 			});
 
 		this.tab.children(".environment-tab-name").on("keyup change", (e) => {
-			const rawText = this.tab.children(".environment-tab-name").text();
-			// try to remove all newline characters
-			this.name = rawText.replace(/[\r\n\x0B\x0C\u0085\u2028\u2029]+/g, " ");
-			this.tab.children(".environment-tab-name").text(this.name);
+			this.name = this.tab.children(".environment-tab-name").text();
 		});
 
 		this.tab.children(".environment-tab-name").on("keydown", (e) => {
