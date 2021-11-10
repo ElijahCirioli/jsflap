@@ -85,20 +85,7 @@ function hideDropdowns() {
 $("document").ready(() => {
 	createEnvironment();
 
-	$("#new-environment-button").click((e) => {
-		createEnvironment();
-	});
-
-	$("#menu-new-button").click((e) => {
-		hideDropdowns();
-		createEnvironment();
-	});
-
-	$("#menu-close-button").click((e) => {
-		hideDropdowns();
-		removeEnvironment(activeEnvironment);
-	});
-
+	// control and shift key flags
 	document.onkeydown = (e) => {
 		e = window.event || e;
 		const key = e.key;
@@ -120,4 +107,36 @@ $("document").ready(() => {
 			shiftKey = false;
 		}
 	};
+
+	// tab new button
+	$("#new-environment-button").click((e) => {
+		createEnvironment();
+	});
+
+	// file menu
+	$("#menu-new-button").click((e) => {
+		hideDropdowns();
+		createEnvironment();
+	});
+
+	$("#menu-close-button").click((e) => {
+		hideDropdowns();
+		removeEnvironment(activeEnvironment);
+	});
+
+	// view menu
+	$("#menu-zoom-in-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getEditor().zoomIn();
+	});
+
+	$("#menu-zoom-out-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getEditor().zoomOut();
+	});
+
+	$("#menu-zoom-fit-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getEditor().zoomFit();
+	});
 });

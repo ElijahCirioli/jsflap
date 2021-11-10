@@ -34,11 +34,16 @@ class Editor {
 		const stateElements = this.statesWrap.children(".state");
 		const labelElements = this.labelsWrap.children(".label-form");
 		labelElements.css("pointer-events", "all");
+		stateElements.css("pointer-events", "all");
 		labelElements.children(".label-input").css("cursor", "text");
 		this.editorWrap.css("cursor", "auto");
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
 			this.unselectAllTransitions();
+		} else if (this.tool === "pan") {
+			this.editorWrap.css("cursor", "move");
+			stateElements.css("pointer-events", "none");
+			labelElements.css("pointer-events", "none");
 		} else if (this.tool === "state") {
 			this.editorWrap.css("cursor", "pointer");
 			labelElements.css("pointer-events", "none");
@@ -181,6 +186,37 @@ class Editor {
 		this.statesWrap.children(".selected").css("cursor", "grabbing");
 		this.clicked = true;
 		this.lastMousePos = pos;
+	}
+
+	startDragPan(dir) {
+		if (!this.dragPan) {
+			this.dragPan = setTimeout(this.dragPanRec, 500, this, dir);
+		}
+	}
+
+	dragPanRec(obj, dir) {
+		// pass this as a parameter because it's getting lost in setTimeout
+		obj.stopDragPan();
+		const dragAmount = 3;
+		const cameraDelta = new Point(dir.x * -dragAmount * obj.scale, dir.y * -dragAmount * obj.scale);
+		obj.adjustOffset(cameraDelta);
+		const stateDelta = new Point(dir.x * dragAmount, dir.y * dragAmount);
+
+		obj.selectedStates.forEach((s) => {
+			s.getPos().add(stateDelta);
+		});
+		if (obj.lastMousePos) {
+			obj.lastMousePos.add(stateDelta);
+		}
+		obj.draw();
+		obj.dragPan = setTimeout(obj.dragPanRec, 10, obj, dir);
+	}
+
+	stopDragPan() {
+		if (this.dragPan) {
+			clearTimeout(this.dragPan);
+			this.dragPan = undefined;
+		}
 	}
 
 	selectState(state) {
@@ -415,8 +451,8 @@ class Editor {
 		this.scale = Math.max(Math.min(xScale, yScale, 3), 0.3);
 
 		// calculate the new offset
-		this.offset.x = (-this.scale * (maxCoords.x + minCoords.x - this.canvas.width)) / 2;
-		this.offset.y = (-this.scale * (maxCoords.y + minCoords.y - this.canvas.height)) / 2;
+		this.offset.x = (this.scale * (this.canvas.width - (maxCoords.x + minCoords.x))) / 2;
+		this.offset.y = (this.scale * (this.canvas.height - (maxCoords.y + minCoords.y))) / 2;
 
 		this.adjustCamera();
 	}
@@ -438,7 +474,6 @@ class Editor {
 
 	adjustOffset(delta) {
 		this.offset.add(delta);
-		console.log(this.offset);
 		this.adjustCamera();
 	}
 
@@ -449,8 +484,8 @@ class Editor {
 
 	getAdjustedPos(e) {
 		const editorOffset = $(this.editorWrap).offset();
-		const xPos = Math.round(e.clientX - editorOffset.left - this.offset.x);
-		const yPos = Math.round(e.clientY - editorOffset.top - this.offset.y);
+		const xPos = e.clientX - editorOffset.left - this.offset.x;
+		const yPos = e.clientY - editorOffset.top - this.offset.y;
 
 		const inverseScale = 1 / this.scale;
 		const center = new Point(this.canvas.width / 2, this.canvas.height / 2);
@@ -491,10 +526,36 @@ class Editor {
 					this.selectedStates.forEach((s) => {
 						s.getPos().add(stateOffset);
 					});
+
+					// check for pan events
+					const editorOffset = $(this.editorWrap).offset();
+					const rawPos = new Point(e.clientX - editorOffset.left, e.clientY - editorOffset.top);
+					const panBuffer = 80;
+					if (rawPos.x > this.canvas.width - panBuffer) {
+						this.startDragPan(new Point(1, 0));
+					} else if (rawPos.x < panBuffer) {
+						this.startDragPan(new Point(-1, 0));
+					} else if (rawPos.y > this.canvas.height - panBuffer) {
+						this.startDragPan(new Point(0, 1));
+					} else if (rawPos.y < panBuffer) {
+						this.startDragPan(new Point(0, -1));
+					} else {
+						this.stopDragPan();
+					}
+
+					// recalculate adjusted pos with new offset
 					this.lastMousePos = pos;
 					this.draw();
 				} else if (this.selectionBoxPoint) {
 					this.moveSelectionBox(pos);
+				}
+			} else if (this.tool === "pan") {
+				if (this.clicked && this.lastMousePos) {
+					// this is a lot of work to basically unadjust the mouse coordinates to be in their raw form but it means we need less variables
+					const delta = new Point((pos.x - this.lastMousePos.x) * this.scale, (pos.y - this.lastMousePos.y) * this.scale);
+					this.adjustOffset(delta);
+					// recalculate adjusted pos with new offset
+					this.lastMousePos = this.getAdjustedPos(e);
 				}
 			} else if (this.tool === "state") {
 				this.movePreviewState(pos);
@@ -514,6 +575,8 @@ class Editor {
 					this.unselectAllTransitions();
 				}
 				this.startSelectionBox(pos);
+			} else if (this.tool === "pan") {
+				this.startDrag(pos);
 			}
 		});
 
@@ -521,6 +584,7 @@ class Editor {
 		this.editorWrap.on("mouseup", (e) => {
 			e.stopPropagation();
 			this.stopDrag();
+			this.stopDragPan();
 
 			if (this.tool === "transition") {
 				if (!controlKey && !shiftKey) {
@@ -532,6 +596,8 @@ class Editor {
 				this.removePreviewTransition();
 			} else if (this.tool === "point") {
 				this.removeSelectionBox();
+			} else if (this.tool === "pan") {
+				this.stopDrag();
 			}
 		});
 
@@ -539,6 +605,7 @@ class Editor {
 		this.editorWrap.on("mouseleave", (e) => {
 			e.stopPropagation();
 			this.stopDrag();
+			this.stopDragPan();
 
 			if (this.tool === "transition") {
 				this.startState = undefined;
@@ -582,10 +649,12 @@ class Editor {
 		const zoomContainer = this.editorWrap.children(".editor-zoom-container");
 		zoomContainer.children("#zoom-home-button").click((e) => {
 			this.zoomHome();
+			this.movePreviewState(this.getAdjustedPos(e));
 			e.stopPropagation();
 		});
 		zoomContainer.children("#zoom-fit-button").click((e) => {
 			this.zoomFit();
+			this.movePreviewState(this.getAdjustedPos(e));
 			e.stopPropagation();
 		});
 		zoomContainer
@@ -593,6 +662,7 @@ class Editor {
 			.children("#zoom-in-button")
 			.click((e) => {
 				this.zoomIn();
+				this.movePreviewState(this.getAdjustedPos(e));
 				e.stopPropagation();
 			});
 		zoomContainer
@@ -600,6 +670,7 @@ class Editor {
 			.children("#zoom-out-button")
 			.click((e) => {
 				this.zoomOut();
+				this.movePreviewState(this.getAdjustedPos(e));
 				e.stopPropagation();
 			});
 	}
@@ -611,7 +682,9 @@ class Editor {
 
 		// click on state
 		state.click((e) => {
-			e.stopPropagation();
+			if (this.tool !== "state") {
+				e.stopPropagation();
+			}
 			const id = $(e.currentTarget).attr("id");
 			const state = this.automaton.getStateById(id);
 			if (this.tool === "trash") {
@@ -669,6 +742,7 @@ class Editor {
 		state.on("mouseup", (e) => {
 			e.stopPropagation();
 			this.stopDrag();
+			this.stopDragPan();
 
 			if (this.tool === "point") {
 				if (!controlKey && !shiftKey && this.selectedStates.size === 1) {

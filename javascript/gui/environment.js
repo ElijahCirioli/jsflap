@@ -19,6 +19,10 @@ class Environment {
 		return this.content;
 	}
 
+	getEditor() {
+		return this.editor;
+	}
+
 	getName() {
 		return this.name;
 	}
@@ -44,6 +48,9 @@ class Environment {
 				<div class="tool-bar">
 					<button class="tool-item active" id="point-tool">
 						<i class="fas fa-mouse-pointer"></i>
+					</button>
+					<button class="tool-item" id="pan-tool">
+						<i class="fas fa-arrows-alt"></i>
 					</button>
 					<button class="tool-item" id="state-tool">
 						<i class="fas fa-circle"></i>
