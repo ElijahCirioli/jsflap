@@ -5,6 +5,8 @@ class Editor {
 		this.tool = "point";
 		this.startState = undefined;
 		this.selectionBoxPoint = undefined;
+		this.scale = 1;
+		this.offset = new Point(0, 0);
 		this.selectedStates = new Set();
 		this.selectedTransitions = new Set();
 		this.automaton = new Automaton();
@@ -28,16 +30,17 @@ class Editor {
 		this.startState = undefined;
 		this.removeSelectionBox();
 		this.stopDrag();
-		this.automaton.drawAllTransitions(this.canvas);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 		const stateElements = this.statesWrap.children(".state");
 		const labelElements = this.labelsWrap.children(".label-form");
 		labelElements.css("pointer-events", "all");
 		labelElements.children(".label-input").css("cursor", "text");
+		this.editorWrap.css("cursor", "auto");
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
 			this.unselectAllTransitions();
 		} else if (this.tool === "state") {
-			stateElements.css("cursor", "pointer");
+			this.editorWrap.css("cursor", "pointer");
 			labelElements.css("pointer-events", "none");
 			this.unselectAllStates();
 			this.unselectAllTransitions();
@@ -75,7 +78,7 @@ class Editor {
 	}
 
 	draw() {
-		this.automaton.drawAllTransitions(this.canvas);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 		this.automaton.drawAllStates();
 	}
 
@@ -113,7 +116,7 @@ class Editor {
 			this.previewTransition = this.automaton.addTransition(this.startState, state, "PREVIEW");
 			this.previewTransition.makePreview();
 		}
-		this.automaton.drawAllTransitions(this.canvas);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 	}
 
 	removePreviewTransition() {
@@ -123,17 +126,16 @@ class Editor {
 			fromState.removeTransition(toState, "PREVIEW");
 			this.previewTransition = undefined;
 		}
-		this.automaton.drawAllTransitions(this.canvas);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 	}
 
 	statelessPreviewTransition(pos) {
 		if (this.previewTransition) {
 			this.removePreviewTransition();
 		}
-		this.automaton.drawAllTransitions(this.canvas);
-		const context = this.canvas.getContext("2d");
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 		const previewColor = "rgba(139, 138, 150, 0.5)";
-		Arrow.drawArrow(context, this.startState.getPos(), pos, this.startState.getPos(), pos, previewColor);
+		Arrow.drawArrow(this.canvas, this.startState.getPos(), pos, this.startState.getPos(), pos, this.scale, this.offset, previewColor);
 	}
 
 	startTransition(element) {
@@ -284,7 +286,6 @@ class Editor {
 
 	elementBoundingBoxCollision(el1, el2) {
 		// this doesn't deal with rotation. I'll have to do some fancy matrix stuff for that
-
 		const rect1 = el1.getBoundingClientRect();
 		const rect2 = el2.getBoundingClientRect();
 
@@ -361,6 +362,10 @@ class Editor {
 			name.attr("contenteditable", true);
 			name.focus();
 		});
+
+		menu.on("focusout", (e) => {
+			this.removeRightClickMenu();
+		});
 	}
 
 	removeRightClickMenu() {
@@ -368,6 +373,91 @@ class Editor {
 		try {
 			this.labelsWrap.children(".right-click-menu").remove();
 		} catch (e) {}
+	}
+
+	zoomIn() {
+		const zoomFactor = 5 / 4;
+		this.scale = Math.min(this.scale * zoomFactor, 3);
+		this.adjustCamera();
+	}
+
+	zoomOut() {
+		const zoomFactor = 4 / 5;
+		this.scale = Math.max(this.scale * zoomFactor, 0.3);
+		this.adjustCamera();
+	}
+
+	zoomHome() {
+		this.scale = 1;
+		this.offset = new Point(0, 0);
+		this.adjustCamera();
+	}
+
+	zoomFit() {
+		if (this.automaton.getStates().size === 0) {
+			return;
+		}
+		// find the maximum and minimum coordinates for all states
+		const minCoords = new Point(Infinity, Infinity);
+		const maxCoords = new Point(-Infinity, -Infinity);
+		this.automaton.getStates().forEach((s) => {
+			const pos = s.getPos();
+			minCoords.x = Math.min(minCoords.x, pos.x);
+			maxCoords.x = Math.max(maxCoords.x, pos.x);
+			minCoords.y = Math.min(minCoords.y, pos.y);
+			maxCoords.y = Math.max(maxCoords.y, pos.y);
+		});
+
+		// calculate the new scale
+		const bufferSize = 80;
+		const xScale = (this.canvas.width - 2 * bufferSize) / (maxCoords.x - minCoords.x);
+		const yScale = (this.canvas.height - 2 * bufferSize) / (maxCoords.y - minCoords.y);
+		this.scale = Math.max(Math.min(xScale, yScale, 3), 0.3);
+
+		// calculate the new offset
+		this.offset.x = (-this.scale * (maxCoords.x + minCoords.x - this.canvas.width)) / 2;
+		this.offset.y = (-this.scale * (maxCoords.y + minCoords.y - this.canvas.height)) / 2;
+
+		this.adjustCamera();
+	}
+
+	adjustCamera() {
+		const adjustedOffset = new Point(this.offset.x / this.scale, this.offset.y / this.scale);
+		const transformString = `scale(${this.scale}) translate(${adjustedOffset.x}px, ${adjustedOffset.y}px)`;
+		// labels wrap
+		this.labelsWrap.css("transform", transformString);
+		this.labelsWrap.css("-webkit-transform", transformString);
+		this.labelsWrap.css("-moz-transform", transformString);
+
+		this.statesWrap.css("transform", transformString);
+		this.statesWrap.css("-webkit-transform", transformString);
+		this.statesWrap.css("-moz-transform", transformString);
+
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+	}
+
+	adjustOffset(delta) {
+		this.offset.add(delta);
+		console.log(this.offset);
+		this.adjustCamera();
+	}
+
+	setOffset(newOffset) {
+		this.offset = newOffset;
+		this.adjustCamera();
+	}
+
+	getAdjustedPos(e) {
+		const editorOffset = $(this.editorWrap).offset();
+		const xPos = Math.round(e.clientX - editorOffset.left - this.offset.x);
+		const yPos = Math.round(e.clientY - editorOffset.top - this.offset.y);
+
+		const inverseScale = 1 / this.scale;
+		const center = new Point(this.canvas.width / 2, this.canvas.height / 2);
+		const minBounds = new Point(center.x * (1 - inverseScale), center.y * (1 - inverseScale));
+		const adjustedPos = new Point(xPos * inverseScale + minBounds.x, yPos * inverseScale + minBounds.y);
+
+		return adjustedPos;
 	}
 
 	setupListeners() {
@@ -379,13 +469,12 @@ class Editor {
 		// click on editor
 		this.editorWrap.click((e) => {
 			e.stopPropagation();
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
+			const pos = this.getAdjustedPos(e);
 
 			this.removeRightClickMenu();
 			if (this.tool === "state") {
+				this.unselectAllStates();
+				this.unselectAllTransitions();
 				this.createState(pos);
 			}
 		});
@@ -393,10 +482,7 @@ class Editor {
 		// move mouse on editor
 		this.editorWrap.on("mousemove", (e) => {
 			e.stopPropagation();
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
+			const pos = this.getAdjustedPos(e);
 
 			if (this.tool === "point") {
 				if (this.clicked && this.lastMousePos) {
@@ -420,13 +506,9 @@ class Editor {
 		// put mouse down on editor
 		this.editorWrap.on("mousedown", (e) => {
 			e.stopPropagation();
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
+			const pos = this.getAdjustedPos(e);
 
 			if (this.tool === "point") {
-				this.removeRightClickMenu();
 				if (!controlKey && !shiftKey) {
 					this.unselectAllStates();
 					this.unselectAllTransitions();
@@ -467,14 +549,11 @@ class Editor {
 			}
 		});
 
-		// click on something not in the editor
-		this.editorWrap.on("focusout", (e) => {
-			this.removeRightClickMenu();
-		});
-
+		// general editor key events
 		this.editorWrap.on("keydown", (e) => {
 			e = window.event || e;
 			const key = e.key;
+			const panAmount = 10;
 
 			if (key === "Delete" || key === "Backspace") {
 				e.preventDefault();
@@ -487,10 +566,42 @@ class Editor {
 				});
 
 				this.unselectAllStates();
-				this.automaton.drawAllTransitions(this.canvas);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
+			} else if (key === "ArrowDown") {
+				this.adjustOffset(new Point(0, panAmount));
+			} else if (key === "ArrowUp") {
+				this.adjustOffset(new Point(0, -panAmount));
+			} else if (key === "ArrowLeft") {
+				this.adjustOffset(new Point(-panAmount, 0));
+			} else if (key === "ArrowRight") {
+				this.adjustOffset(new Point(panAmount, 0));
 			}
 		});
+
+		const zoomContainer = this.editorWrap.children(".editor-zoom-container");
+		zoomContainer.children("#zoom-home-button").click((e) => {
+			this.zoomHome();
+			e.stopPropagation();
+		});
+		zoomContainer.children("#zoom-fit-button").click((e) => {
+			this.zoomFit();
+			e.stopPropagation();
+		});
+		zoomContainer
+			.children(".zoom-in-out-wrap")
+			.children("#zoom-in-button")
+			.click((e) => {
+				this.zoomIn();
+				e.stopPropagation();
+			});
+		zoomContainer
+			.children(".zoom-in-out-wrap")
+			.children("#zoom-out-button")
+			.click((e) => {
+				this.zoomOut();
+				e.stopPropagation();
+			});
 	}
 
 	setupStateListeners(state) {
@@ -512,7 +623,7 @@ class Editor {
 					this.automaton.removeState(state);
 				}
 				this.unselectAllStates();
-				this.automaton.drawAllTransitions(this.canvas);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
 			}
 		});
@@ -529,10 +640,7 @@ class Editor {
 				return;
 			}
 
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
+			const pos = this.getAdjustedPos(e);
 
 			this.removeRightClickMenu();
 
@@ -584,11 +692,7 @@ class Editor {
 		// right click on state
 		state.on("contextmenu", (e) => {
 			e.preventDefault();
-
-			const offset = $(this.editorWrap).offset();
-			const xPos = Math.round(e.clientX - offset.left);
-			const yPos = Math.round(e.clientY - offset.top);
-			const pos = new Point(xPos, yPos);
+			const pos = this.getAdjustedPos(e);
 
 			this.selectState(stateObj);
 			this.createRightClickMenu(stateObj, pos);
@@ -644,7 +748,7 @@ class Editor {
 					this.automaton.removeTransition(transition);
 				}
 				this.unselectAllTransitions();
-				this.automaton.drawAllTransitions(this.canvas);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
 			}
 		});
@@ -662,13 +766,13 @@ class Editor {
 			if (transition.labels.size === 0) {
 				this.automaton.removeTransition(transition);
 			}
-			this.automaton.drawAllTransitions(this.canvas);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 			this.triggerTest();
 			input[0].setSelectionRange(0, 0);
 		});
 
 		input.on("focusin", (e) => {
-			this.automaton.drawAllTransitions(this.canvas);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 		});
 
 		label.on("keydown", (e) => {
@@ -732,8 +836,10 @@ class Editor {
 				}
 
 				if (key === "ArrowRight") {
+					e.stopPropagation();
 					newCursorPos = chunkLength * Math.ceil(selectionEnd / chunkLength) + 1;
 				} else if (key === "ArrowLeft") {
+					e.stopPropagation();
 					newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 0);
 				}
 				if (key.length === 1) {
@@ -748,7 +854,7 @@ class Editor {
 					newCursorPos = chunkLength * 1000;
 				}
 
-				this.automaton.drawAllTransitions(this.canvas);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
 
 				input[0].setSelectionRange(newCursorPos, newCursorPos);

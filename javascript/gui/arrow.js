@@ -2,7 +2,16 @@ class Arrow {
 	static arrowLength = 10;
 	static arrowWidth = 6;
 
-	static drawArrowTip(context, tip, angle, color) {
+	static scalePoint(p, scale, offset, canvas) {
+		const inverseScale = 1 / scale;
+		const center = new Point(canvas.width / 2, canvas.height / 2);
+		const minBounds = new Point(center.x * (1 - inverseScale), center.y * (1 - inverseScale));
+		return new Point(scale * (p.x - minBounds.x) + offset.x, scale * (p.y - minBounds.y) + offset.y);
+	}
+
+	static drawArrowTip(canvas, tip, angle, scale, offset, color) {
+		const context = canvas.getContext("2d");
+
 		// calculate the vertices
 		const arrowAngle = Math.atan2(this.arrowWidth, this.arrowLength);
 		const arrowHypotenuse = new Point(this.arrowWidth, this.arrowLength).magnitude();
@@ -12,32 +21,43 @@ class Arrow {
 		const point2 = new Point(arrowHypotenuse * Math.cos(reverseAngle - arrowAngle), arrowHypotenuse * Math.sin(reverseAngle - arrowAngle));
 		point2.add(tip);
 
+		// adjust points to camera
+		const adjTip = Arrow.scalePoint(tip, scale, offset, canvas);
+		const adjPoint1 = Arrow.scalePoint(point1, scale, offset, canvas);
+		const adjPoint2 = Arrow.scalePoint(point2, scale, offset, canvas);
+
 		// draw the tip
 		context.fillStyle = color;
 		context.beginPath();
-		context.moveTo(tip.x, tip.y);
-		context.lineTo(point1.x, point1.y);
-		context.lineTo(point2.x, point2.y);
-		context.lineTo(tip.x, tip.y);
+		context.moveTo(adjTip.x, adjTip.y);
+		context.lineTo(adjPoint1.x, adjPoint1.y);
+		context.lineTo(adjPoint2.x, adjPoint2.y);
+		context.lineTo(adjTip.x, adjTip.y);
 		context.fill();
 	}
 
-	static drawArrow(context, start, end, centerStart, centerEnd, color) {
+	static drawArrow(canvas, start, end, centerStart, centerEnd, scale, offset, color) {
+		const context = canvas.getContext("2d");
+
 		// calculate constants
 		const length = start.distance(end);
 		const shortenedEnd = end.normalizeEndPoint(start, Math.max(length - this.arrowLength, 0));
 		const angle = Math.atan2(end.y - start.y, end.x - start.x);
 
+		// adjust points to camera
+		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(shortenedEnd, scale, offset, canvas);
+
 		// draw line
-		context.lineWidth = 2;
+		context.lineWidth = 2 * scale;
 		context.strokeStyle = color;
 		context.beginPath();
-		context.moveTo(start.x, start.y);
-		context.lineTo(shortenedEnd.x, shortenedEnd.y);
+		context.moveTo(adjStart.x, adjStart.y);
+		context.lineTo(adjEnd.x, adjEnd.y);
 		context.stroke();
 
 		// draw tip
-		this.drawArrowTip(context, end, angle, color);
+		this.drawArrowTip(canvas, end, angle, scale, offset, color);
 
 		// return a point above the middle of the arrow
 		const multiplier = Math.sign(start.x - end.x);
@@ -50,7 +70,9 @@ class Arrow {
 		);
 	}
 
-	static drawCurvedArrow(context, start, end, color) {
+	static drawCurvedArrow(canvas, start, end, scale, offset, color) {
+		const context = canvas.getContext("2d");
+
 		// calculate constants
 		const curveAngle = 0.4;
 		const curveAmount = Math.min(50, start.distance(end) / 2 - 5);
@@ -64,17 +86,23 @@ class Arrow {
 		control2.add(end);
 		const lineEnd = new Point(end.x + Arrow.arrowLength * Math.cos(angle2), end.y + Arrow.arrowLength * Math.sin(angle2));
 
+		// adjust points to camera
+		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(lineEnd, scale, offset, canvas);
+		const adjControl1 = Arrow.scalePoint(control1, scale, offset, canvas);
+		const adjControl2 = Arrow.scalePoint(control2, scale, offset, canvas);
+
 		// draw line
-		context.lineWidth = 2;
+		context.lineWidth = 2 * scale;
 		context.strokeStyle = color;
 		context.beginPath();
-		context.moveTo(start.x, start.y);
-		context.bezierCurveTo(control1.x, control1.y, control2.x, control2.y, lineEnd.x, lineEnd.y);
+		context.moveTo(adjStart.x, adjStart.y);
+		context.bezierCurveTo(adjControl1.x, adjControl1.y, adjControl2.x, adjControl2.y, adjEnd.x, adjEnd.y);
 		context.stroke();
 
 		// draw tip
 		const tipAngle = Math.atan2(end.y - start.y, end.x - start.x) - curveAngle;
-		this.drawArrowTip(context, end, tipAngle, color);
+		this.drawArrowTip(canvas, end, tipAngle, scale, offset, color);
 
 		// return a point above the apex of the curve
 		const orthogonalAngle = Math.atan2(end.y - start.y, end.x - start.x) + Math.PI / 2;
@@ -85,7 +113,9 @@ class Arrow {
 		);
 	}
 
-	static drawSelfArrow(context, start, end, center, color) {
+	static drawSelfArrow(canvas, start, end, center, scale, offset, color) {
+		const context = canvas.getContext("2d");
+
 		// calculate constants
 		const inset = 5;
 		const height = 50;
@@ -97,16 +127,22 @@ class Arrow {
 		const endPoint = new Point(-Math.cos(tipAngle) * this.arrowLength, -Math.sin(tipAngle) * this.arrowLength);
 		endPoint.add(end);
 
+		// adjust points to camera
+		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(endPoint, scale, offset, canvas);
+		const adjControl1 = Arrow.scalePoint(control1, scale, offset, canvas);
+		const adjControl2 = Arrow.scalePoint(control2, scale, offset, canvas);
+
 		// draw line
-		context.lineWidth = 2;
+		context.lineWidth = 2 * scale;
 		context.strokeStyle = color;
 		context.beginPath();
-		context.moveTo(start.x, start.y);
-		context.bezierCurveTo(control1.x, control1.y, control2.x, control2.y, endPoint.x, endPoint.y);
+		context.moveTo(adjStart.x, adjStart.y);
+		context.bezierCurveTo(adjControl1.x, adjControl1.y, adjControl2.x, adjControl2.y, adjEnd.x, adjEnd.y);
 		context.stroke();
 
 		// draw tip
-		this.drawArrowTip(context, end, tipAngle, color);
+		this.drawArrowTip(canvas, end, tipAngle, scale, offset, color);
 
 		// return a point above the apex of the curve
 		const labelOffset = 10;

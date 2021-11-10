@@ -76,7 +76,7 @@ class Transition {
 		this.element.children(".label-input")[0].setSelectionRange(9999, 9999);
 	}
 
-	draw(context) {
+	draw(canvas, scale, offset) {
 		let labelPoint;
 
 		if (this.to === this.from) {
@@ -85,16 +85,16 @@ class Transition {
 			abovePoint.subtract(new Point(0, 100));
 			const startPos = this.from.radiusPoint(abovePoint, -Math.PI / 5, -1);
 			const endPos = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
-			labelPoint = Arrow.drawSelfArrow(context, startPos, endPos, this.from.getPos(), this.color);
+			labelPoint = Arrow.drawSelfArrow(canvas, startPos, endPos, this.from.getPos(), scale, offset, this.color);
 		} else if (this.to.hasTransitionToState(this.from)) {
 			// matched inverse transitions
 			const startPos = this.from.radiusPoint(this.to.getPos(), Math.PI / 4, -1);
 			const endPos = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
-			labelPoint = Arrow.drawCurvedArrow(context, startPos, endPos, this.color);
+			labelPoint = Arrow.drawCurvedArrow(canvas, startPos, endPos, scale, offset, this.color);
 		} else {
 			// normal straight arrow
 			const endPos = this.to.radiusPoint(this.from.getPos(), 0, 0);
-			labelPoint = Arrow.drawArrow(context, this.from.getPos(), endPos, this.from.getPos(), this.to.getPos(), this.color);
+			labelPoint = Arrow.drawArrow(canvas, this.from.getPos(), endPos, this.from.getPos(), this.to.getPos(), scale, offset, this.color);
 		}
 
 		if (this.element) {

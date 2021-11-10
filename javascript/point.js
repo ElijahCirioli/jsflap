@@ -45,10 +45,4 @@ class Point {
 		);
 		return shortenedEnd;
 	}
-
-	static shortenedEndPoint(start, end, distance) {
-		const fullLength = start.distance(end);
-		const newLength = Math.max(fullLength - distance, 0);
-		return end.normalizeEndPoint(start, newLength);
-	}
 }
