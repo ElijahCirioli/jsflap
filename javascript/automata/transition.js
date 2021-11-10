@@ -4,7 +4,6 @@ class Transition {
 		this.to = toState;
 		this.labels = new Set();
 		this.color = "#2c304d";
-		this.preview = false;
 		this.id = fromState.getId() + "-" + toState.getId();
 		this.delimeter = ", ";
 		if (label !== undefined) {
@@ -49,12 +48,7 @@ class Transition {
 	}
 
 	makePreview() {
-		this.preview = true;
 		this.color = "rgba(139, 138, 150, 0.5)";
-	}
-
-	isPreview() {
-		return this.preview;
 	}
 
 	equals(t) {

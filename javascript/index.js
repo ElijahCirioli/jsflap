@@ -33,6 +33,8 @@ function createEnvironment() {
 		e.stopPropagation();
 		removeEnvironment(newEnv);
 	});
+
+	return newEnv;
 }
 
 function unselectAllEnvironments() {
@@ -117,6 +119,19 @@ $("document").ready(() => {
 	$("#menu-new-button").click((e) => {
 		hideDropdowns();
 		createEnvironment();
+	});
+
+	$("#menu-open-button").click((e) => {
+		hideDropdowns();
+		new FileParser();
+	});
+
+	$("#menu-save-button").on("mouseenter focus", (e) => {
+		new EnvironmentSaver(activeEnvironment);
+	});
+
+	$("#menu-save-button").click((e) => {
+		hideDropdowns();
 	});
 
 	$("#menu-close-button").click((e) => {

@@ -27,6 +27,11 @@ class Environment {
 		return this.name;
 	}
 
+	setName(newName) {
+		this.name = newName;
+		this.tab.children(".environment-tab-name").text(newName);
+	}
+
 	getTab() {
 		return this.tab;
 	}
@@ -39,8 +44,6 @@ class Environment {
 		}
 		this.input.displayValidity(words);
 	}
-
-	runUpdatedInputs(words) {}
 
 	createContent() {
 		const content = $(`

@@ -19,6 +19,7 @@ class Automaton {
 		if (initial) {
 			this.setInitialState(state);
 		}
+		return state;
 	}
 
 	removeState(state) {

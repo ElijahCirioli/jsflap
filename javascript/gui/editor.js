@@ -87,15 +87,16 @@ class Editor {
 		this.automaton.drawAllStates();
 	}
 
-	createState(pos) {
-		const firstState = this.automaton.getStates().size === 0;
+	createState(pos, autoFinal) {
+		const firstState = autoFinal && this.automaton.getStates().size === 0;
 		const name = this.automaton.getNextName();
 		const element = $(`<div class="state"><p class="state-name">${name}</p></div>`);
 		this.statesWrap.append(element);
-		this.automaton.addState(pos, name, element, firstState);
+		const state = this.automaton.addState(pos, name, element, firstState);
 		this.setupStateListeners(element);
 		this.draw();
 		this.triggerTest();
+		return state;
 	}
 
 	createPreviewState() {
@@ -150,28 +151,35 @@ class Editor {
 		this.labelsWrap.children(".label-form").css("pointer-events", "none");
 	}
 
-	endTransition(element) {
+	endTransition(element, autoLambda) {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
+		let t;
 
 		this.labelsWrap.children(".label-form").css("pointer-events", "all");
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
 			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`);
 			this.labelsWrap.append(labelElement);
-			const t = this.automaton.addTransition(this.startState, endState, "", labelElement);
+			const tLabel = autoLambda ? "" : undefined;
+			t = this.automaton.addTransition(this.startState, endState, tLabel, labelElement);
 			this.setupLabelListeners(labelElement, t);
-			t.focusElement();
-			t.selectLabelText();
-			this.unselectAllTransitions();
-			this.selectTransition(t);
+			if (autoLambda) {
+				t.focusElement();
+				t.selectLabelText();
+				this.unselectAllTransitions();
+				this.selectTransition(t);
+			}
 		} else {
-			const t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
-			t.focusElement();
-			this.selectTransition(t);
+			t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
+			if (autoLambda) {
+				t.focusElement();
+				this.selectTransition(t);
+			}
 		}
 
 		this.triggerTest();
 		this.startState = undefined;
+		return t;
 	}
 
 	stopDrag() {
@@ -339,9 +347,10 @@ class Editor {
 			<button class="menu-child-item" id="make-initial-button"><i class="fas ${initialIcon}"></i> Initial</button>
 			<button class="menu-child-item" id="rename-button">Rename</button>
 		</div>`);
+
 		menu.css("top", pos.y + "px");
 		menu.css("left", pos.x + "px");
-		this.labelsWrap.append(menu);
+		this.editorWrap.append(menu);
 
 		// stop propagation to save us from some issues
 		menu.on("mousedown", (e) => {
@@ -407,7 +416,7 @@ class Editor {
 	removeRightClickMenu() {
 		// this has a weird jQuery error that I don't think is my fault so I'm just gonna wrap it in this
 		try {
-			this.labelsWrap.children(".right-click-menu").remove();
+			this.editorWrap.children(".right-click-menu").remove();
 		} catch (e) {}
 	}
 
@@ -445,7 +454,7 @@ class Editor {
 		});
 
 		// calculate the new scale
-		const bufferSize = 80;
+		const bufferSize = 100;
 		const xScale = (this.canvas.width - 2 * bufferSize) / (maxCoords.x - minCoords.x);
 		const yScale = (this.canvas.height - 2 * bufferSize) / (maxCoords.y - minCoords.y);
 		this.scale = Math.max(Math.min(xScale, yScale, 3), 0.3);
@@ -465,10 +474,12 @@ class Editor {
 		this.labelsWrap.css("-webkit-transform", transformString);
 		this.labelsWrap.css("-moz-transform", transformString);
 
+		// states wrap
 		this.statesWrap.css("transform", transformString);
 		this.statesWrap.css("-webkit-transform", transformString);
 		this.statesWrap.css("-moz-transform", transformString);
 
+		this.removeRightClickMenu();
 		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 	}
 
@@ -510,7 +521,7 @@ class Editor {
 			if (this.tool === "state") {
 				this.unselectAllStates();
 				this.unselectAllTransitions();
-				this.createState(pos);
+				this.createState(pos, true);
 			}
 		});
 
@@ -636,13 +647,13 @@ class Editor {
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
 			} else if (key === "ArrowDown") {
-				this.adjustOffset(new Point(0, panAmount));
-			} else if (key === "ArrowUp") {
 				this.adjustOffset(new Point(0, -panAmount));
+			} else if (key === "ArrowUp") {
+				this.adjustOffset(new Point(0, panAmount));
 			} else if (key === "ArrowLeft") {
-				this.adjustOffset(new Point(-panAmount, 0));
-			} else if (key === "ArrowRight") {
 				this.adjustOffset(new Point(panAmount, 0));
+			} else if (key === "ArrowRight") {
+				this.adjustOffset(new Point(-panAmount, 0));
 			}
 		});
 
@@ -751,7 +762,7 @@ class Editor {
 				this.removeSelectionBox();
 			} else if (this.tool === "transition" && this.startState) {
 				this.removePreviewTransition();
-				this.endTransition($(e.currentTarget));
+				this.endTransition($(e.currentTarget), true);
 			}
 		});
 
@@ -766,16 +777,21 @@ class Editor {
 		// right click on state
 		state.on("contextmenu", (e) => {
 			e.preventDefault();
-			const pos = this.getAdjustedPos(e);
+			const editorOffset = $(this.editorWrap).offset();
+			const rawPos = new Point(e.clientX - editorOffset.left, e.clientY - editorOffset.top);
 
 			this.selectState(stateObj);
-			this.createRightClickMenu(stateObj, pos);
+			this.createRightClickMenu(stateObj, rawPos);
 		});
 
 		const name = state.children(".state-name");
 		name.on("focusout", (e) => {
 			state.children(".state-name").attr("contenteditable", false);
 			stateObj.setName(name.text());
+		});
+
+		name.on("keydown", (e) => {
+			e.stopPropagation();
 		});
 
 		name.on("keyup", (e) => {

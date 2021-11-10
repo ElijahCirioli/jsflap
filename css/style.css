@@ -87,15 +87,23 @@ body {
 	background-color: var(--regular-color);
 	color: var(--text-color);
 	font-family: "Rubik", sans-serif;
+	font-size: 0.85rem;
+	text-decoration: none;
 	border: none;
 	outline: none;
 	transition: background-color 0.1s;
 	position: relative;
 	margin: 0;
 	padding: 0 10px;
+	display: block;
 }
 .menu-child-item:hover {
 	background-color: var(--selected-color);
+}
+.menu-download-link {
+	line-height: 1.3rem;
+	width: calc(100% - 20px);
+	min-width: calc(fit-content - 20px);
 }
 #content-wrap {
 	width: 100%;
@@ -195,4 +203,9 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--glow-color);
+}
+.file-input {
+	visibility: hidden;
+	z-index: -10;
+	position: absolute;
 }
