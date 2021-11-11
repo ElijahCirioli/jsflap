@@ -645,6 +645,7 @@ class Editor {
 
 		// use scrollwheel on editor
 		this.editorWrap.on("wheel", (e) => {
+			e.preventDefault();
 			if (e.originalEvent.deltaY > 0) {
 				this.zoomOut();
 			} else {

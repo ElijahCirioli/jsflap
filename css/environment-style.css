@@ -234,7 +234,7 @@
 	justify-content: flex-start;
 	gap: 5px;
 }
-.inputs-title {
+.environment-siderbar-title {
 	text-align: left;
 	font-family: "Fredoka One", cursive;
 	margin: 0;
@@ -401,4 +401,32 @@
 }
 #zoom-in-button {
 	border-bottom: none;
+}
+.messages-content {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: flex-start;
+	width: calc(100% - 20px);
+	margin: 10px auto;
+}
+.message:nth-child(2n) {
+	background-color: #d4d4d4;
+}
+.message {
+	margin: 0;
+	background-color: var(--text-color);
+	color: #48494d;
+	font-size: 0.85rem;
+	width: calc(100% - 5px);
+	text-align: left;
+	padding: 2px 0 2px 5px;
+}
+.warning-message {
+	background-color: #de8383;
+	color: #592323;
+}
+.warning-message:nth-child(2n) {
+	background-color: #c96b6b;
 }

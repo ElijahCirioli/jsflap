@@ -83,6 +83,19 @@ class Automaton {
 		this.initialState = undefined;
 	}
 
+	hasInitialState() {
+		return this.initialState !== undefined;
+	}
+
+	hasFinalState() {
+		for (const s of this.states) {
+			if (s[1].isFinal()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	addFinalState(state) {
 		state.setFinal(true);
 	}
@@ -137,6 +150,88 @@ class Automaton {
 		}
 
 		return false;
+	}
+
+	getAlphabet() {
+		const alphabet = new Set();
+		if (this.initialState) {
+			this.states.forEach((s) => {
+				s.getTransitions().forEach((t) => {
+					t.getLabels().forEach((char) => {
+						alphabet.add(char);
+					});
+				});
+			});
+		}
+		return alphabet;
+	}
+
+	isDFA(alphabet) {
+		if (!this.initialState) {
+			return false;
+		}
+		const queue = [this.initialState];
+		const visited = new Set();
+		while (queue.length > 0) {
+			const state = queue.shift();
+			visited.add(state);
+			const transitions = state.getTransitions();
+			const labels = new Set();
+			for (const item of transitions) {
+				const t = item[1];
+
+				for (const char of t.getLabels()) {
+					// check for non-determinism and lambda transition
+					if (labels.has(char) || char === "") {
+						return false;
+					}
+					labels.add(char);
+				}
+
+				// add toState to queue
+				const toState = t.getToState();
+				if (!visited.has(toState)) {
+					queue.push(toState);
+				}
+			}
+
+			// see if the state is missing transitions for a character in the alphabet
+			for (const char of alphabet) {
+				if (!labels.has(char)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	getUnreachableStates() {
+		if (!this.initialState) {
+			return false;
+		}
+		const queue = [this.initialState];
+		const visited = new Set();
+		while (queue.length > 0) {
+			const state = queue.shift();
+			visited.add(state);
+			state.getTransitions().forEach((t) => {
+				// add toState to queue
+				const toState = t.getToState();
+				if (!visited.has(toState)) {
+					queue.push(toState);
+				}
+			});
+		}
+
+		// find difference between visited and states
+		const unreachable = new Set();
+		this.states.forEach((s) => {
+			if (!visited.has(s)) {
+				unreachable.add(s);
+			}
+		});
+
+		return unreachable;
 	}
 
 	drawAllStates() {

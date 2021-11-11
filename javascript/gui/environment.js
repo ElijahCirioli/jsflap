@@ -11,6 +11,7 @@ class Environment {
 		};
 
 		this.input = new InputContainer(this.content, callback);
+		this.messages = new MessagesContainer(this.content);
 		this.editor = new Editor(this.content, callback);
 
 		this.setupListeners();
@@ -62,6 +63,7 @@ class Environment {
 			words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
 		}
 		this.input.displayValidity(words);
+		this.messages.generateMessages(this.editor.getAutomaton());
 		this.updateLocalStorage();
 	}
 
@@ -118,7 +120,6 @@ class Environment {
 	updateLocalStorage() {
 		const data = this.getSaveObject();
 		const dataString = JSON.stringify(data);
-
 		window.localStorage.setItem(this.id, dataString);
 	}
 
