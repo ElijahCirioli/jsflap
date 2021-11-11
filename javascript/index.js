@@ -127,6 +127,34 @@ $("document").ready(() => {
 	});
 
 	// file menu
+	$("#file-menu").on("mouseenter focus pointerenter", (e) => {
+		// update recent projects selection
+		$("#menu-open-recent-subgroup").empty();
+		const allProjects = [];
+		Object.keys(window.localStorage).forEach((key) => {
+			const project = window.localStorage.getItem(key);
+			allProjects.push(JSON.parse(project));
+		});
+		allProjects.sort((a, b) => {
+			return b.updated - a.updated;
+		});
+
+		const numToDisplay = 6;
+		for (let i = 0; i < allProjects.length; i++) {
+			const project = allProjects[i];
+			if (i < numToDisplay) {
+				const button = $(`<button class="menu-child-item menu-child-subgroup-item">${project.name}</button>`);
+				$("#menu-open-recent-subgroup").append(button);
+				button.click((e) => {
+					hideDropdowns();
+					FileParser.parseJSON(project, false);
+				});
+			} else {
+				window.localStorage.removeItem(project.id);
+			}
+		}
+	});
+
 	$("#menu-new-button").click((e) => {
 		hideDropdowns();
 		createEnvironment();
@@ -138,7 +166,11 @@ $("document").ready(() => {
 	});
 
 	$("#menu-save-button").on("mouseenter focus", (e) => {
-		new EnvironmentSaver(activeEnvironment);
+		const data = activeEnvironment.getSaveObject();
+		const file = new Blob([JSON.stringify(data, null, 4)], { type: "text/plain" });
+		const link = $("#menu-save-button");
+		link.attr("href", URL.createObjectURL(file));
+		link.attr("download", data.name + ".jsf");
 	});
 
 	$("#menu-save-button").click((e) => {

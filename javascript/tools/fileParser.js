@@ -92,45 +92,52 @@ class FileParser {
 		const reader = new FileReader();
 		reader.readAsText(file, "UTF-8");
 		reader.onload = (e) => {
-			try {
-				const obj = JSON.parse(e.target.result);
-				const env = createEnvironment();
-				const editor = env.getEditor();
-				const elementMap = new Map();
-
-				env.setName(obj.name);
-
-				for (const s of obj.states) {
-					const pos = new Point(s.x, s.y);
-					const state = editor.createState(pos, false);
-					FileParser.setStateName(state, s.name);
-					if (s.final) {
-						editor.getAutomaton().addFinalState(state);
-					}
-					if (s.initial) {
-						editor.getAutomaton().setInitialState(state);
-					}
-					elementMap.set(s.id, state.getElement());
-				}
-
-				for (const t of obj.transitions) {
-					const fromState = elementMap.get(t.from);
-					const toState = elementMap.get(t.to);
-					if (fromState && toState) {
-						editor.startTransition(fromState);
-						const transitionObj = editor.endTransition(toState, false);
-						for (const label of t.labels) {
-							transitionObj.addLabel(label);
-						}
-					}
-				}
-
-				editor.zoomFit();
-			} catch (ex) {
-				console.log(`failed to parse file ${file.name}:`);
-				console.log(ex);
-			}
+			const obj = JSON.parse(e.target.result);
+			FileParser.parseJSON(obj, true);
 		};
+	}
+
+	static parseJSON(obj, autoId) {
+		try {
+			const env = createEnvironment();
+			const editor = env.getEditor();
+			const elementMap = new Map();
+
+			env.setName(obj.name);
+			if (!autoId) {
+				env.setId(obj.id);
+			}
+
+			for (const s of obj.states) {
+				const pos = new Point(s.x, s.y);
+				const state = editor.createState(pos, false);
+				FileParser.setStateName(state, s.name);
+				if (s.final) {
+					editor.getAutomaton().addFinalState(state);
+				}
+				if (s.initial) {
+					editor.getAutomaton().setInitialState(state);
+				}
+				elementMap.set(s.id, state.getElement());
+			}
+
+			for (const t of obj.transitions) {
+				const fromState = elementMap.get(t.from);
+				const toState = elementMap.get(t.to);
+				if (fromState && toState) {
+					editor.startTransition(fromState);
+					const transitionObj = editor.endTransition(toState, false);
+					for (const label of t.labels) {
+						transitionObj.addLabel(label);
+					}
+				}
+			}
+
+			editor.zoomFit();
+		} catch (ex) {
+			console.log(`failed to parse file ${obj.name}:`);
+			console.log(ex);
+		}
 	}
 
 	static setStateName(state, newName) {

@@ -3,6 +3,7 @@ class Environment {
 		this.tab = tabElement;
 		this.name = this.tab.children(".environment-tab-name").text();
 		this.content = this.createContent();
+		this.id = this.generateId();
 
 		// wrap the callback function to preserve "this"
 		const callback = () => {
@@ -36,6 +37,24 @@ class Environment {
 		return this.tab;
 	}
 
+	getId() {
+		return this.id;
+	}
+
+	setId(newId) {
+		this.id = newId;
+	}
+
+	generateId() {
+		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+		const idLength = 32;
+		let id = "";
+		for (let i = 0; i < idLength; i++) {
+			id += possibleChars[Math.floor(Math.random() * possibleChars.length)];
+		}
+		return id;
+	}
+
 	testAllInputs() {
 		const words = this.input.aggregateAllInputs();
 		for (const word of words) {
@@ -43,6 +62,7 @@ class Environment {
 			words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
 		}
 		this.input.displayValidity(words);
+		this.updateLocalStorage();
 	}
 
 	createContent() {
@@ -95,6 +115,45 @@ class Environment {
 		this.content.remove();
 	}
 
+	updateLocalStorage() {
+		const data = this.getSaveObject();
+		const dataString = JSON.stringify(data);
+
+		window.localStorage.setItem(this.id, dataString);
+	}
+
+	getSaveObject() {
+		const data = {
+			name: this.name,
+			id: this.id,
+			updated: Date.now(),
+			states: [],
+			transitions: [],
+		};
+		const automaton = this.editor.getAutomaton();
+
+		automaton.getStates().forEach((s) => {
+			data.states.push({
+				x: s.getPos().x,
+				y: s.getPos().y,
+				name: s.getName(),
+				id: s.getId(),
+				final: s.isFinal(),
+				initial: s.isInitial(),
+			});
+
+			s.getTransitions().forEach((t) => {
+				data.transitions.push({
+					from: t.getFromState().getId(),
+					to: t.getToState().getId(),
+					labels: Array.from(t.getLabels()),
+				});
+			});
+		});
+
+		return data;
+	}
+
 	setupListeners() {
 		this.content
 			.children(".tool-bar")
@@ -110,6 +169,7 @@ class Environment {
 
 		this.tab.children(".environment-tab-name").on("keyup change", (e) => {
 			this.name = this.tab.children(".environment-tab-name").text();
+			this.updateLocalStorage();
 		});
 
 		this.tab.children(".environment-tab-name").on("keydown", (e) => {
