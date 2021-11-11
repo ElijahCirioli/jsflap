@@ -133,7 +133,9 @@ $("document").ready(() => {
 		const allProjects = [];
 		Object.keys(window.localStorage).forEach((key) => {
 			const project = window.localStorage.getItem(key);
-			allProjects.push(JSON.parse(project));
+			if (project.includes("transitions") && project.includes("states")) {
+				allProjects.push(JSON.parse(project));
+			}
 		});
 		allProjects.sort((a, b) => {
 			return b.updated - a.updated;

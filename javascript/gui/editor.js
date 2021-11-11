@@ -431,13 +431,13 @@ class Editor {
 	}
 
 	zoomIn() {
-		const zoomFactor = 5 / 4;
+		const zoomFactor = 20 / 17;
 		this.scale = Math.min(this.scale * zoomFactor, 3);
 		this.adjustCamera();
 	}
 
 	zoomOut() {
-		const zoomFactor = 4 / 5;
+		const zoomFactor = 17 / 20;
 		this.scale = Math.max(this.scale * zoomFactor, 0.3);
 		this.adjustCamera();
 	}
@@ -540,7 +540,17 @@ class Editor {
 			e.stopPropagation();
 			const pos = this.getAdjustedPos(e);
 
-			if (this.tool === "point") {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+
+			if (this.tool === "pan" || middleClick) {
+				if (this.clicked && this.lastMousePos) {
+					// this is a lot of work to basically unadjust the mouse coordinates to be in their raw form but it means we need less variables
+					const delta = new Point((pos.x - this.lastMousePos.x) * this.scale, (pos.y - this.lastMousePos.y) * this.scale);
+					this.adjustOffset(delta);
+					// recalculate adjusted pos with new offset
+					this.lastMousePos = this.getAdjustedPos(e);
+				}
+			} else if (this.tool === "point") {
 				if (this.clicked && this.lastMousePos) {
 					// drag selected states
 					const stateOffset = new Point(pos.x - this.lastMousePos.x, pos.y - this.lastMousePos.y);
@@ -570,14 +580,6 @@ class Editor {
 				} else if (this.selectionBoxPoint) {
 					this.moveSelectionBox(pos);
 				}
-			} else if (this.tool === "pan") {
-				if (this.clicked && this.lastMousePos) {
-					// this is a lot of work to basically unadjust the mouse coordinates to be in their raw form but it means we need less variables
-					const delta = new Point((pos.x - this.lastMousePos.x) * this.scale, (pos.y - this.lastMousePos.y) * this.scale);
-					this.adjustOffset(delta);
-					// recalculate adjusted pos with new offset
-					this.lastMousePos = this.getAdjustedPos(e);
-				}
 			} else if (this.tool === "state") {
 				this.movePreviewState(pos);
 			} else if (this.tool === "transition" && this.startState) {
@@ -594,14 +596,16 @@ class Editor {
 			e.stopPropagation();
 			const pos = this.getAdjustedPos(e);
 
-			if (this.tool === "point" || this.tool === "trash") {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+
+			if (this.tool === "pan" || middleClick) {
+				this.startDrag(pos);
+			} else if (this.tool === "point" || this.tool === "trash") {
 				if (!controlKey && !shiftKey) {
 					this.unselectAllStates();
 					this.unselectAllTransitions();
 				}
 				this.startSelectionBox(pos);
-			} else if (this.tool === "pan") {
-				this.startDrag(pos);
 			}
 		});
 
@@ -621,8 +625,6 @@ class Editor {
 				this.removePreviewTransition();
 			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
-			} else if (this.tool === "pan") {
-				this.stopDrag();
 			}
 		});
 
@@ -639,6 +641,16 @@ class Editor {
 			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
 			}
+		});
+
+		// use scrollwheel on editor
+		this.editorWrap.on("wheel", (e) => {
+			if (e.originalEvent.deltaY > 0) {
+				this.zoomOut();
+			} else {
+				this.zoomIn();
+			}
+			this.movePreviewState(this.getAdjustedPos(e));
 		});
 
 		// general editor key events
@@ -710,9 +722,12 @@ class Editor {
 			if (this.tool !== "state") {
 				e.stopPropagation();
 			}
+
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+
 			const id = $(e.currentTarget).attr("id");
 			const state = this.automaton.getStateById(id);
-			if (this.tool === "trash") {
+			if (this.tool === "trash" && !middleClick) {
 				if (this.selectedStates.has(state)) {
 					this.selectedStates.forEach((s) => {
 						this.automaton.removeState(s);
@@ -728,16 +743,14 @@ class Editor {
 
 		// put mouse down on state
 		state.on("mousedown", (e) => {
-			e = window.event || e;
-			e.stopPropagation();
-
-			// try to stop right clicks
-			if ("which" in e && e.which == 3) {
-				return;
-			} else if ("button" in e && e.button == 2) {
+			// stop right and middle clicks
+			const rightClick = ("which" in e && e.which === 3) || ("button" in e && e.button === 2);
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (middleClick || rightClick) {
 				return;
 			}
 
+			e.stopPropagation();
 			const pos = this.getAdjustedPos(e);
 
 			this.removeRightClickMenu();
@@ -769,6 +782,11 @@ class Editor {
 			this.stopDrag();
 			this.stopDragPan();
 
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (middleClick) {
+				return;
+			}
+
 			if (this.tool === "point") {
 				if (!controlKey && !shiftKey && this.selectedStates.size === 1) {
 					this.unselectState(stateObj);
@@ -784,6 +802,11 @@ class Editor {
 
 		// move mouse on state
 		state.on("mousemove", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (middleClick) {
+				return;
+			}
+
 			if (this.tool === "transition" && this.startState) {
 				this.createPreviewTransition(stateObj);
 				e.stopPropagation();
@@ -824,6 +847,11 @@ class Editor {
 		const input = label.children(".label-input");
 
 		label.click((e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (middleClick) {
+				return;
+			}
+
 			e.stopPropagation();
 
 			if (this.tool === "point" || this.tool === "transition") {
@@ -860,12 +888,18 @@ class Editor {
 		});
 
 		label.on("mousedown", (e) => {
-			e.stopPropagation();
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
 		});
 
 		label.on("mouseup", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
 			this.removeSelectionBox();
-			e.stopPropagation();
 		});
 
 		input.on("focusout", (e) => {
