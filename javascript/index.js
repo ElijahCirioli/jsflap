@@ -110,6 +110,17 @@ $("document").ready(() => {
 		}
 	};
 
+	// file input drag and drop
+	$("#content-wrap").on("dragenter dragover", (e) => {
+		e.preventDefault();
+	});
+
+	$("#content-wrap").on("drop", (e) => {
+		e.preventDefault();
+		const files = e.originalEvent.dataTransfer.files;
+		new FileParser(files);
+	});
+
 	// tab new button
 	$("#new-environment-button").click((e) => {
 		createEnvironment();

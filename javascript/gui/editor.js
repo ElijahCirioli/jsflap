@@ -304,7 +304,11 @@ class Editor {
 				.forEach((stateElement) => {
 					if (this.elementBoundingBoxCollision(stateElement, selectionBox)) {
 						const state = this.automaton.getStateById($(stateElement).attr("id"));
-						this.selectState(state);
+						if (this.tool === "trash") {
+							this.automaton.removeState(state);
+						} else {
+							this.selectState(state);
+						}
 					}
 				});
 			this.labelsWrap
@@ -316,12 +320,18 @@ class Editor {
 						const fromState = this.automaton.getStateById(ids[0]);
 						const toState = this.automaton.getStateById(ids[1]);
 						const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
-						this.selectTransition(transition);
-						if (this.selectedStates.size === 0) {
-							transition.focusElement();
+
+						if (this.tool === "trash") {
+							this.automaton.removeTransition(transition);
+						} else {
+							this.selectTransition(transition);
+							if (this.selectedStates.size === 0) {
+								transition.focusElement();
+							}
 						}
 					}
 				});
+			this.draw();
 		}
 
 		this.labelsWrap.children(".selection-box").remove();
@@ -572,6 +582,10 @@ class Editor {
 				this.movePreviewState(pos);
 			} else if (this.tool === "transition" && this.startState) {
 				this.statelessPreviewTransition(pos);
+			} else if (this.tool === "trash") {
+				if (this.selectionBoxPoint) {
+					this.moveSelectionBox(pos);
+				}
 			}
 		});
 
@@ -580,7 +594,7 @@ class Editor {
 			e.stopPropagation();
 			const pos = this.getAdjustedPos(e);
 
-			if (this.tool === "point") {
+			if (this.tool === "point" || this.tool === "trash") {
 				if (!controlKey && !shiftKey) {
 					this.unselectAllStates();
 					this.unselectAllTransitions();
@@ -605,7 +619,7 @@ class Editor {
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
-			} else if (this.tool === "point") {
+			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
 			} else if (this.tool === "pan") {
 				this.stopDrag();
@@ -622,7 +636,7 @@ class Editor {
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
-			} else if (this.tool === "point") {
+			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
 			}
 		});
@@ -763,6 +777,8 @@ class Editor {
 			} else if (this.tool === "transition" && this.startState) {
 				this.removePreviewTransition();
 				this.endTransition($(e.currentTarget), true);
+			} else if (this.tool === "trash") {
+				this.removeSelectionBox();
 			}
 		});
 
