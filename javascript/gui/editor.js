@@ -58,6 +58,11 @@ class Editor {
 			stateElements.css("cursor", "pointer");
 			labelElements.children(".label-input").css("cursor", "pointer");
 		} else if (this.tool === "chain") {
+			this.editorWrap.css("cursor", "pointer");
+			stateElements.css("cursor", "pointer");
+			this.unselectAllStates();
+			this.unselectAllTransitions();
+			this.createPreviewState();
 		}
 		this.editorWrap.focus();
 	}
@@ -148,7 +153,6 @@ class Editor {
 	startTransition(element) {
 		const id = element.attr("id");
 		this.startState = this.automaton.getStateById(id);
-		this.unselectAllTransitions();
 		this.labelsWrap.children(".label-form").css("pointer-events", "none");
 	}
 
@@ -165,10 +169,10 @@ class Editor {
 			t = this.automaton.addTransition(this.startState, endState, tLabel, labelElement);
 			this.setupLabelListeners(labelElement, t);
 			if (autoLambda) {
-				t.focusElement();
-				t.selectLabelText();
 				this.unselectAllTransitions();
 				this.selectTransition(t);
+				t.focusElement();
+				t.selectLabelText();
 			}
 		} else {
 			t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
@@ -535,10 +539,21 @@ class Editor {
 			const pos = this.getAdjustedPos(e);
 
 			this.removeRightClickMenu();
-			if (this.tool === "state") {
+			if (this.tool === "state" || this.tool === "chain") {
 				this.unselectAllStates();
 				this.unselectAllTransitions();
-				this.createState(pos, true);
+				const state = this.createState(pos, true);
+
+				if (this.tool === "chain") {
+					const element = state.getElement();
+					if (this.startState) {
+						this.endTransition(element, true);
+					} else {
+						this.unselectAllTransitions();
+					}
+					this.startTransition(element);
+					this.labelsWrap.children(".label-form").css("pointer-events", "all");
+				}
 			}
 		});
 
@@ -595,6 +610,13 @@ class Editor {
 				if (this.selectionBoxPoint) {
 					this.moveSelectionBox(pos);
 				}
+			} else if (this.tool === "chain") {
+				this.movePreviewState(pos);
+				if (this.startState) {
+					const arrowDelta = new Point(pos.x - this.startState.getPos().x, pos.y - this.startState.getPos().y);
+					const radiusPos = pos.normalizeEndPoint(this.startState.pos, arrowDelta.magnitude() - 25);
+					this.statelessPreviewTransition(radiusPos);
+				}
 			}
 		});
 
@@ -647,6 +669,9 @@ class Editor {
 				this.removePreviewTransition();
 			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
+			} else if (this.tool === "chain") {
+				this.startState = undefined;
+				this.removePreviewTransition();
 			}
 		});
 
@@ -658,7 +683,13 @@ class Editor {
 			} else {
 				this.zoomIn();
 			}
-			this.movePreviewState(this.getAdjustedPos(e));
+			const pos = this.getAdjustedPos(e);
+			this.movePreviewState(pos);
+			if (this.tool === "chain" && this.startState) {
+				const arrowDelta = new Point(pos.x - this.startState.getPos().x, pos.y - this.startState.getPos().y);
+				const radiusPos = pos.normalizeEndPoint(this.startState.pos, arrowDelta.magnitude() - 25);
+				this.statelessPreviewTransition(radiusPos);
+			}
 		});
 
 		// general editor key events
@@ -688,6 +719,9 @@ class Editor {
 				this.adjustOffset(new Point(panAmount, 0));
 			} else if (key === "ArrowRight") {
 				this.adjustOffset(new Point(-panAmount, 0));
+			} else if (key === "Escape" && this.tool === "chain") {
+				this.startState = undefined;
+				this.removePreviewTransition();
 			}
 		});
 
@@ -733,15 +767,13 @@ class Editor {
 
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
 
-			const id = $(e.currentTarget).attr("id");
-			const state = this.automaton.getStateById(id);
 			if (this.tool === "trash" && !middleClick) {
-				if (this.selectedStates.has(state)) {
+				if (this.selectedStates.has(stateObj)) {
 					this.selectedStates.forEach((s) => {
 						this.automaton.removeState(s);
 					});
 				} else {
-					this.automaton.removeState(state);
+					this.automaton.removeState(stateObj);
 				}
 				this.unselectAllStates();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
@@ -759,6 +791,7 @@ class Editor {
 			}
 
 			e.stopPropagation();
+			e.preventDefault();
 			const pos = this.getAdjustedPos(e);
 
 			this.removeRightClickMenu();
@@ -779,8 +812,20 @@ class Editor {
 					this.startDrag(pos);
 				}
 			} else if (this.tool === "transition" && !this.startState) {
-				this.startTransition($(e.currentTarget));
+				this.unselectAllTransitions();
+				this.startTransition(state);
 				this.createPreviewTransition(stateObj);
+			} else if (this.tool === "chain") {
+				if (this.startState) {
+					this.removePreviewTransition();
+					if (this.startState === stateObj) {
+						this.startState = undefined;
+						return;
+					}
+					this.endTransition(state, true);
+				}
+				this.startTransition(state);
+				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 			}
 		});
 
@@ -802,14 +847,14 @@ class Editor {
 				this.removeSelectionBox();
 			} else if (this.tool === "transition" && this.startState) {
 				this.removePreviewTransition();
-				this.endTransition($(e.currentTarget), true);
+				this.endTransition(state, true);
 			} else if (this.tool === "trash") {
 				this.removeSelectionBox();
 			}
 		});
 
 		// move mouse on state
-		state.on("mousemove", (e) => {
+		state.on("mousemove mouseenter", (e) => {
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
 			if (middleClick) {
 				return;
@@ -817,6 +862,12 @@ class Editor {
 
 			if (this.tool === "transition" && this.startState) {
 				this.createPreviewTransition(stateObj);
+				e.stopPropagation();
+			} else if (this.tool === "chain") {
+				if (this.startState) {
+					this.createPreviewTransition(stateObj);
+				}
+				this.movePreviewState(new Point(9999999, 9999999));
 				e.stopPropagation();
 			}
 		});
@@ -862,7 +913,7 @@ class Editor {
 
 			e.stopPropagation();
 
-			if (this.tool === "point" || this.tool === "transition") {
+			if (this.tool === "point" || this.tool === "transition" || this.tool === "chain") {
 				if (controlKey || shiftKey) {
 					if (this.selectedTransitions.has(transition)) {
 						this.unselectTransition(transition);
@@ -908,6 +959,14 @@ class Editor {
 				e.stopPropagation();
 			}
 			this.removeSelectionBox();
+		});
+
+		label.on("mouseenter mousemove", (e) => {
+			if (this.tool === "chain") {
+				this.movePreviewState(new Point(9999999, 9999999));
+				this.removePreviewTransition();
+				e.stopPropagation();
+			}
 		});
 
 		input.on("focusout", (e) => {
@@ -989,6 +1048,8 @@ class Editor {
 				} else if (key === "ArrowLeft") {
 					e.stopPropagation();
 					newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 0);
+				} else if (key === "ArrowUp" || key === "ArrowDown") {
+					e.stopPropagation();
 				}
 				if (key.length === 1) {
 					// add labels
@@ -1004,7 +1065,6 @@ class Editor {
 
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 				this.triggerTest();
-
 				input[0].setSelectionRange(newCursorPos, newCursorPos);
 			}
 		});

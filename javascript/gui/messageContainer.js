@@ -14,45 +14,47 @@ class MessagesContainer {
 
 	generateMessages(automaton) {
 		const messages = [];
-		if (!automaton.hasInitialState()) {
-			messages.push(new WarningMessage("The automaton has no initial state."));
-		} else {
-			let hasUnreachable = false;
-			if (automaton.getUnreachableStates().size > 0) {
-				messages.push(new WarningMessage("The automaton has unreachable states.", 1));
-				hasUnreachable = true;
-			}
+		if (automaton.getStates().size > 0) {
+			if (!automaton.hasInitialState()) {
+				messages.push(new WarningMessage("The automaton has no initial state."));
+			} else {
+				let hasUnreachable = false;
+				if (automaton.getUnreachableStates().size > 0) {
+					messages.push(new WarningMessage("The automaton has unreachable states.", 1));
+					hasUnreachable = true;
+				}
 
-			const alphabet = automaton.getAlphabet();
-			if (alphabet.size > 0) {
-				let msgString = "The alphabet is <i>";
-				alphabet.forEach((char) => {
-					if (char.length <= 1) {
-						msgString += char === "" ? lambdaChar : char;
-						msgString += ", ";
+				const alphabet = automaton.getAlphabet();
+				if (alphabet.size > 0) {
+					let msgString = "The alphabet is <i>";
+					alphabet.forEach((char) => {
+						if (char.length <= 1) {
+							msgString += char === "" ? lambdaChar : char;
+							msgString += ", ";
+						}
+					});
+					msgString = msgString.substring(0, msgString.length - 2);
+					msgString += "</i>.";
+					messages.push(new Message(msgString));
+
+					if (!hasUnreachable) {
+						if (automaton.isDFA(alphabet)) {
+							messages.push(new Message("The automaton is a DFA."));
+						} else {
+							messages.push(new Message("The automaton is an NFA."));
+						}
 					}
-				});
-				msgString = msgString.substring(0, msgString.length - 2);
-				msgString += "</i>.";
-				messages.push(new Message(msgString));
 
-				if (!hasUnreachable) {
-					if (automaton.isDFA(alphabet)) {
-						messages.push(new Message("The automaton is a DFA."));
+					if (automaton.containsCycle()) {
+						messages.push(new Message("The language is infinite."));
 					} else {
-						messages.push(new Message("The automaton is an NFA."));
+						messages.push(new Message("The language is finite."));
 					}
 				}
-
-				if (automaton.containsCycle()) {
-					messages.push(new Message("The language is infinite."));
-				} else {
-					messages.push(new Message("The language is finite."));
-				}
 			}
-		}
-		if (!automaton.hasFinalState()) {
-			messages.push(new WarningMessage("The automaton has no final states."));
+			if (!automaton.hasFinalState()) {
+				messages.push(new WarningMessage("The automaton has no final states."));
+			}
 		}
 
 		this.displayMessages(messages);
