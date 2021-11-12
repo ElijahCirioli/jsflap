@@ -13,6 +13,7 @@ class Environment {
 		this.input = new InputContainer(this.content, callback);
 		this.messages = new MessagesContainer(this.content);
 		this.editor = new Editor(this.content, callback);
+		this.popups = this.content.children(".editor").children(".editor-popup-container");
 
 		this.setupListeners();
 	}
@@ -91,6 +92,7 @@ class Environment {
 					</button>
 				</div>
 				<div class="editor" tabindex="0">
+					<div class="editor-popup-container"></div>
 					<div class="editor-zoom-container">
 						<div class="zoom-in-out-wrap">
 							<button class="zoom-button" id="zoom-in-button"><i class="fas fa-plus"></i></button>
@@ -115,6 +117,21 @@ class Environment {
 
 	removeContent() {
 		this.content.remove();
+	}
+
+	addPopupMessage(message) {
+		this.popups.empty();
+		this.popups.append(message);
+		this.popups.show();
+	}
+
+	removePopupMessages() {
+		this.popups.empty();
+		this.popups.hide();
+	}
+
+	isEmpty() {
+		return this.editor.getAutomaton().getStates().size === 0;
 	}
 
 	updateLocalStorage() {
@@ -179,6 +196,10 @@ class Environment {
 			if (key === "Enter") {
 				e.preventDefault();
 			}
+		});
+
+		this.popups.on("click mousedown mouseup keydown keyup", (e) => {
+			e.stopPropagation();
 		});
 	}
 }

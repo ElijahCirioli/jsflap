@@ -5,7 +5,7 @@ class MessagesContainer {
 	}
 
 	setupContainer() {
-		this.messagesWrap.append(`<h1 class="environment-siderbar-title">Messages</h1>`);
+		this.messagesWrap.append(`<h1 class="environment-sidebar-title">Messages</h1>`);
 		this.messagesContent = $(`
         <div class="messages-content">
         </div>`);

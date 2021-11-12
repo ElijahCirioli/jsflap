@@ -234,7 +234,7 @@
 	justify-content: flex-start;
 	gap: 5px;
 }
-.environment-siderbar-title {
+.environment-sidebar-title {
 	text-align: left;
 	font-family: "Fredoka One", cursive;
 	margin: 0;
@@ -429,4 +429,81 @@
 }
 .warning-message:nth-child(2n) {
 	background-color: #c96b6b;
+}
+.editor-popup-container {
+	z-index: 500;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.4);
+	display: none;
+	overflow: hidden;
+}
+.popup-message {
+	width: 300px;
+	max-width: 60%;
+	min-width: 20%;
+	margin: 120px auto;
+	background-color: var(--regular-color);
+}
+.popup-message-title {
+	text-align: left;
+	font-family: "Fredoka One", cursive;
+	margin: 0;
+	padding: 0 0 0 10px;
+	font-size: 1.3rem;
+	font-weight: 100;
+	height: 1.8rem;
+	line-height: 1.8rem;
+	width: calc(100% - 10px);
+	background-color: var(--selected-color);
+	color: var(--text-color);
+}
+.popup-message-content {
+	margin: 10px 15px;
+	padding-bottom: 10px;
+	min-height: 80px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	gap: 10px;
+}
+.popup-message-text {
+	text-align: left;
+	margin: 0;
+	width: 100%;
+}
+.popup-message-buttons {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	flex-wrap: nowrap;
+	justify-content: flex-end;
+	width: 100%;
+	gap: 15px;
+}
+.popup-message-button {
+	height: 100%;
+	min-width: 70px;
+	padding: 2px 5px;
+	font-family: "Rubik", sans-serif;
+	color: var(--regular-color);
+	background-color: var(--text-color);
+	border: none;
+	outline: none;
+	text-align: center;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: 0.2s;
+}
+.popup-message-button:hover {
+	background-color: var(--state-color);
+	transform: scale(1.05);
+}
+.popup-message-button:active {
+	transform: scale(0.98);
 }

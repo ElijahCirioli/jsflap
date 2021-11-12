@@ -31,7 +31,25 @@ function createEnvironment() {
 	// x button on tab
 	newTab.children(".environment-tab-delete-button").click((e) => {
 		e.stopPropagation();
-		removeEnvironment(newEnv);
+		if (newEnv.isEmpty()) {
+			removeEnvironment(newEnv);
+		} else if (environments.size > 1) {
+			if (newEnv !== activeEnvironment) {
+				newTab.click();
+			}
+			newEnv.addPopupMessage(
+				new PopupCancelMessage(
+					"Warning",
+					"Any unsaved work in this tab may be lost.",
+					() => {
+						removeEnvironment(newEnv);
+					},
+					() => {
+						newEnv.removePopupMessages();
+					}
+				)
+			);
+		}
 	});
 
 	return newEnv;

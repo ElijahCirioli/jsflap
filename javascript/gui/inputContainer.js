@@ -41,7 +41,7 @@ class InputContainer {
 	}
 
 	setupContainer() {
-		this.inputWrap.append(`<h1 class="environment-siderbar-title">Test inputs</h1>`);
+		this.inputWrap.append(`<h1 class="environment-sidebar-title">Test inputs</h1>`);
 		this.inputContent = $(`
         <div class="inputs-content">
             <form class="inputs-form">
