@@ -9,22 +9,25 @@ class Arrow {
 		return new Point(scale * (p.x - minBounds.x) + offset.x, scale * (p.y - minBounds.y) + offset.y);
 	}
 
-	static drawArrowTip(canvas, tip, angle, scale, offset, color) {
-		const context = canvas.getContext("2d");
-
+	static calculateTipPoints(cache, tip, angle) {
 		// calculate the vertices
 		const arrowAngle = Math.atan2(this.arrowWidth, this.arrowLength);
 		const arrowHypotenuse = new Point(this.arrowWidth, this.arrowLength).magnitude();
 		const reverseAngle = angle - Math.PI;
-		const point1 = new Point(arrowHypotenuse * Math.cos(reverseAngle + arrowAngle), arrowHypotenuse * Math.sin(reverseAngle + arrowAngle));
-		point1.add(tip);
-		const point2 = new Point(arrowHypotenuse * Math.cos(reverseAngle - arrowAngle), arrowHypotenuse * Math.sin(reverseAngle - arrowAngle));
-		point2.add(tip);
+		cache.point1 = new Point(arrowHypotenuse * Math.cos(reverseAngle + arrowAngle), arrowHypotenuse * Math.sin(reverseAngle + arrowAngle));
+		cache.point1.add(tip);
+		cache.point2 = new Point(arrowHypotenuse * Math.cos(reverseAngle - arrowAngle), arrowHypotenuse * Math.sin(reverseAngle - arrowAngle));
+		cache.point2.add(tip);
+		cache.tip = tip;
+	}
+
+	static drawArrowTip(canvas, cache, scale, offset, color) {
+		const context = canvas.getContext("2d");
 
 		// adjust points to camera
-		const adjTip = Arrow.scalePoint(tip, scale, offset, canvas);
-		const adjPoint1 = Arrow.scalePoint(point1, scale, offset, canvas);
-		const adjPoint2 = Arrow.scalePoint(point2, scale, offset, canvas);
+		const adjTip = Arrow.scalePoint(cache.tip, scale, offset, canvas);
+		const adjPoint1 = Arrow.scalePoint(cache.point1, scale, offset, canvas);
+		const adjPoint2 = Arrow.scalePoint(cache.point2, scale, offset, canvas);
 
 		// draw the tip
 		context.fillStyle = color;
@@ -36,17 +39,32 @@ class Arrow {
 		context.fill();
 	}
 
-	static drawArrow(canvas, start, end, centerStart, centerEnd, scale, offset, color) {
+	static drawArrow(canvas, cache, calculate, scale, offset, color) {
 		const context = canvas.getContext("2d");
 
-		// calculate constants
-		const length = start.distance(end);
-		const shortenedEnd = end.normalizeEndPoint(start, Math.max(length - this.arrowLength, 0));
-		const angle = Math.atan2(end.y - start.y, end.x - start.x);
+		if (calculate) {
+			// calculate constants
+			const length = cache.start.distance(cache.end);
+			cache.shortenedEnd = cache.end.normalizeEndPoint(cache.start, Math.max(length - this.arrowLength, 0));
+
+			// calculate the tip points
+			const angle = Math.atan2(cache.end.y - cache.start.y, cache.end.x - cache.start.x);
+			Arrow.calculateTipPoints(cache, cache.end, angle);
+
+			// calculate a point above the middle of the arrow
+			const multiplier = Math.sign(cache.start.x - cache.end.x);
+			const center = new Point((cache.from.x + cache.to.x) / 2, (cache.from.y + cache.to.y) / 2);
+			const orthogonalAngle = angle + Math.PI / 2;
+			const labelOffset = 22;
+			cache.labelPoint = new Point(
+				center.x + Math.cos(orthogonalAngle) * labelOffset * multiplier,
+				center.y + Math.sin(orthogonalAngle) * labelOffset * multiplier
+			);
+		}
 
 		// adjust points to camera
-		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
-		const adjEnd = Arrow.scalePoint(shortenedEnd, scale, offset, canvas);
+		const adjStart = Arrow.scalePoint(cache.start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(cache.shortenedEnd, scale, offset, canvas);
 
 		// draw line
 		context.lineWidth = 2 * scale;
@@ -57,40 +75,46 @@ class Arrow {
 		context.stroke();
 
 		// draw tip
-		this.drawArrowTip(canvas, end, angle, scale, offset, color);
+		this.drawArrowTip(canvas, cache, scale, offset, color);
 
-		// return a point above the middle of the arrow
-		const multiplier = Math.sign(start.x - end.x);
-		const center = new Point((centerStart.x + centerEnd.x) / 2, (centerStart.y + centerEnd.y) / 2);
-		const orthogonalAngle = angle + Math.PI / 2;
-		const labelOffset = 22;
-		return new Point(
-			center.x + Math.cos(orthogonalAngle) * labelOffset * multiplier,
-			center.y + Math.sin(orthogonalAngle) * labelOffset * multiplier
-		);
+		return cache.labelPoint;
 	}
 
-	static drawCurvedArrow(canvas, start, end, scale, offset, color) {
+	static drawCurvedArrow(canvas, cache, calculate, scale, offset, color) {
 		const context = canvas.getContext("2d");
 
-		// calculate constants
-		const curveAngle = 0.4;
-		const curveAmount = Math.min(50, start.distance(end) / 2 - 5);
+		if (calculate) {
+			// calculate constants
+			const curveAngle = 0.4;
+			const curveAmount = Math.min(50, cache.start.distance(cache.end) / 2 - 5);
 
-		// calculate bezier points
-		const angle1 = Math.atan2(end.y - start.y, end.x - start.x) + curveAngle;
-		const angle2 = Math.atan2(start.y - end.y, start.x - end.x) - curveAngle;
-		const control1 = new Point(Math.cos(angle1) * curveAmount, Math.sin(angle1) * curveAmount);
-		control1.add(start);
-		const control2 = new Point(Math.cos(angle2) * curveAmount, Math.sin(angle2) * curveAmount);
-		control2.add(end);
-		const lineEnd = new Point(end.x + Arrow.arrowLength * Math.cos(angle2), end.y + Arrow.arrowLength * Math.sin(angle2));
+			// calculate bezier points
+			const angle1 = Math.atan2(cache.end.y - cache.start.y, cache.end.x - cache.start.x) + curveAngle;
+			const angle2 = Math.atan2(cache.start.y - cache.end.y, cache.start.x - cache.end.x) - curveAngle;
+			cache.control1 = new Point(Math.cos(angle1) * curveAmount, Math.sin(angle1) * curveAmount);
+			cache.control1.add(cache.start);
+			cache.control2 = new Point(Math.cos(angle2) * curveAmount, Math.sin(angle2) * curveAmount);
+			cache.control2.add(cache.end);
+			cache.lineEnd = new Point(cache.end.x + Arrow.arrowLength * Math.cos(angle2), cache.end.y + Arrow.arrowLength * Math.sin(angle2));
+
+			// calculate the tip points
+			const tipAngle = Math.atan2(cache.end.y - cache.start.y, cache.end.x - cache.start.x) - curveAngle;
+			Arrow.calculateTipPoints(cache, cache.end, tipAngle);
+
+			// calculate a point above the apex of the curve
+			const orthogonalAngle = Math.atan2(cache.end.y - cache.start.y, cache.end.x - cache.start.x) + Math.PI / 2;
+			const labelOffset = cache.start.x > cache.end.x ? 17 : -3;
+			cache.labelPoint = new Point(
+				(cache.control1.x + cache.control2.x) / 2 + Math.cos(orthogonalAngle) * labelOffset,
+				(cache.control1.y + cache.control2.y) / 2 + Math.sin(orthogonalAngle) * labelOffset
+			);
+		}
 
 		// adjust points to camera
-		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
-		const adjEnd = Arrow.scalePoint(lineEnd, scale, offset, canvas);
-		const adjControl1 = Arrow.scalePoint(control1, scale, offset, canvas);
-		const adjControl2 = Arrow.scalePoint(control2, scale, offset, canvas);
+		const adjStart = Arrow.scalePoint(cache.start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(cache.lineEnd, scale, offset, canvas);
+		const adjControl1 = Arrow.scalePoint(cache.control1, scale, offset, canvas);
+		const adjControl2 = Arrow.scalePoint(cache.control2, scale, offset, canvas);
 
 		// draw line
 		context.lineWidth = 2 * scale;
@@ -101,37 +125,40 @@ class Arrow {
 		context.stroke();
 
 		// draw tip
-		const tipAngle = Math.atan2(end.y - start.y, end.x - start.x) - curveAngle;
-		this.drawArrowTip(canvas, end, tipAngle, scale, offset, color);
+		this.drawArrowTip(canvas, cache, scale, offset, color);
 
-		// return a point above the apex of the curve
-		const orthogonalAngle = Math.atan2(end.y - start.y, end.x - start.x) + Math.PI / 2;
-		const labelOffset = start.x > end.x ? 17 : -3;
-		return new Point(
-			(control1.x + control2.x) / 2 + Math.cos(orthogonalAngle) * labelOffset,
-			(control1.y + control2.y) / 2 + Math.sin(orthogonalAngle) * labelOffset
-		);
+		return cache.labelPoint;
 	}
 
-	static drawSelfArrow(canvas, start, end, center, scale, offset, color) {
+	static drawSelfArrow(canvas, cache, calculate, scale, offset, color) {
 		const context = canvas.getContext("2d");
 
-		// calculate constants
-		const inset = 5;
-		const height = 50;
-		const tipAngle = Math.atan2(height, inset);
+		if (calculate) {
+			// calculate constants
+			const inset = 5;
+			const height = 50;
+			const tipAngle = Math.atan2(height, inset);
 
-		// calculate bezier points
-		const control1 = new Point(start.x + inset, start.y - height);
-		const control2 = new Point(end.x - inset, end.y - height);
-		const endPoint = new Point(-Math.cos(tipAngle) * this.arrowLength, -Math.sin(tipAngle) * this.arrowLength);
-		endPoint.add(end);
+			// calculate bezier points
+			cache.control1 = new Point(cache.start.x + inset, cache.start.y - height);
+			cache.control2 = new Point(cache.end.x - inset, cache.end.y - height);
+			cache.endPoint = new Point(-Math.cos(tipAngle) * this.arrowLength, -Math.sin(tipAngle) * this.arrowLength);
+			cache.endPoint.add(cache.end);
+
+			// calculate a point above the apex of the curve
+			const labelOffset = 10;
+			const labelOffsetX = 2;
+			cache.labelPoint = new Point(cache.from.x + labelOffsetX, cache.start.y - height - labelOffset);
+
+			// calculate the tip points
+			Arrow.calculateTipPoints(cache, cache.end, tipAngle);
+		}
 
 		// adjust points to camera
-		const adjStart = Arrow.scalePoint(start, scale, offset, canvas);
-		const adjEnd = Arrow.scalePoint(endPoint, scale, offset, canvas);
-		const adjControl1 = Arrow.scalePoint(control1, scale, offset, canvas);
-		const adjControl2 = Arrow.scalePoint(control2, scale, offset, canvas);
+		const adjStart = Arrow.scalePoint(cache.start, scale, offset, canvas);
+		const adjEnd = Arrow.scalePoint(cache.endPoint, scale, offset, canvas);
+		const adjControl1 = Arrow.scalePoint(cache.control1, scale, offset, canvas);
+		const adjControl2 = Arrow.scalePoint(cache.control2, scale, offset, canvas);
 
 		// draw line
 		context.lineWidth = 2 * scale;
@@ -142,11 +169,8 @@ class Arrow {
 		context.stroke();
 
 		// draw tip
-		this.drawArrowTip(canvas, end, tipAngle, scale, offset, color);
+		this.drawArrowTip(canvas, cache, scale, offset, color);
 
-		// return a point above the apex of the curve
-		const labelOffset = 10;
-		const labelOffsetX = 2;
-		return new Point(center.x + labelOffsetX, start.y - height - labelOffset);
+		return cache.labelPoint;
 	}
 }

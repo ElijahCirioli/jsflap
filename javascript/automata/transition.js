@@ -6,6 +6,7 @@ class Transition {
 		this.color = "#2c304d";
 		this.id = fromState.getId() + "-" + toState.getId();
 		this.delimeter = ", ";
+		this.cache = {};
 		if (label !== undefined) {
 			this.labels.add(label);
 		}
@@ -70,28 +71,55 @@ class Transition {
 		this.element.children(".label-input")[0].setSelectionRange(9999, 9999);
 	}
 
-	draw(canvas, scale, offset) {
+	draw(canvas, scale, offset, updateLabel) {
 		let labelPoint;
+
+		let needsCalculation = false;
+		if (this.cache.to === undefined || !this.to.getPos().equals(this.cache.to)) {
+			needsCalculation = true;
+		} else if (this.cache.from === undefined || !this.from.getPos().equals(this.cache.from)) {
+			needsCalculation = true;
+		} else if (this.cache.type === undefined) {
+			needsCalculation = true;
+		}
+
+		if (needsCalculation) {
+			this.cache.from = this.from.getPos().clone();
+			this.cache.to = this.to.getPos().clone();
+		}
 
 		if (this.to === this.from) {
 			// self loop
-			const abovePoint = this.from.getPos().clone();
-			abovePoint.subtract(new Point(0, 100));
-			const startPos = this.from.radiusPoint(abovePoint, -Math.PI / 5, -1);
-			const endPos = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
-			labelPoint = Arrow.drawSelfArrow(canvas, startPos, endPos, this.from.getPos(), scale, offset, this.color);
+			if (needsCalculation || this.cache.type !== "self") {
+				needsCalculation = true;
+				const abovePoint = this.from.getPos().clone();
+				abovePoint.subtract(new Point(0, 100));
+				this.cache.start = this.from.radiusPoint(abovePoint, -Math.PI / 5, -1);
+				this.cache.end = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
+				this.cache.type = "self";
+			}
+			labelPoint = Arrow.drawSelfArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
 		} else if (this.to.hasTransitionToState(this.from)) {
 			// matched inverse transitions
-			const startPos = this.from.radiusPoint(this.to.getPos(), Math.PI / 4, -1);
-			const endPos = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
-			labelPoint = Arrow.drawCurvedArrow(canvas, startPos, endPos, scale, offset, this.color);
+			if (needsCalculation || this.cache.type !== "matched") {
+				needsCalculation = true;
+				this.cache.start = this.from.radiusPoint(this.to.getPos(), Math.PI / 4, -1);
+				this.cache.end = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
+				this.cache.type = "matched";
+			}
+			labelPoint = Arrow.drawCurvedArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
 		} else {
 			// normal straight arrow
-			const endPos = this.to.radiusPoint(this.from.getPos(), 0, 0);
-			labelPoint = Arrow.drawArrow(canvas, this.from.getPos(), endPos, this.from.getPos(), this.to.getPos(), scale, offset, this.color);
+			if (needsCalculation || this.cache.type !== "straight") {
+				needsCalculation = true;
+				this.cache.start = this.from.getPos().clone();
+				this.cache.end = this.to.radiusPoint(this.from.getPos(), 0, 0);
+				this.cache.type = "straight";
+			}
+			labelPoint = Arrow.drawArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
 		}
 
-		if (this.element) {
+		if (this.element && updateLabel) {
 			this.drawLabel(labelPoint);
 		}
 	}

@@ -275,12 +275,12 @@ class Automaton {
 		});
 	}
 
-	drawAllTransitions(canvas, scale, offset) {
+	drawAllTransitions(canvas, scale, offset, updateLabels) {
 		const context = canvas.getContext("2d");
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		this.states.forEach((s) => {
 			s.getTransitions().forEach((t) => {
-				t.draw(canvas, scale, offset);
+				t.draw(canvas, scale, offset, updateLabels);
 			});
 		});
 	}

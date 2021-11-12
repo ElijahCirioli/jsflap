@@ -30,7 +30,7 @@ class Editor {
 		this.startState = undefined;
 		this.removeSelectionBox();
 		this.stopDrag();
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 		const stateElements = this.statesWrap.children(".state");
 		const labelElements = this.labelsWrap.children(".label-form");
 		labelElements.css("pointer-events", "all");
@@ -89,7 +89,7 @@ class Editor {
 	}
 
 	draw() {
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 		this.automaton.drawAllStates();
 	}
 
@@ -128,7 +128,7 @@ class Editor {
 			this.previewTransition = this.automaton.addTransition(this.startState, state, "PREVIEW");
 			this.previewTransition.makePreview();
 		}
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 	}
 
 	removePreviewTransition() {
@@ -138,16 +138,21 @@ class Editor {
 			fromState.removeTransition(toState, "PREVIEW");
 			this.previewTransition = undefined;
 		}
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
 	}
 
 	statelessPreviewTransition(pos) {
 		if (this.previewTransition) {
 			this.removePreviewTransition();
 		}
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 		const previewColor = "rgba(139, 138, 150, 0.5)";
-		Arrow.drawArrow(this.canvas, this.startState.getPos(), pos, this.startState.getPos(), pos, this.scale, this.offset, previewColor);
+		const tempCache = {
+			from: this.startState.getPos().clone(),
+			start: this.startState.getPos().clone(),
+			to: this.startState.getPos().clone(),
+			end: pos,
+		};
+		Arrow.drawArrow(this.canvas, tempCache, true, this.scale, this.offset, previewColor);
 	}
 
 	startTransition(element) {
@@ -501,7 +506,7 @@ class Editor {
 		this.statesWrap.css("-moz-transform", transformString);
 
 		this.removeRightClickMenu();
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 	}
 
 	adjustOffset(delta) {
@@ -652,6 +657,7 @@ class Editor {
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
 			}
@@ -667,20 +673,22 @@ class Editor {
 				this.startState = undefined;
 				this.labelsWrap.children(".label-form").css("pointer-events", "all");
 				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 			} else if (this.tool === "point" || this.tool === "trash") {
 				this.removeSelectionBox();
 			} else if (this.tool === "chain") {
 				this.startState = undefined;
 				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 			}
 		});
 
 		// use scrollwheel on editor
 		this.editorWrap.on("wheel", (e) => {
 			e.preventDefault();
-			if (e.originalEvent.deltaY > 0) {
+			if (e.originalEvent.deltaY > 1) {
 				this.zoomOut();
-			} else {
+			} else if (e.originalEvent.deltaY < -1) {
 				this.zoomIn();
 			}
 			const pos = this.getAdjustedPos(e);
@@ -709,7 +717,7 @@ class Editor {
 				});
 
 				this.unselectAllStates();
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			} else if (key === "ArrowDown") {
 				this.adjustOffset(new Point(0, -panAmount));
@@ -722,6 +730,7 @@ class Editor {
 			} else if (key === "Escape" && this.tool === "chain") {
 				this.startState = undefined;
 				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 			}
 		});
 
@@ -776,7 +785,7 @@ class Editor {
 					this.automaton.removeState(stateObj);
 				}
 				this.unselectAllStates();
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			}
 		});
@@ -941,7 +950,7 @@ class Editor {
 					this.automaton.removeTransition(transition);
 				}
 				this.unselectAllTransitions();
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			}
 		});
@@ -965,6 +974,7 @@ class Editor {
 			if (this.tool === "chain") {
 				this.movePreviewState(new Point(9999999, 9999999));
 				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 				e.stopPropagation();
 			}
 		});
@@ -973,13 +983,13 @@ class Editor {
 			if (transition.labels.size === 0) {
 				this.automaton.removeTransition(transition);
 			}
-			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 			this.triggerTest();
 			input[0].setSelectionRange(0, 0);
 		});
 
 		input.on("focusin", (e) => {
-			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 		});
 
 		label.on("keydown", (e) => {
@@ -1063,7 +1073,7 @@ class Editor {
 					newCursorPos = chunkLength * 1000;
 				}
 
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset);
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 				input[0].setSelectionRange(newCursorPos, newCursorPos);
 			}
