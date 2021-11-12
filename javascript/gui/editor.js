@@ -59,6 +59,7 @@ class Editor {
 			labelElements.children(".label-input").css("cursor", "pointer");
 		} else if (this.tool === "chain") {
 		}
+		this.editorWrap.focus();
 	}
 
 	getTool() {
@@ -432,13 +433,19 @@ class Editor {
 
 	zoomIn() {
 		const zoomFactor = 20 / 17;
-		this.scale = Math.min(this.scale * zoomFactor, 3);
+		const newScale = Math.min(this.scale * zoomFactor, 3);
+		this.offset.x *= newScale / this.scale;
+		this.offset.y *= newScale / this.scale;
+		this.scale = newScale;
 		this.adjustCamera();
 	}
 
 	zoomOut() {
 		const zoomFactor = 17 / 20;
-		this.scale = Math.max(this.scale * zoomFactor, 0.3);
+		const newScale = Math.max(this.scale * zoomFactor, 0.3);
+		this.offset.x *= newScale / this.scale;
+		this.offset.y *= newScale / this.scale;
+		this.scale = newScale;
 		this.adjustCamera();
 	}
 

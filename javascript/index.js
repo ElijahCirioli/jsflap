@@ -199,4 +199,10 @@ $("document").ready(() => {
 		hideDropdowns();
 		activeEnvironment.getEditor().zoomFit();
 	});
+
+	// tools menu
+	$("#menu-remove-unreachable-button").click((e) => {
+		hideDropdowns();
+		RemoveUnreachableStates.action(activeEnvironment);
+	});
 });

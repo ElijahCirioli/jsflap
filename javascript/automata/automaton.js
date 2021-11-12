@@ -207,7 +207,7 @@ class Automaton {
 
 	getUnreachableStates() {
 		if (!this.initialState) {
-			return false;
+			return new Set();
 		}
 		const queue = [this.initialState];
 		const visited = new Set();
@@ -232,6 +232,41 @@ class Automaton {
 		});
 
 		return unreachable;
+	}
+
+	containsCycle() {
+		const visited = new Set();
+		const explored = new Set();
+
+		for (const item of this.states) {
+			if (this.containsCycleRec(item[1], visited, explored)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	containsCycleRec(state, visited, explored) {
+		if (explored.has(state)) {
+			return true;
+		}
+		if (visited.has(state)) {
+			return false;
+		}
+
+		visited.add(state);
+		explored.add(state);
+
+		const transitions = state.getTransitions();
+		for (const item of transitions) {
+			const t = item[1];
+			if (this.containsCycleRec(t.getToState(), visited, explored)) {
+				return true;
+			}
+		}
+
+		explored.delete(state);
+		return false;
 	}
 
 	drawAllStates() {

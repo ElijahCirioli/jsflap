@@ -19,7 +19,7 @@ class MessagesContainer {
 		} else {
 			let hasUnreachable = false;
 			if (automaton.getUnreachableStates().size > 0) {
-				messages.push(new WarningMessage("The automaton has unreachable states."));
+				messages.push(new WarningMessage("The automaton has unreachable states.", 1));
 				hasUnreachable = true;
 			}
 
@@ -42,6 +42,12 @@ class MessagesContainer {
 					} else {
 						messages.push(new Message("The automaton is an NFA."));
 					}
+				}
+
+				if (automaton.containsCycle()) {
+					messages.push(new Message("The language is infinite."));
+				} else {
+					messages.push(new Message("The language is finite."));
 				}
 			}
 		}

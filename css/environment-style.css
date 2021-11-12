@@ -419,9 +419,9 @@
 	background-color: var(--text-color);
 	color: #48494d;
 	font-size: 0.85rem;
-	width: calc(100% - 5px);
+	width: calc(100% - 10px);
 	text-align: left;
-	padding: 2px 0 2px 5px;
+	padding: 2px 5px 2px 5px;
 }
 .warning-message {
 	background-color: #de8383;
