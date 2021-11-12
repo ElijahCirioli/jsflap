@@ -129,7 +129,7 @@ class Editor {
 			this.previewTransition = this.automaton.addTransition(this.startState, state, "PREVIEW");
 			this.previewTransition.makePreview();
 		}
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 	}
 
 	removePreviewTransition() {
@@ -202,7 +202,10 @@ class Editor {
 	}
 
 	startDrag(pos) {
-		this.statesWrap.children(".selected").css("cursor", "grabbing");
+		if (this.tool === "point") {
+			this.statesWrap.children(".state").css("cursor", "grabbing");
+		}
+		console.log("starting grab cursor");
 		this.clicked = true;
 		this.lastMousePos = pos;
 	}
@@ -367,9 +370,9 @@ class Editor {
 		const initialIcon = state.isInitial() ? "fa-check-square" : "fa-square";
 		const menu = $(`
 		<div class="right-click-menu">
-			<button class="menu-child-item" id="make-final-button"><i class="fas ${finalIcon}"></i> Final</button>
-			<button class="menu-child-item" id="make-initial-button"><i class="fas ${initialIcon}"></i> Initial</button>
-			<button class="menu-child-item" id="rename-button">Rename</button>
+			<button class="menu-child-item right-click-button" id="make-final-button"><i class="fas ${finalIcon}"></i> Final</button>
+			<button class="menu-child-item right-click-button" id="make-initial-button"><i class="fas ${initialIcon}"></i> Initial</button>
+			<button class="menu-child-item right-click-button" id="rename-button">Rename</button>
 		</div>`);
 
 		menu.css("top", pos.y + "px");
@@ -430,6 +433,10 @@ class Editor {
 			const name = state.getElement().children(".state-name");
 			name.attr("contenteditable", true);
 			name.focus();
+		});
+
+		$(".right-click-button").on("focusout", (e) => {
+			e.stopPropagation();
 		});
 
 		menu.on("focusout", (e) => {
@@ -829,6 +836,10 @@ class Editor {
 				this.startTransition(state);
 				this.createPreviewTransition(stateObj);
 			} else if (this.tool === "chain") {
+				if (!controlKey && !shiftKey) {
+					this.unselectAllStates();
+					this.unselectAllTransitions();
+				}
 				if (this.startState) {
 					this.removePreviewTransition();
 					if (this.startState === stateObj) {
@@ -877,7 +888,7 @@ class Editor {
 				this.createPreviewTransition(stateObj);
 				e.stopPropagation();
 			} else if (this.tool === "chain") {
-				if (this.startState) {
+				if (this.startState && this.startState !== stateObj) {
 					this.createPreviewTransition(stateObj);
 				}
 				this.movePreviewState(new Point(9999999, 9999999));

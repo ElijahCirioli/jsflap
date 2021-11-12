@@ -47,8 +47,8 @@ class InputContainer {
             <form class="inputs-form">
             </form>
             <div class="inputs-buttons-wrap">
-                <button class="inputs-button" id="inputs-lambda-button">${lambdaChar}</button>
-                <button class="inputs-button" id="inputs-clear-button">Clear</button>
+                <button class="inputs-button inputs-lambda-button">${lambdaChar}</button>
+                <button class="inputs-button inputs-clear-button">Clear</button>
             </div>
         </div>`);
 		this.createSingleInput();
@@ -159,7 +159,7 @@ class InputContainer {
 		const buttonsWrap = this.inputContent.children(".inputs-buttons-wrap");
 
 		// lambda button
-		buttonsWrap.children("#inputs-lambda-button").click((e) => {
+		buttonsWrap.children(".inputs-lambda-button").click((e) => {
 			const lastItem = this.inputContent.children(".inputs-form").children(".inputs-form-item").last();
 			if (lastItem.children(".inputs-form-item-input").val().length > 0) {
 				this.createSingleInput();
@@ -170,7 +170,7 @@ class InputContainer {
 		});
 
 		// clear button
-		buttonsWrap.children("#inputs-clear-button").click((e) => {
+		buttonsWrap.children(".inputs-clear-button").click((e) => {
 			this.inputContent.children(".inputs-form").empty();
 			this.createSingleInput();
 			this.triggerTest();

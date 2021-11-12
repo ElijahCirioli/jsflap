@@ -1,9 +1,12 @@
 let environments = new Set();
 let activeEnvironment = undefined;
-let lambdaChar = "\u03BB";
 
 let controlKey = false;
 let shiftKey = false;
+
+let lambdaChar = "\u03BB";
+let editorTheme = window.localStorage.getItem("jsflap theme color") || "dark";
+let stateColor = window.localStorage.getItem("jsflap state color") || "yellow";
 
 function createEnvironment() {
 	unselectAllEnvironments();
@@ -101,6 +104,28 @@ function hideDropdowns() {
 	setTimeout(() => {
 		$(".menu-child-wrap").css("display", "");
 	}, 10);
+}
+
+function updateColors() {
+	const body = $(document.body);
+	// editor theme
+	body.css("--background-color", editorTheme === "dark" ? "#181b2f" : "#b5bcc4");
+	body.css("--regular-color", editorTheme === "dark" ? "#2c304d" : "#6d7082");
+
+	//state colors
+	const stateColors = {
+		yellow: ["#ffbe39", "#ffd659"],
+		red: ["#e65c5a", "#ed6a68"],
+		blue: ["#55a1ed", "#60a8f0"],
+		green: ["#72c961", "#87de76"],
+		purple: ["#bc71de", "#c57ce6"],
+	};
+	body.css("--state-color", stateColors[stateColor][0]);
+	body.css("--selected-state-color", stateColors[stateColor][1]);
+
+	// update local storage
+	window.localStorage.setItem("jsflap theme color", editorTheme);
+	window.localStorage.setItem("jsflap state color", stateColor);
 }
 
 $("document").ready(() => {
@@ -225,6 +250,10 @@ $("document").ready(() => {
 			new PopupCharacterChoiceMessage(
 				(newChar) => {
 					activeEnvironment.removePopupMessages();
+					$(".inputs-form-item-input").val((i, v) => {
+						return v.replaceAll(lambdaChar, newChar);
+					});
+					$(".inputs-lambda-button").text(newChar);
 					lambdaChar = newChar;
 					environments.forEach((env) => {
 						env.getContent().show();
@@ -241,9 +270,31 @@ $("document").ready(() => {
 		);
 	});
 
+	$("#menu-theme-choice-button").click((e) => {
+		hideDropdowns();
+		oldTheme = editorTheme;
+		oldStateColor = stateColor;
+		activeEnvironment.addPopupMessage(
+			new PopupThemeChoiceMessage(
+				() => {
+					activeEnvironment.removePopupMessages();
+				},
+				() => {
+					activeEnvironment.removePopupMessages();
+					editorTheme = oldTheme;
+					stateColor = oldStateColor;
+					updateColors();
+				},
+				true
+			)
+		);
+	});
+
 	// tools menu
 	$("#menu-remove-unreachable-button").click((e) => {
 		hideDropdowns();
 		RemoveUnreachableStates.action(activeEnvironment);
 	});
+
+	updateColors();
 });

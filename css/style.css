@@ -5,6 +5,7 @@ body {
 	--accent-color: #ffbe39;
 	--selected-color: #4a507b;
 	--regular-color: #2c304d;
+	--dark-text-color: #2c304d;
 	--state-color: #ffbe39;
 	--selected-state-color: #ffd659;
 	--glow-color: #5468a8;
@@ -46,6 +47,7 @@ body {
 	align-items: center;
 	height: 1.3rem;
 	margin: 12px 0 0 -5px;
+	z-index: 500;
 }
 .menu-item {
 	height: 100%;
@@ -69,7 +71,7 @@ body {
 .menu-child-wrap {
 	display: none;
 	position: absolute;
-	z-index: 10;
+	z-index: 501;
 	left: 0;
 	top: 1.3rem;
 	box-shadow: -2px 5px 7px 1px rgba(0, 0, 0, 0.5);

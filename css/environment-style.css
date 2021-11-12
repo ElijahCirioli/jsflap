@@ -96,7 +96,7 @@
 	cursor: pointer;
 	border-radius: 50%;
 	outline: none;
-	border: 1px solid var(--regular-color);
+	border: 1px solid var(--dark-text-color);
 	margin: 0;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -119,7 +119,7 @@
 	margin: calc(50% - 1rem) auto;
 	height: 2rem;
 	line-height: 2rem;
-	color: var(--regular-color);
+	color: var(--dark-text-color);
 	font-size: 1rem;
 	font-weight: bold;
 	text-overflow: clip;
@@ -128,7 +128,7 @@
 	transition: font-size 0.3s;
 }
 .state-name:focus {
-	outline: 1px solid var(--regular-color);
+	outline: 1px solid var(--dark-text-color);
 }
 .state-name-small {
 	font-size: 0.8rem;
@@ -144,7 +144,7 @@
 	display: block;
 }
 .final-state {
-	outline: 1px solid var(--regular-color);
+	outline: 1px solid var(--dark-text-color);
 	outline-offset: -5px;
 }
 .initial-state {
@@ -152,7 +152,7 @@
 	right: calc(100% + 1px);
 	top: 0;
 	fill: var(--secondary-text-color);
-	stroke: var(--regular-color);
+	stroke: var(--dark-text-color);
 	stroke-width: 1px;
 	z-index: 3;
 }
@@ -170,7 +170,7 @@
 	font-family: "Rubik", sans-serif;
 	font-size: 1rem;
 	text-align: center;
-	color: var(--regular-color);
+	color: var(--dark-text-color);
 	background-color: transparent;
 	border: 1px solid transparent;
 	border-radius: 0;
@@ -179,7 +179,7 @@
 }
 .label-input:focus {
 	background-color: rgba(150, 150, 150, 0.5);
-	border: 1px solid var(--regular-color);
+	border: 1px solid var(--dark-text-color);
 	-webkit-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	-moz-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	box-shadow: 0px 0px 6px 2px var(--glow-color);
@@ -187,7 +187,7 @@
 }
 .label-input:hover {
 	background-color: rgba(150, 150, 150, 0.5);
-	border: 1px solid var(--regular-color);
+	border: 1px solid var(--dark-text-color);
 }
 .small-text-label {
 	font-size: 0.75rem;
@@ -292,7 +292,7 @@
 	height: 100%;
 	border: none;
 	font-family: "Rubik", sans-serif;
-	color: var(--background-color);
+	color: var(--dark-text-color);
 	background-color: var(--text-color);
 	text-align: left;
 	font-size: 1rem;
@@ -315,7 +315,7 @@
 	width: 35%;
 	padding: 0;
 	font-family: "Rubik", sans-serif;
-	color: var(--regular-color);
+	color: var(--dark-text-color);
 	background-color: var(--text-color);
 	border: none;
 	outline: none;
@@ -347,7 +347,7 @@
 }
 .selected-label {
 	background-color: rgba(150, 150, 150, 0.5);
-	border: 1px solid var(--regular-color);
+	border: 1px solid var(--dark-text-color);
 	-webkit-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	-moz-box-shadow: 0px 0px 6px 2px var(--glow-color);
 	box-shadow: 0px 0px 6px 2px var(--glow-color);
@@ -382,7 +382,7 @@
 }
 .zoom-button:hover {
 	background-color: var(--accent-color);
-	color: var(--regular-color);
+	color: var(--dark-text-color);
 }
 .zoom-in-out-wrap {
 	display: flex;
@@ -432,7 +432,7 @@
 	background-color: #c96b6b;
 }
 .editor-popup-container {
-	z-index: 500;
+	z-index: 400;
 	position: absolute;
 	width: 100%;
 	height: 100%;
@@ -492,7 +492,7 @@
 	min-width: 70px;
 	padding: 2px 5px;
 	font-family: "Rubik", sans-serif;
-	color: var(--regular-color);
+	color: var(--dark-text-color);
 	background-color: var(--text-color);
 	border: none;
 	outline: none;
@@ -502,7 +502,7 @@
 	transition: 0.2s;
 }
 .popup-message-button:hover {
-	background-color: var(--state-color);
+	background-color: var(--accent-color);
 	transform: scale(1.05);
 }
 .popup-message-button:active {
@@ -524,4 +524,68 @@
 }
 .chosen-character:hover {
 	background-color: var(--accent-color);
+}
+.state-color-buttons {
+	flex-wrap: wrap;
+	margin-bottom: 15px;
+}
+.state-color-button {
+	min-width: 0;
+	width: 32px;
+	height: 31px;
+	padding: 0;
+	font-size: 16px;
+	background-color: var(--secondary-text-color);
+}
+.state-color-button:hover {
+	background-color: var(--text-color);
+}
+.state-color-button i {
+	padding-top: 2px;
+	margin: 0 auto;
+}
+.popup-color-text {
+	text-align: center;
+}
+.theme-color-button {
+	background-color: var(--secondary-text-color);
+}
+.theme-color-button:hover {
+	background-color: var(--text-color);
+}
+.chosen-color {
+	background-color: var(--accent-color);
+}
+.chosen-color:hover {
+	background-color: var(--accent-color);
+}
+.green-color {
+	color: #72c961;
+}
+.chosen-state-color.green-color {
+	background-color: #72c961;
+}
+.blue-color {
+	color: #55a1ed;
+}
+.chosen-state-color.blue-color {
+	background-color: #55a1ed;
+}
+.red-color {
+	color: #e65c5a;
+}
+.chosen-state-color.red-color {
+	background-color: #e65c5a;
+}
+.purple-color {
+	color: #bc71de;
+}
+.chosen-state-color.purple-color {
+	background-color: #bc71de;
+}
+.yellow-color {
+	color: #ffbe39;
+}
+.chosen-state-color.yellow-color {
+	background-color: #ffbe39;
 }
