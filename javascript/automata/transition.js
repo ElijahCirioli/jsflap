@@ -146,13 +146,12 @@ class Transition {
 	adjustLabeSize() {
 		// this function was giving me some trouble so now it's way over-engineered
 		const label = this.element.children(".label-input");
-
 		const sensor = $(`<p class="width-sensor">${label.val()}</p>`);
-		this.element.parent().append(sensor);
+		$("#content-wrap").append(sensor);
 		const textWidth = Math.round(sensor.width()) + 14;
 
 		const smallSensor = $(`<p class="small-width-sensor">${label.val()}</p>`);
-		this.element.parent().append(smallSensor);
+		$("#content-wrap").append(smallSensor);
 		const smallTextWidth = Math.round(smallSensor.width()) + 8;
 
 		const distance = this.from.getPos().distance(this.to.getPos()) - 45;
@@ -182,7 +181,6 @@ class Transition {
 
 		const top = pos.y - (Math.sin(angle) * width) / 2;
 		const left = pos.x - (Math.cos(angle) * width) / 2;
-
 		this.element.css("left", left + "px");
 		this.element.css("top", top + "px");
 		this.element.css("transform", `rotate(${angle}rad)`);

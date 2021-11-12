@@ -46,7 +46,8 @@ function createEnvironment() {
 					},
 					() => {
 						newEnv.removePopupMessages();
-					}
+					},
+					true
 				)
 			);
 		}
@@ -216,6 +217,28 @@ $("document").ready(() => {
 	$("#menu-zoom-fit-button").click((e) => {
 		hideDropdowns();
 		activeEnvironment.getEditor().zoomFit();
+	});
+
+	$("#menu-character-choice-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.addPopupMessage(
+			new PopupCharacterChoiceMessage(
+				(newChar) => {
+					activeEnvironment.removePopupMessages();
+					lambdaChar = newChar;
+					environments.forEach((env) => {
+						env.getContent().show();
+						env.getEditor().draw();
+						env.getContent().hide();
+					});
+					activeEnvironment.getContent().show();
+				},
+				() => {
+					activeEnvironment.removePopupMessages();
+				},
+				true
+			)
+		);
 	});
 
 	// tools menu

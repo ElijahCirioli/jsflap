@@ -202,6 +202,7 @@
 	visibility: hidden;
 	width: fit-content;
 	pointer-events: none;
+	z-index: -10;
 }
 .small-width-sensor {
 	font-family: "Rubik", sans-serif;
@@ -506,4 +507,21 @@
 }
 .popup-message-button:active {
 	transform: scale(0.98);
+}
+.popup-message-characters {
+	justify-content: space-evenly;
+}
+.character-button {
+	font-weight: bold;
+	font-size: 1.2rem;
+	background-color: var(--secondary-text-color);
+}
+.character-button:hover {
+	background-color: var(--text-color);
+}
+.chosen-character {
+	background-color: var(--accent-color);
+}
+.chosen-character:hover {
+	background-color: var(--accent-color);
 }

@@ -25,18 +25,19 @@ class Editor {
 
 	setTool(newTool) {
 		this.tool = newTool;
-
 		this.statesWrap.children(".preview-state").remove();
 		this.startState = undefined;
 		this.removeSelectionBox();
 		this.stopDrag();
 		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+
 		const stateElements = this.statesWrap.children(".state");
 		const labelElements = this.labelsWrap.children(".label-form");
 		labelElements.css("pointer-events", "all");
 		stateElements.css("pointer-events", "all");
 		labelElements.children(".label-input").css("cursor", "text");
 		this.editorWrap.css("cursor", "auto");
+
 		if (this.tool === "point") {
 			stateElements.css("cursor", "grab");
 			this.unselectAllTransitions();
@@ -342,6 +343,9 @@ class Editor {
 					}
 				});
 			this.draw();
+			if (this.tool === "trash") {
+				this.triggerTest();
+			}
 		}
 
 		this.labelsWrap.children(".selection-box").remove();
