@@ -1,7 +1,6 @@
 class Editor {
 	constructor(parent, callback) {
 		this.parent = parent;
-		this.triggerTest = callback;
 		this.tool = "point";
 		this.startState = undefined;
 		this.selectionBoxPoint = undefined;
@@ -17,6 +16,10 @@ class Editor {
 		this.labelsWrap = this.editorWrap.children(".editor-label-container");
 		this.previewState = undefined;
 		this.previewTransition = undefined;
+
+		this.triggerTest = () => {
+			callback(true);
+		};
 
 		this.stopDrag();
 		this.resizeCanvas();
@@ -782,6 +785,12 @@ class Editor {
 				} else if (key === "a") {
 					this.selectAll();
 					e.preventDefault();
+				} else if (key === "z") {
+					activeEnvironment.undo();
+					e.preventDefault();
+				} else if (key === "y" || key === "Z") {
+					activeEnvironment.redo();
+					e.preventDefault();
 				}
 			}
 		});
@@ -910,6 +919,7 @@ class Editor {
 					this.unselectState(stateObj);
 				}
 				this.removeSelectionBox();
+				this.triggerTest();
 			} else if (this.tool === "transition" && this.startState) {
 				this.removePreviewTransition();
 				this.endTransition(state, true);

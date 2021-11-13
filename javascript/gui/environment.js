@@ -5,9 +5,14 @@ class Environment {
 		this.content = this.createContent();
 		this.id = this.generateId();
 
+		this.respondToTriggers = true;
+		this.history = [];
+		this.maxHistoryDepth = 20;
+		this.historyPos = 0;
+
 		// wrap the callback function to preserve "this"
-		const callback = () => {
-			this.testAllInputs();
+		const callback = (change) => {
+			this.testAllInputs(change);
 		};
 
 		this.input = new InputContainer(this.content, callback);
@@ -16,6 +21,7 @@ class Environment {
 		this.popups = this.content.children(".editor").children(".editor-popup-container");
 
 		this.setupListeners();
+		this.updateHistory();
 	}
 
 	getContent() {
@@ -57,7 +63,10 @@ class Environment {
 		return id;
 	}
 
-	testAllInputs() {
+	testAllInputs(automataChanged) {
+		if (!this.respondToTriggers) {
+			return;
+		}
 		const words = this.input.aggregateAllInputs();
 		for (const word of words) {
 			const sanitizedWord = word[0].replaceAll(lambdaChar, "");
@@ -65,7 +74,10 @@ class Environment {
 		}
 		this.input.displayValidity(words);
 		this.messages.generateMessages(this.editor.getAutomaton());
-		this.updateLocalStorage();
+		if (automataChanged) {
+			console.log("adding to stack");
+			this.updateHistory();
+		}
 	}
 
 	createContent() {
@@ -138,8 +150,60 @@ class Environment {
 		this.editor.pasteMousePos = undefined;
 	}
 
-	updateLocalStorage() {
+	undo() {
+		if (this.history.length === 0) {
+			return;
+		}
+		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
+		this.historyPos = Math.min(this.historyPos + 1, this.history.length - 1);
+		this.respondToTriggers = false;
+		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
+		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
+		this.editor.automaton = new Automaton();
+		FileParser.parseJSON(this.history[this.historyPos], false, this);
+		this.respondToTriggers = true;
+		this.testAllInputs(false);
+	}
+
+	redo() {
+		if (this.history.length === 0 || this.historyPos === 0) {
+			return;
+		}
+		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
+		this.historyPos = Math.max(this.historyPos - 1, 0);
+		this.respondToTriggers = false;
+		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
+		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
+		this.editor.automaton = new Automaton();
+		FileParser.parseJSON(this.history[this.historyPos], false, this);
+		this.respondToTriggers = true;
+		this.testAllInputs(false);
+	}
+
+	updateHistory() {
 		const data = this.getSaveObject();
+
+		// see if the automata has changed
+		this.history.splice(0, this.historyPos);
+		let automataDifference = this.history.length === 0;
+		if (!automataDifference) {
+			const lastAutomata = this.history[0];
+			if (JSON.stringify(data.states) !== JSON.stringify(lastAutomata.states)) {
+				automataDifference = true;
+			} else if (JSON.stringify(data.transitions) !== JSON.stringify(lastAutomata.transitions)) {
+				automataDifference = true;
+			}
+		}
+		// add to the undo stack
+		if (automataDifference) {
+			this.history.unshift(data);
+			if (this.history.length > this.maxHistoryDepth) {
+				this.history.splice(this.maxHistoryDepth);
+			}
+			this.historyPos = 0;
+		}
+
+		// add to local storage
 		const dataString = JSON.stringify(data);
 		window.localStorage.setItem(this.id, dataString);
 	}

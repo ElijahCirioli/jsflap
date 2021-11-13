@@ -251,6 +251,16 @@ $("document").ready(() => {
 		ClipboardTools.paste();
 	});
 
+	$("#menu-undo-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.undo();
+	});
+
+	$("#menu-redo-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.redo();
+	});
+
 	// view menu
 	$("#menu-zoom-in-button").click((e) => {
 		hideDropdowns();

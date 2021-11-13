@@ -1,7 +1,10 @@
 class InputContainer {
 	constructor(content, callback) {
 		this.inputWrap = content.children(".environment-sidebar").children(".inputs-wrap");
-		this.triggerTest = callback;
+		this.triggerTest = () => {
+			callback(false);
+		};
+
 		this.setupContainer();
 		this.setupListeners();
 	}

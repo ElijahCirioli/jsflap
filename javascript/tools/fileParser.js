@@ -118,8 +118,8 @@ class FileParser {
 		};
 	}
 
-	static parseJSON(obj, autoId) {
-		const env = createEnvironment();
+	static parseJSON(obj, autoId, environment) {
+		const env = environment || createEnvironment();
 		const editor = env.getEditor();
 		const elementMap = new Map();
 
@@ -153,7 +153,10 @@ class FileParser {
 			}
 		}
 
-		editor.zoomFit();
+		editor.draw();
+		if (environment === undefined) {
+			editor.zoomFit();
+		}
 	}
 
 	static setStateName(state, newName) {
