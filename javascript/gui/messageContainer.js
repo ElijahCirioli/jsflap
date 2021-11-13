@@ -45,10 +45,12 @@ class MessagesContainer {
 						}
 					}
 
-					if (automaton.containsCycle()) {
-						messages.push(new Message("The language is infinite."));
-					} else {
-						messages.push(new Message("The language is finite."));
+					if (!alphabet.has("")) {
+						if (automaton.containsCycle()) {
+							messages.push(new Message("The language is infinite."));
+						} else {
+							messages.push(new Message("The language is finite."));
+						}
 					}
 				}
 			}

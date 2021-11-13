@@ -134,6 +134,10 @@ class Environment {
 		return this.editor.getAutomaton().getStates().size === 0;
 	}
 
+	forgetMousePos() {
+		this.editor.pasteMousePos = undefined;
+	}
+
 	updateLocalStorage() {
 		const data = this.getSaveObject();
 		const dataString = JSON.stringify(data);

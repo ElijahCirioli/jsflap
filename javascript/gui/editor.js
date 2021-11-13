@@ -205,14 +205,13 @@ class Editor {
 		if (this.tool === "point") {
 			this.statesWrap.children(".state").css("cursor", "grabbing");
 		}
-		console.log("starting grab cursor");
 		this.clicked = true;
 		this.lastMousePos = pos;
 	}
 
 	startDragPan(dir) {
 		if (!this.dragPan) {
-			this.dragPan = setTimeout(this.dragPanRec, 500, this, dir);
+			this.dragPan = setTimeout(this.dragPanRec, 400, this, dir);
 		}
 	}
 
@@ -269,6 +268,23 @@ class Editor {
 	unselectAllTransitions() {
 		this.labelsWrap.children(".label-form").children(".label-input").removeClass("selected-label");
 		this.selectedTransitions.clear();
+	}
+
+	selectAll() {
+		this.automaton.getStates().forEach((s) => {
+			this.selectState(s);
+			s.getTransitions().forEach((t) => {
+				this.selectTransition(t);
+			});
+		});
+	}
+
+	getSelectedStates() {
+		return this.selectedStates;
+	}
+
+	getSelectedTransitions() {
+		return this.selectedTransitions;
 	}
 
 	startSelectionBox(pos) {
@@ -553,6 +569,7 @@ class Editor {
 		this.editorWrap.click((e) => {
 			e.stopPropagation();
 			const pos = this.getAdjustedPos(e);
+			this.pasteMousePos = pos;
 
 			this.removeRightClickMenu();
 			if (this.tool === "state" || this.tool === "chain") {
@@ -694,6 +711,16 @@ class Editor {
 			}
 		});
 
+		this.editorWrap.on("contextmenu", (e) => {
+			e.preventDefault();
+			if (this.tool === "chain") {
+				this.startState = undefined;
+				this.removePreviewTransition();
+				this.unselectAllTransitions();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+			}
+		});
+
 		// use scrollwheel on editor
 		this.editorWrap.on("wheel", (e) => {
 			e.preventDefault();
@@ -742,6 +769,20 @@ class Editor {
 				this.startState = undefined;
 				this.removePreviewTransition();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+			} else if (controlKey) {
+				if (key === "x") {
+					ClipboardTools.cut();
+					e.preventDefault();
+				} else if (key === "c") {
+					ClipboardTools.copy();
+					e.preventDefault();
+				} else if (key === "v") {
+					ClipboardTools.paste();
+					e.preventDefault();
+				} else if (key === "a") {
+					this.selectAll();
+					e.preventDefault();
+				}
 			}
 		});
 
@@ -899,6 +940,7 @@ class Editor {
 		// right click on state
 		state.on("contextmenu", (e) => {
 			e.preventDefault();
+			e.stopPropagation();
 			const editorOffset = $(this.editorWrap).offset();
 			const rawPos = new Point(e.clientX - editorOffset.left, e.clientY - editorOffset.top);
 

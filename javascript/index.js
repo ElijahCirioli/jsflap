@@ -1,10 +1,11 @@
 let environments = new Set();
 let activeEnvironment = undefined;
+let clipboard;
 
 let controlKey = false;
 let shiftKey = false;
 
-let lambdaChar = "\u03BB";
+let lambdaChar = window.localStorage.getItem("jsflap lambda character") || "\u03BB";
 let editorTheme = window.localStorage.getItem("jsflap theme color") || "dark";
 let stateColor = window.localStorage.getItem("jsflap state color") || "yellow";
 
@@ -25,6 +26,7 @@ function createEnvironment() {
 	newTab.click((e) => {
 		unselectAllEnvironments();
 		newEnv.getContent().show();
+		newEnv.forgetMousePos();
 		newTab.addClass("active");
 		activeEnvironment = newEnv;
 		// make the text editable
@@ -228,6 +230,27 @@ $("document").ready(() => {
 		removeEnvironment(activeEnvironment);
 	});
 
+	// edit menu
+	$("#menu-select-all-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getEditor().selectAll();
+	});
+
+	$("#menu-cut-button").click((e) => {
+		hideDropdowns();
+		ClipboardTools.cut();
+	});
+
+	$("#menu-copy-button").click((e) => {
+		hideDropdowns();
+		ClipboardTools.copy();
+	});
+
+	$("#menu-paste-button").click((e) => {
+		hideDropdowns();
+		ClipboardTools.paste();
+	});
+
 	// view menu
 	$("#menu-zoom-in-button").click((e) => {
 		hideDropdowns();
@@ -255,6 +278,7 @@ $("document").ready(() => {
 					});
 					$(".inputs-lambda-button").text(newChar);
 					lambdaChar = newChar;
+					window.localStorage.setItem("jsflap lambda character", lambdaChar);
 					environments.forEach((env) => {
 						env.getContent().show();
 						env.getEditor().draw();
