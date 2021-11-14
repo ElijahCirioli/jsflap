@@ -74,6 +74,7 @@ class InputContainer {
 
 		input.on("keydown", (e) => {
 			e = window.event || e;
+			e.stopPropagation();
 			const key = e.key;
 
 			if (key === "Tab" || key === "Enter") {

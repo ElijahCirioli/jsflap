@@ -153,6 +153,7 @@ class FileParser {
 			}
 		}
 
+		env.testAllInputs(false);
 		editor.draw();
 		if (environment === undefined) {
 			editor.zoomFit();

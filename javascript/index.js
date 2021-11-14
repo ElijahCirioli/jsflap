@@ -27,6 +27,7 @@ function createEnvironment() {
 		unselectAllEnvironments();
 		newEnv.getContent().show();
 		newEnv.forgetMousePos();
+		newEnv.testAllInputs(true);
 		newTab.addClass("active");
 		activeEnvironment = newEnv;
 		// make the text editable

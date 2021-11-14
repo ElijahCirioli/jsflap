@@ -160,6 +160,7 @@ class Environment {
 		this.editor.automaton = new Automaton();
 		FileParser.parseJSON(this.history[this.historyPos], false, this);
 		this.respondToTriggers = true;
+		this.content.children(".editor").focus();
 		this.testAllInputs(false);
 	}
 
@@ -175,6 +176,7 @@ class Environment {
 		this.editor.automaton = new Automaton();
 		FileParser.parseJSON(this.history[this.historyPos], false, this);
 		this.respondToTriggers = true;
+		this.content.children(".editor").focus();
 		this.testAllInputs(false);
 	}
 
