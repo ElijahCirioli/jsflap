@@ -18,6 +18,7 @@ body {
 	color: var(--text-color);
 	font-family: "Rubik", sans-serif;
 	font-size: 1rem;
+	overflow-y: hidden;
 }
 #header-wrap {
 	background-color: var(--header-color);
@@ -149,6 +150,7 @@ body {
 	align-items: center;
 	height: 28px;
 	margin: 0;
+	overflow: auto hidden;
 }
 .environment-tab {
 	height: 100%;

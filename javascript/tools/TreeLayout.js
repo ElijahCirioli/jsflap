@@ -24,7 +24,7 @@ class TreeLayout {
 
 		const distMap = new Map();
 		automaton.getStates().forEach((s) => {
-			if (s.dist !== undefined) {
+			if (s.dist !== Infinity) {
 				if (distMap.has(s.dist)) {
 					distMap.get(s.dist).push(s);
 				} else {

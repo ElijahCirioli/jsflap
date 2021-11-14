@@ -5,8 +5,11 @@ class CircleLayout {
 		const editor = environment.getEditor();
 		const automaton = editor.getAutomaton();
 		const states = automaton.getStates();
+		if (states.size === 0) {
+			return;
+		}
 
-		const initial = automaton.getInitialState() || states[0];
+		const initial = automaton.getInitialState() || states.values().next().value;
 		TreeLayout.calculateDistances(automaton, initial);
 		const orderedStates = [];
 		states.forEach((s) => {
