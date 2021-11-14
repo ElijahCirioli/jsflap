@@ -129,6 +129,12 @@ body {
 #menu-open-recent-subgroup:hover {
 	display: block;
 }
+#menu-layout-button:hover + #menu-layout-subgroup {
+	display: block;
+}
+#menu-layout-subgroup:hover {
+	display: block;
+}
 #content-wrap {
 	width: 100%;
 	height: 100%;

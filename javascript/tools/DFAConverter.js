@@ -121,7 +121,7 @@ class DFAConverter {
 			}
 		}
 
-		editor.draw();
+		TreeLayout.action(env);
 		env.testAllInputs(true);
 	}
 

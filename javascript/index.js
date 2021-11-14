@@ -336,5 +336,15 @@ $("document").ready(() => {
 		RemoveUnreachableStates.action(activeEnvironment);
 	});
 
+	$("#menu-layout-tree-button").click((e) => {
+		hideDropdowns();
+		TreeLayout.action(activeEnvironment);
+	});
+
+	$("#menu-layout-circle-button").click((e) => {
+		hideDropdowns();
+		CircleLayout.action(activeEnvironment);
+	});
+
 	updateColors();
 });

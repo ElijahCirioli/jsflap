@@ -29,6 +29,8 @@
 		<script src="javascript/tools/removeUnreachableStates.js"></script>
 		<script src="javascript/tools/clipboardTools.js"></script>
 		<script src="javascript/tools/DFAConverter.js"></script>
+		<script src="javascript/tools/TreeLayout.js"></script>
+		<script src="javascript/tools/CircleLayout.js"></script>
 		<script src="javascript/index.js"></script>
 	</head>
 	<body>
@@ -74,7 +76,11 @@
 					<div class="menu-child-wrap">
 						<button class="menu-child-item">Compare equivalence</button>
 						<button class="menu-child-item" id="menu-convert-dfa-button">Convert to DFA</button>
-						<button class="menu-child-item">Apply layout</button>
+						<button class="menu-child-item" id="menu-layout-button">Apply layout</button>
+						<div class="menu-child-subgroup" id="menu-layout-subgroup">
+							<button class="menu-child-item menu-child-subgroup-item" id="menu-layout-tree-button">Tree</button>
+							<button class="menu-child-item menu-child-subgroup-item" id="menu-layout-circle-button">Circle</button>
+						</div>
 						<button class="menu-child-item" id="menu-remove-unreachable-button">Remove unreachable states</button>
 					</div>
 				</div>
