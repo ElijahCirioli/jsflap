@@ -325,6 +325,11 @@ $("document").ready(() => {
 	});
 
 	// tools menu
+	$("#menu-convert-dfa-button").click((e) => {
+		hideDropdowns();
+		DFAConverter.action(activeEnvironment);
+	});
+
 	$("#menu-remove-unreachable-button").click((e) => {
 		hideDropdowns();
 		RemoveUnreachableStates.action(activeEnvironment);

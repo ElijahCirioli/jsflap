@@ -87,6 +87,10 @@ class Automaton {
 		return this.initialState !== undefined;
 	}
 
+	getInitialState() {
+		return this.initialState;
+	}
+
 	hasFinalState() {
 		for (const s of this.states) {
 			if (s[1].isFinal()) {

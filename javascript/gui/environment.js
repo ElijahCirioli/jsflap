@@ -21,7 +21,6 @@ class Environment {
 		this.popups = this.content.children(".editor").children(".editor-popup-container");
 
 		this.setupListeners();
-		this.updateHistory();
 	}
 
 	getContent() {
@@ -75,7 +74,6 @@ class Environment {
 		this.input.displayValidity(words);
 		this.messages.generateMessages(this.editor.getAutomaton());
 		if (automataChanged) {
-			console.log("adding to stack");
 			this.updateHistory();
 		}
 	}
@@ -255,7 +253,7 @@ class Environment {
 
 		this.tab.children(".environment-tab-name").on("keyup change", (e) => {
 			this.name = this.tab.children(".environment-tab-name").text();
-			this.updateLocalStorage();
+			this.updateHistory();
 		});
 
 		this.tab.children(".environment-tab-name").on("keydown", (e) => {

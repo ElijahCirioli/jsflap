@@ -147,7 +147,7 @@ class Arrow {
 
 			// calculate a point above the apex of the curve
 			const labelOffset = 10;
-			const labelOffsetX = 2;
+			const labelOffsetX = 0;
 			cache.labelPoint = new Point(cache.from.x + labelOffsetX, cache.start.y - height - labelOffset);
 
 			// calculate the tip points

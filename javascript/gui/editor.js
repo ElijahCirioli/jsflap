@@ -776,19 +776,19 @@ class Editor {
 				if (key === "x") {
 					ClipboardTools.cut();
 					e.preventDefault();
-				} else if (key === "c") {
+				} else if (key.toLowerCase() === "c") {
 					ClipboardTools.copy();
 					e.preventDefault();
-				} else if (key === "v") {
+				} else if (key.toLowerCase() === "v") {
 					ClipboardTools.paste();
 					e.preventDefault();
-				} else if (key === "a") {
+				} else if (key.toLowerCase() === "a") {
 					this.selectAll();
 					e.preventDefault();
 				} else if (key === "z") {
 					activeEnvironment.undo();
 					e.preventDefault();
-				} else if (key === "y" || key === "Z") {
+				} else if (key.toLowerCase() === "y" || key === "Z") {
 					activeEnvironment.redo();
 					e.preventDefault();
 				}
