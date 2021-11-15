@@ -114,6 +114,17 @@ class Automaton {
 		});
 	}
 
+	removeEmptyTransitions() {
+		this.states.forEach((s) => {
+			s.getTransitions().forEach((t) => {
+				if (t.getLabels().size === 0) {
+					console.log("found empty transition");
+					s.removeTransition(t.getToState());
+				}
+			});
+		});
+	}
+
 	languageContains(word) {
 		if (!this.initialState) {
 			return false;

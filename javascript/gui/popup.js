@@ -81,6 +81,59 @@ class PopupCharacterChoiceMessage extends PopupCancelMessage {
 	}
 }
 
+class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
+	constructor(onConfirm, onCancel, doReturn) {
+		super(
+			"Choose automaton",
+			"",
+			() => {
+				onConfirm(this.choice);
+			},
+			onCancel,
+			false
+		);
+
+		this.content.children(".popup-message-content").children(".popup-message-text").remove();
+
+		let count = 0;
+		const dropdown = $(`<div class="environment-dropdown" tabindex="1"></div>`);
+		environments.forEach((env) => {
+			if (env !== activeEnvironment) {
+				const button = $(`<button class="dropdown-item">${env.getName()}</button>`);
+				button.click((e) => {
+					if (this.choice !== env) {
+						button.blur();
+					}
+					this.choice = env;
+					dropdown.children().removeClass("dropdown-selected");
+					button.addClass("dropdown-selected");
+				});
+				dropdown.append(button);
+				if (count === 0) {
+					this.choice = env;
+				}
+				count++;
+			}
+		});
+		dropdown.children().first().addClass("dropdown-selected");
+		const dropdownContainer = $(`<div class="environment-dropdown-container">
+			<div class="dropdown-down-arrow">
+				<i class="fas fa-chevron-down"></i>
+			</div>
+			<div class="dropdown-up-arrow">
+				<i class="fas fa-chevron-up"></i>
+			</div>
+		</div>`);
+		dropdownContainer.append(dropdown);
+
+		this.buttons.before(dropdownContainer);
+
+		if (doReturn) {
+			return this.content;
+		}
+	}
+}
+
 class PopupThemeChoiceMessage extends PopupCancelMessage {
 	constructor(onConfirm, onCancel, doReturn) {
 		super("Choose theme", "Editor theme", onConfirm, onCancel, false);

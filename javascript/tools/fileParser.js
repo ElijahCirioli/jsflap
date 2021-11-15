@@ -125,7 +125,15 @@ class FileParser {
 
 		env.setName(obj.name);
 		if (!autoId) {
-			env.setId(obj.id);
+			let alreadyExists = false;
+			environments.forEach((e) => {
+				if (obj.id === e.getId()) {
+					alreadyExists = true;
+				}
+			});
+			if (!alreadyExists) {
+				env.setId(obj.id);
+			}
 		}
 
 		for (const s of obj.states) {
@@ -148,11 +156,14 @@ class FileParser {
 				editor.startTransition(fromState);
 				const transitionObj = editor.endTransition(toState, false);
 				for (const label of t.labels) {
-					transitionObj.addLabel(label);
+					if (label !== "PREVIEW") {
+						transitionObj.addLabel(label);
+					}
 				}
 			}
 		}
 
+		editor.getAutomaton().removeEmptyTransitions();
 		env.testAllInputs(false);
 		editor.draw();
 		if (environment === undefined) {

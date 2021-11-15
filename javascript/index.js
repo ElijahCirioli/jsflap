@@ -197,6 +197,7 @@ $("document").ready(() => {
 				button.click((e) => {
 					hideDropdowns();
 					FileParser.parseJSON(project, false);
+					activeEnvironment.updateHistory();
 				});
 			} else {
 				window.localStorage.removeItem(project.id);
@@ -326,6 +327,35 @@ $("document").ready(() => {
 	});
 
 	// tools menu
+	$("#menu-compare-equivalence-button").click((e) => {
+		hideDropdowns();
+		if (environments.size > 1) {
+			activeEnvironment.addPopupMessage(
+				new PopupEnvironmentChoiceMessage(
+					(env) => {
+						activeEnvironment.removePopupMessages();
+						EquivalenceTest.action(activeEnvironment, env);
+					},
+					() => {
+						activeEnvironment.removePopupMessages();
+					},
+					true
+				)
+			);
+		} else {
+			activeEnvironment.addPopupMessage(
+				new PopupMessage(
+					"Error",
+					"Only one automaton was found",
+					() => {
+						activeEnvironment.removePopupMessages();
+					},
+					true
+				)
+			);
+		}
+	});
+
 	$("#menu-convert-dfa-button").click((e) => {
 		hideDropdowns();
 		DFAConverter.action(activeEnvironment);

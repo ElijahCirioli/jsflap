@@ -33,6 +33,52 @@ class DFAConverter {
 		const editor = env.getEditor();
 		env.setName(`DFA ${environment.getName()}`);
 
+		const tables = DFAConverter.NFAtoDFATable(automaton);
+		const transitionTableDFA = tables.DFA;
+		const needsTrapState = tables.needsTrapState;
+		const finalStates = tables.finalStates;
+
+		// create all the states
+		const idTable = new Map();
+		for (const item of transitionTableDFA) {
+			const fromId = item[0];
+			if (!idTable.has(fromId)) {
+				const newState = editor.createState(DFAConverter.randomPoint(editor), false);
+				const componentStateIds = fromId.split("+");
+				for (const id of componentStateIds) {
+					if (finalStates.has(id) || automaton.getStateById(id).isFinal()) {
+						newState.setFinal(true);
+						break;
+					}
+				}
+				if (fromId === automaton.getInitialState().getId()) {
+					editor.getAutomaton().setInitialState(newState);
+				}
+				idTable.set(fromId, newState);
+			}
+		}
+		if (needsTrapState) {
+			DFAConverter.createTrapState(automaton.getAlphabet(), editor, idTable);
+		}
+
+		// create all the transitions
+		for (const item of transitionTableDFA) {
+			const fromState = idTable.get(item[0]).getElement();
+			for (const transition of item[1]) {
+				const label = transition[0];
+				const toState = idTable.get(transition[1]).getElement();
+
+				editor.startTransition(fromState);
+				const transitionObj = editor.endTransition(toState, false);
+				transitionObj.addLabel(label);
+			}
+		}
+
+		TreeLayout.action(env);
+		env.testAllInputs(true);
+	}
+
+	static NFAtoDFATable(automaton) {
 		// recreate the NFA as a table
 		const transitionTableNFA = new Map();
 		const finalStates = new Set();
@@ -85,44 +131,12 @@ class DFAConverter {
 			}
 		}
 
-		// create all the states
-		const idTable = new Map();
-		for (const item of transitionTableDFA) {
-			const fromId = item[0];
-			if (!idTable.has(fromId)) {
-				const newState = editor.createState(DFAConverter.randomPoint(editor), false);
-				const componentStateIds = fromId.split("+");
-				for (const id of componentStateIds) {
-					if (finalStates.has(id) || automaton.getStateById(id).isFinal()) {
-						newState.setFinal(true);
-						break;
-					}
-				}
-				if (fromId === automaton.getInitialState().getId()) {
-					editor.getAutomaton().setInitialState(newState);
-				}
-				idTable.set(fromId, newState);
-			}
-		}
-		if (needsTrapState) {
-			DFAConverter.createTrapState(alphabet, editor, idTable);
-		}
-
-		// create all the transitions
-		for (const item of transitionTableDFA) {
-			const fromState = idTable.get(item[0]).getElement();
-			for (const transition of item[1]) {
-				const label = transition[0];
-				const toState = idTable.get(transition[1]).getElement();
-
-				editor.startTransition(fromState);
-				const transitionObj = editor.endTransition(toState, false);
-				transitionObj.addLabel(label);
-			}
-		}
-
-		TreeLayout.action(env);
-		env.testAllInputs(true);
+		return {
+			NFA: transitionTableNFA,
+			DFA: transitionTableDFA,
+			finalStates: finalStates,
+			needsTrapState: needsTrapState,
+		};
 	}
 
 	static createTrapState(alphabet, editor, statesMap) {

@@ -204,8 +204,10 @@ class Environment {
 		}
 
 		// add to local storage
-		const dataString = JSON.stringify(data);
-		window.localStorage.setItem(this.id, dataString);
+		if (data.states.length > 0 || data.transitions.length > 0) {
+			const dataString = JSON.stringify(data);
+			window.localStorage.setItem(this.id, dataString);
+		}
 	}
 
 	getSaveObject() {
@@ -236,7 +238,6 @@ class Environment {
 				});
 			});
 		});
-
 		return data;
 	}
 
