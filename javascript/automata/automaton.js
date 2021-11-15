@@ -115,6 +115,7 @@ class Automaton {
 	}
 
 	removeEmptyTransitions() {
+		// remove transitions with no labels
 		this.states.forEach((s) => {
 			s.getTransitions().forEach((t) => {
 				if (t.getLabels().size === 0) {
@@ -126,6 +127,8 @@ class Automaton {
 	}
 
 	languageContains(word) {
+		// is the word in the language of this FSA?
+
 		if (!this.initialState) {
 			return false;
 		}
@@ -134,6 +137,8 @@ class Automaton {
 	}
 
 	parseRec(partialWord, state) {
+		// recursively walk through states to see if the string is accepted
+
 		const transitions = state.getTransitions();
 		for (const wrappedTransition of transitions) {
 			const t = wrappedTransition[1];
@@ -160,6 +165,7 @@ class Automaton {
 				}
 			}
 		}
+		// we've run out of characters, are we at a final state?
 		if (partialWord.length === 0) {
 			return state.isFinal();
 		}
@@ -182,6 +188,8 @@ class Automaton {
 	}
 
 	isDFA(alphabet) {
+		// return whether this is a DFA
+
 		if (!this.initialState) {
 			return false;
 		}
@@ -221,6 +229,8 @@ class Automaton {
 	}
 
 	getUnreachableStates() {
+		// return a set of all states not reachable from the initial state
+
 		if (!this.initialState) {
 			return new Set();
 		}
@@ -250,6 +260,8 @@ class Automaton {
 	}
 
 	containsCycle() {
+		// return whether the graph contains any cycles
+
 		const visited = new Set();
 		const explored = new Set();
 
@@ -262,6 +274,8 @@ class Automaton {
 	}
 
 	containsCycleRec(state, visited, explored) {
+		// recursively look for back edges
+
 		if (explored.has(state)) {
 			return true;
 		}

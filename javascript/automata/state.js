@@ -47,6 +47,7 @@ class State {
 	setInitial(initial) {
 		this.initial = initial;
 		if (initial) {
+			// add the initial state arrow
 			const scale = this.radius * 0.8;
 			const p1 = new Point(0, 0);
 			const p2 = new Point(0, 2 * scale);
@@ -125,6 +126,7 @@ class State {
 	}
 
 	radiusPoint(otherPoint, offsetAngle, offsetRadius) {
+		// get a point on the line between this state and the otherPoint offset from this radius
 		if (otherPoint.equals(this.pos)) {
 			return otherPoint;
 		}

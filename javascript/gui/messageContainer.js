@@ -13,6 +13,7 @@ class MessagesContainer {
 	}
 
 	generateMessages(automaton) {
+		// generate all of the messages in some kind of priority queue
 		const messages = [];
 		if (automaton.getStates().size > 0) {
 			if (!automaton.hasInitialState()) {
@@ -61,6 +62,7 @@ class MessagesContainer {
 	}
 
 	displayMessages(messages) {
+		// add messages to DOM
 		messages.sort((a, b) => {
 			return a.priority - b.priority;
 		});

@@ -172,6 +172,7 @@ class Editor {
 
 		this.labelsWrap.children(".label-form").css("pointer-events", "all");
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
+			// no existing transition so create a new one
 			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`);
 			this.labelsWrap.append(labelElement);
 			const tLabel = autoLambda ? "" : undefined;
@@ -184,6 +185,7 @@ class Editor {
 				t.selectLabelText();
 			}
 		} else {
+			// there's already a transition here so just select it
 			t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
 			if (autoLambda) {
 				t.focusElement();
@@ -219,7 +221,7 @@ class Editor {
 	}
 
 	dragPanRec(obj, dir) {
-		// pass this as a parameter because it's getting lost in setTimeout
+		// pass "this" as a parameter because it's getting lost in setTimeout
 		obj.stopDragPan();
 		const dragAmount = 3;
 		const cameraDelta = new Point(dir.x * -dragAmount * obj.scale, dir.y * -dragAmount * obj.scale);
@@ -550,6 +552,8 @@ class Editor {
 	}
 
 	getAdjustedPos(e) {
+		// adjust a point to camera space
+
 		const editorOffset = $(this.editorWrap).offset();
 		const xPos = e.clientX - editorOffset.left - this.offset.x;
 		const yPos = e.clientY - editorOffset.top - this.offset.y;
@@ -714,6 +718,7 @@ class Editor {
 			}
 		});
 
+		// right click on editor
 		this.editorWrap.on("contextmenu", (e) => {
 			e.preventDefault();
 			if (this.tool === "chain") {
@@ -773,6 +778,7 @@ class Editor {
 				this.removePreviewTransition();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 			} else if (controlKey) {
+				// clipboard/selection tools
 				if (key === "x") {
 					ClipboardTools.cut();
 					e.preventDefault();
@@ -795,6 +801,7 @@ class Editor {
 			}
 		});
 
+		// zoom button events
 		const zoomContainer = this.editorWrap.children(".editor-zoom-container");
 		zoomContainer.children("#zoom-home-button").click((e) => {
 			this.zoomHome();
@@ -958,6 +965,7 @@ class Editor {
 			this.createRightClickMenu(stateObj, rawPos);
 		});
 
+		// editing state name listeners
 		const name = state.children(".state-name");
 		name.on("focusout", (e) => {
 			state.children(".state-name").attr("contenteditable", false);
@@ -981,6 +989,7 @@ class Editor {
 	setupLabelListeners(label, transition) {
 		const input = label.children(".label-input");
 
+		// click on transition label
 		label.click((e) => {
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
 			if (middleClick) {
@@ -1022,6 +1031,7 @@ class Editor {
 			}
 		});
 
+		// put mouse down on transition label
 		label.on("mousedown", (e) => {
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
 			if (!middleClick) {
@@ -1029,6 +1039,7 @@ class Editor {
 			}
 		});
 
+		// lift mouse up on transition label
 		label.on("mouseup", (e) => {
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
 			if (!middleClick) {
@@ -1037,6 +1048,7 @@ class Editor {
 			this.removeSelectionBox();
 		});
 
+		// move mouse onto transition label
 		label.on("mouseenter mousemove", (e) => {
 			if (this.tool === "chain") {
 				this.movePreviewState(new Point(9999999, 9999999));
@@ -1046,6 +1058,7 @@ class Editor {
 			}
 		});
 
+		// take mouse off of transition label
 		input.on("focusout", (e) => {
 			if (transition.labels.size === 0) {
 				this.automaton.removeTransition(transition);
@@ -1059,6 +1072,7 @@ class Editor {
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 		});
 
+		// type in a label
 		label.on("keydown", (e) => {
 			e = window.event || e;
 			const key = e.key;

@@ -22,8 +22,10 @@ class TreeLayout {
 		const initial = automaton.getInitialState();
 		TreeLayout.calculateDistances(automaton, initial);
 
+		// put the states into distance layers
 		const distMap = new Map();
 		automaton.getStates().forEach((s) => {
+			// ignore states that are unreachable
 			if (s.dist !== Infinity) {
 				if (distMap.has(s.dist)) {
 					distMap.get(s.dist).push(s);
@@ -33,6 +35,7 @@ class TreeLayout {
 			}
 		});
 
+		// draw each layer
 		for (const layer of distMap) {
 			const index = layer[0];
 			const states = layer[1];
@@ -49,6 +52,8 @@ class TreeLayout {
 	}
 
 	static calculateDistances(automaton, initial) {
+		// BFS to calculate minimum distances from initial state
+
 		automaton.getStates().forEach((s) => {
 			s.dist = Infinity;
 		});

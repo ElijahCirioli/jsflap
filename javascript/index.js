@@ -69,11 +69,13 @@ function unselectAllEnvironments() {
 }
 
 function removeEnvironment(env) {
+	// don't remove if it's the only one
 	if (environments.size <= 1) {
 		return;
 	}
 	tab = env.getTab();
 	if (activeEnvironment === env) {
+		// select a different environment
 		if (tab.prev(".environment-tab").length > 0) {
 			tab.prev(".environment-tab").click();
 		} else if (tab.next(".environment-tab").length > 0) {

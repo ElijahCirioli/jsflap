@@ -66,13 +66,17 @@ class Environment {
 		if (!this.respondToTriggers) {
 			return;
 		}
+		// gather all inputs from sidebar
 		const words = this.input.aggregateAllInputs();
 		for (const word of words) {
 			const sanitizedWord = word[0].replaceAll(lambdaChar, "");
+			// find whether it's in the language
 			words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
 		}
 		this.input.displayValidity(words);
+		// generate messages about the automaton
 		this.messages.generateMessages(this.editor.getAutomaton());
+		// save to undo/browser history if requested
 		if (automataChanged) {
 			this.updateHistory();
 		}
@@ -211,6 +215,8 @@ class Environment {
 	}
 
 	getSaveObject() {
+		// gets a fairly simplified data structure with all the key information about this environment/automaton
+
 		const data = {
 			name: this.name,
 			id: this.id,
@@ -242,6 +248,7 @@ class Environment {
 	}
 
 	setupListeners() {
+		// change tools
 		this.content
 			.children(".tool-bar")
 			.children(".tool-item")
@@ -254,6 +261,7 @@ class Environment {
 				this.editor.setTool(tool);
 			});
 
+		// type on name
 		this.tab.children(".environment-tab-name").on("keyup change", (e) => {
 			this.name = this.tab.children(".environment-tab-name").text();
 			this.updateHistory();
@@ -267,6 +275,7 @@ class Environment {
 			}
 		});
 
+		// make popups block click through
 		this.popups.on("click mousedown mouseup keydown keyup", (e) => {
 			e.stopPropagation();
 		});

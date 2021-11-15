@@ -74,6 +74,7 @@ class Transition {
 	draw(canvas, scale, offset, updateLabel) {
 		let labelPoint;
 
+		// see if the values need to be recalculated
 		let needsCalculation = false;
 		if (this.cache.to === undefined || !this.to.getPos().equals(this.cache.to)) {
 			needsCalculation = true;
@@ -119,18 +120,21 @@ class Transition {
 			labelPoint = Arrow.drawArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
 		}
 
+		// only draw the labels sometimes to increase performance
 		if (this.element && updateLabel) {
 			this.drawLabel(labelPoint);
 		}
 	}
 
 	selectLabelText() {
+		// highlight the text of the label
 		const input = this.element.children(".label-input");
 		const str = input.val();
 		input[0].setSelectionRange(0, str.length);
 	}
 
 	generateLabelText() {
+		// generate the label string from the labels
 		let str = "";
 		this.labels.forEach((char) => {
 			if (char === "") {
@@ -167,9 +171,11 @@ class Transition {
 	}
 
 	drawLabel(pos) {
+		// get the text and adjust the font size
 		this.generateLabelText();
 		this.adjustLabeSize();
 
+		// calculate the position of the element
 		const fromPos = this.from.getPos();
 		const toPos = this.to.getPos();
 		const width = this.element.outerWidth();
@@ -178,9 +184,10 @@ class Transition {
 		if (fromPos.x > toPos.x) {
 			angle += Math.PI;
 		}
-
 		const top = pos.y - (Math.sin(angle) * width) / 2;
 		const left = pos.x - (Math.cos(angle) * width) / 2;
+
+		// set the position
 		this.element.css("left", left + "px");
 		this.element.css("top", top + "px");
 		this.element.css("transform", `rotate(${angle}rad)`);

@@ -114,7 +114,7 @@ class EquivalenceTest {
 		env1.addPopupMessage(
 			new PopupMessage(
 				"Equivalence comparison",
-				`Automata ${env1.getName()} and ${env2.getName()} are not equivalent.`,
+				`Automata <u>${env1.getName()}</u> and <u>${env2.getName()}</u> are <strong>not</strong> equivalent.`,
 				() => {
 					env1.removePopupMessages();
 				},
@@ -127,7 +127,7 @@ class EquivalenceTest {
 		env1.addPopupMessage(
 			new PopupMessage(
 				"Equivalence comparison",
-				`Automata ${env1.getName()} and ${env2.getName()} are equivalent.`,
+				`Automata <u>${env1.getName()}</u> and <u>${env2.getName()}</u> are equivalent.`,
 				() => {
 					env1.removePopupMessages();
 				},

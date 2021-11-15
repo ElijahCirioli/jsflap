@@ -1,4 +1,6 @@
 class PopupMessage {
+	// normal confirm message
+
 	constructor(title, message, onConfirm, doReturn) {
 		this.content = $(`
         <div class="popup-message">
@@ -22,6 +24,8 @@ class PopupMessage {
 }
 
 class PopupCancelMessage extends PopupMessage {
+	// confirm or cancel message
+
 	constructor(title, message, onConfirm, onCancel, doReturn) {
 		super(title, message, onConfirm, false);
 
@@ -38,6 +42,8 @@ class PopupCancelMessage extends PopupMessage {
 }
 
 class PopupCharacterChoiceMessage extends PopupCancelMessage {
+	// choose lambda character message
+
 	constructor(onConfirm, onCancel, doReturn) {
 		super(
 			"Choose character",
@@ -82,6 +88,8 @@ class PopupCharacterChoiceMessage extends PopupCancelMessage {
 }
 
 class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
+	// choose an environment message
+
 	constructor(onConfirm, onCancel, doReturn) {
 		super(
 			"Choose automaton",
@@ -135,6 +143,8 @@ class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
 }
 
 class PopupThemeChoiceMessage extends PopupCancelMessage {
+	// choose different color options message
+
 	constructor(onConfirm, onCancel, doReturn) {
 		super("Choose theme", "Editor theme", onConfirm, onCancel, false);
 

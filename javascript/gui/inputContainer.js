@@ -10,6 +10,8 @@ class InputContainer {
 	}
 
 	aggregateAllInputs() {
+		// get all the inputs from the form
+
 		const allInputs = new Map();
 		this.inputContent
 			.children(".inputs-form")
@@ -18,6 +20,7 @@ class InputContainer {
 			.forEach((item) => {
 				const itemInput = $(item).children(".inputs-form-item-input");
 				if (itemInput.val().length > 0) {
+					// set it's validity as false for now
 					allInputs.set(itemInput.val(), false);
 				}
 			});
@@ -72,6 +75,7 @@ class InputContainer {
 		wrap.append(output);
 		form.append(wrap);
 
+		// setup typing key events for new input
 		input.on("keydown", (e) => {
 			e = window.event || e;
 			e.stopPropagation();
@@ -79,6 +83,7 @@ class InputContainer {
 
 			if (key === "Tab" || key === "Enter") {
 				if (input.val().length === 0) {
+					// make a new input if there are no empty ones
 					input.val(lambdaChar);
 					let foundEmpty = false;
 					form.children(".inputs-form-item")
@@ -125,6 +130,7 @@ class InputContainer {
 		});
 
 		input.on("keyup", (e) => {
+			// create a new input if there are no empty ones
 			let foundEmpty = false;
 			form.children(".inputs-form-item")
 				.toArray()
@@ -141,6 +147,7 @@ class InputContainer {
 		});
 
 		input.on("focusout", (e) => {
+			// delete empty inputs when they lose focus
 			if (input.val().length === 0) {
 				const allInputs = form.children(".inputs-form-item").toArray();
 				if (allInputs.length > 1) {

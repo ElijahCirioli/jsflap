@@ -4,6 +4,7 @@ class FileParser {
 			this.files = files;
 			this.handleFileInputs();
 		} else {
+			// open a file select window
 			const input = $(`<input type="file" class="file-input" multiple>`);
 			$("#content-wrap").append(input);
 			input.click();
@@ -13,7 +14,8 @@ class FileParser {
 	}
 
 	handleFileInputs() {
-		// this means different things depending on where this was called from
+		// "this" means different things depending on where this was called from
+		// split files into .jff and .jsf
 		for (const f of this.files) {
 			if (f.name.endsWith(".jff")) {
 				FileParser.parseJFF(f);
@@ -23,8 +25,9 @@ class FileParser {
 		}
 	}
 
-	// helper function to read in .jff files
 	static parseJFF(file) {
+		// helper function to read in .jff files
+
 		const fileName = file.name.substring(0, file.name.length - 4);
 		const reader = new FileReader();
 		reader.readAsText(file, "UTF-8");
@@ -95,8 +98,9 @@ class FileParser {
 		};
 	}
 
-	// helper function to read in .jsf files
 	static parseJSF(file) {
+		// helper function to read in .jsf files
+
 		const reader = new FileReader();
 		reader.readAsText(file, "UTF-8");
 		reader.onload = (e) => {
@@ -119,11 +123,14 @@ class FileParser {
 	}
 
 	static parseJSON(obj, autoId, environment) {
+		// parse a json object into an environment
+
 		const env = environment || createEnvironment();
 		const editor = env.getEditor();
 		const elementMap = new Map();
 
 		env.setName(obj.name);
+		// try to reuse an old id if requested
 		if (!autoId) {
 			let alreadyExists = false;
 			environments.forEach((e) => {
@@ -136,6 +143,7 @@ class FileParser {
 			}
 		}
 
+		// add all the states
 		for (const s of obj.states) {
 			const pos = new Point(s.x, s.y);
 			const state = editor.createState(pos, false);
@@ -149,6 +157,7 @@ class FileParser {
 			elementMap.set(s.id, state.getElement());
 		}
 
+		// add all the transitions
 		for (const t of obj.transitions) {
 			const fromState = elementMap.get(t.from);
 			const toState = elementMap.get(t.to);

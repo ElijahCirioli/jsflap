@@ -3,6 +3,8 @@ class DFAConverter {
 
 	static action(environment) {
 		const automaton = environment.getEditor().getAutomaton();
+
+		// first make sure this is possible
 		if (!automaton.hasInitialState()) {
 			environment.addPopupMessage(
 				new PopupMessage(
@@ -33,6 +35,7 @@ class DFAConverter {
 		const editor = env.getEditor();
 		env.setName(`DFA ${environment.getName()}`);
 
+		// get the DFA as a table
 		const tables = DFAConverter.NFAtoDFATable(automaton);
 		const transitionTableDFA = tables.DFA;
 		const needsTrapState = tables.needsTrapState;
@@ -57,6 +60,7 @@ class DFAConverter {
 				idTable.set(fromId, newState);
 			}
 		}
+		// add a trap state if necessary
 		if (needsTrapState) {
 			DFAConverter.createTrapState(automaton.getAlphabet(), editor, idTable);
 		}
@@ -179,6 +183,7 @@ class DFAConverter {
 	}
 
 	static randomPoint(editor) {
+		// get a random point on the canvas
 		return new Point(Math.floor(Math.random() * (editor.canvas.width - 100)) + 50, Math.floor(Math.random() * (editor.canvas.height - 100)) + 50);
 	}
 }

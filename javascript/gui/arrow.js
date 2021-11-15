@@ -3,6 +3,8 @@ class Arrow {
 	static arrowWidth = 6;
 
 	static scalePoint(p, scale, offset, canvas) {
+		// scale a point to camera space
+
 		const inverseScale = 1 / scale;
 		const center = new Point(canvas.width / 2, canvas.height / 2);
 		const minBounds = new Point(center.x * (1 - inverseScale), center.y * (1 - inverseScale));

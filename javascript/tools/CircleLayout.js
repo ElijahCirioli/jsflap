@@ -9,6 +9,7 @@ class CircleLayout {
 			return;
 		}
 
+		// sort the states by their distance from the initial state
 		const initial = automaton.getInitialState() || states.values().next().value;
 		TreeLayout.calculateDistances(automaton, initial);
 		const orderedStates = [];
@@ -19,6 +20,7 @@ class CircleLayout {
 			return a.dist - b.dist;
 		});
 
+		// place them in a circle in the order of that distance
 		const center = new Point(Math.round(editor.canvas.width / 2), Math.round(editor.canvas.height / 2));
 		const radius = Math.min(center.x, center.y) - 50;
 		const deltaAngle = (2 * Math.PI) / orderedStates.length;
