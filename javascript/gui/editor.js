@@ -216,7 +216,7 @@ class Editor {
 
 	startDragPan(dir) {
 		if (!this.dragPan) {
-			this.dragPan = setTimeout(this.dragPanRec, 400, this, dir);
+			this.dragPan = setTimeout(this.dragPanRec, 100, this, dir);
 		}
 	}
 
@@ -623,7 +623,7 @@ class Editor {
 					// check for pan events
 					const editorOffset = $(this.editorWrap).offset();
 					const rawPos = new Point(e.clientX - editorOffset.left, e.clientY - editorOffset.top);
-					const panBuffer = 80;
+					const panBuffer = 100;
 					if (rawPos.x > this.canvas.width - panBuffer) {
 						this.startDragPan(new Point(1, 0));
 					} else if (rawPos.x < panBuffer) {

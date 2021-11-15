@@ -15,7 +15,7 @@ class ClipboardTools {
 			automaton.removeTransition(t);
 		});
 
-		activeEnvironment.testAllInputs();
+		activeEnvironment.testAllInputs(true);
 		editor.draw();
 	}
 
@@ -74,6 +74,7 @@ class ClipboardTools {
 			return;
 		}
 
+		activeEnvironment.respondToTriggers = false;
 		const editor = activeEnvironment.getEditor();
 		editor.unselectAllStates();
 		editor.unselectAllTransitions();
@@ -115,7 +116,8 @@ class ClipboardTools {
 
 		startPoint.add(new Point(20, 20));
 
-		activeEnvironment.testAllInputs();
+		activeEnvironment.respondToTriggers = true;
+		activeEnvironment.testAllInputs(true);
 		editor.draw();
 	}
 }

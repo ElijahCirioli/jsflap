@@ -34,5 +34,7 @@ class CircleLayout {
 
 		editor.draw();
 		editor.zoomFit();
+		environment.updateHistory();
+		editor.editorWrap.focus();
 	}
 }

@@ -49,6 +49,8 @@ class TreeLayout {
 
 		editor.draw();
 		editor.zoomFit();
+		environment.updateHistory();
+		editor.editorWrap.focus();
 	}
 
 	static calculateDistances(automaton, initial) {
