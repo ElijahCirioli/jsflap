@@ -12,6 +12,7 @@ class CircleLayout {
 		// sort the states by their distance from the initial state
 		const initial = automaton.getInitialState() || states.values().next().value;
 		TreeLayout.calculateDistances(automaton, initial);
+
 		const orderedStates = [];
 		states.forEach((s) => {
 			orderedStates.push(s);

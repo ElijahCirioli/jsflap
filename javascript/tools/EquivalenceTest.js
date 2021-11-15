@@ -27,7 +27,7 @@ class EquivalenceTest {
 		const dfa2 = tables2.DFA;
 		const final2 = tables2.finalStates;
 
-		// get the alphabets and remove trap transitions
+		// get the alphabets
 		const alphabet1 = new Set();
 		dfa1.forEach((state) => {
 			for (const item of state) {

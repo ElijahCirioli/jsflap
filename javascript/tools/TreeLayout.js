@@ -58,6 +58,7 @@ class TreeLayout {
 			s.dist = Infinity;
 		});
 		initial.dist = 0;
+
 		const queue = [initial];
 		const visited = new Set();
 

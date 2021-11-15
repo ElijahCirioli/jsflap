@@ -9,6 +9,7 @@ class RemoveUnreachableStates {
 			unreachable.forEach((state) => {
 				automaton.removeState(state);
 			});
+
 			environment.getEditor().draw();
 		} else {
 			environment.addPopupMessage(
