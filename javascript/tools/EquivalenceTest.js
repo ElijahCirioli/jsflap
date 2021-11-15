@@ -31,9 +31,7 @@ class EquivalenceTest {
 		const alphabet1 = new Set();
 		dfa1.forEach((state) => {
 			for (const item of state) {
-				if (item[1] === "trap") {
-					state.delete(item[0]);
-				} else {
+				if (item[1] !== "trap") {
 					alphabet1.add(item[0]);
 				}
 			}
@@ -41,14 +39,13 @@ class EquivalenceTest {
 		const alphabet2 = new Set();
 		dfa2.forEach((state) => {
 			for (const item of state) {
-				if (item[1] === "trap") {
-					state.delete(item[0]);
-				} else {
+				if (item[1] !== "trap") {
 					alphabet2.add(item[0]);
 				}
 			}
 		});
 
+		const trapState = new Map();
 		// make sure they have the same alphabet
 		for (const char of alphabet1) {
 			if (!alphabet2.has(char)) {
@@ -61,35 +58,56 @@ class EquivalenceTest {
 				EquivalenceTest.notEquivalentMessage(env1, env2);
 				return;
 			}
+			trapState.set(char, "trap");
 		}
+		// add trap state to both DFAs
+		dfa1.set("trap", trapState);
+		dfa2.set("trap", trapState);
 
-		// run the table-filling algorithm
-		// this is inefficient so it would be good to replace with the Hopcroft-Karp Algorithm
+		// this has an O(n^2) time complexity
+		// It could be improved by turning visited into a union-find data structure
+		const visited = new Set();
+		const initialId = a1.getInitialState().getId() + "|" + a2.getInitialState().getId();
+		const queue = [initialId];
 
-		// create the table of predecessor states
-		const predecessorStates = new Map();
-		for (const p of dfa1) {
-			for (const q of dfa2) {
-				const combinedId = p[0] + "|" + q[0];
-				predecessorStates.set(combinedId, new Set());
+		while (queue.length > 0) {
+			const curr = queue.shift();
+			if (!visited.has(curr)) {
+				const p = curr.split("|")[0];
+				const q = curr.split("|")[1];
+
+				const distinguishable = EquivalenceTest.distinguishable(p, q, final1, final2);
+				if (distinguishable) {
+					EquivalenceTest.notEquivalentMessage(env1, env2);
+					return;
+				}
+
+				for (const char of alphabet1) {
+					const pToState = dfa1.get(p).get(char);
+					const qToState = dfa2.get(q).get(char);
+					queue.push(pToState + "|" + qToState);
+				}
+
+				visited.add(curr);
 			}
 		}
-		for (const p of dfa1) {
-			for (const q of dfa2) {
-				alphabet1.forEach((char) => {
-					if (q[1].has(char) && p[1].has(char)) {
-						const tuple = { p: p[0], q: q[0], label: char };
-						const combinedId = p[1].get(char) + "|" + q[1].get(char);
-						predecessorStates.get(combinedId).add(tuple);
-					}
-				});
+
+		EquivalenceTest.equivalentMessage(env1, env2);
+	}
+
+	static distinguishable(p, q, pFinalStates, qFinalStates) {
+		const pIsFinal = EquivalenceTest.isFinal(p, pFinalStates);
+		const qIsFinal = EquivalenceTest.isFinal(q, qFinalStates);
+		return pIsFinal ? !qIsFinal : qIsFinal;
+	}
+
+	static isFinal(combinedState, finalStates) {
+		for (const sub of combinedState.split("+")) {
+			if (finalStates.has(sub)) {
+				return true;
 			}
 		}
-
-		const n = p.size + q.size;
-		const queue = [];
-
-		console.log(predecessorStates);
+		return false;
 	}
 
 	static notEquivalentMessage(env1, env2) {
