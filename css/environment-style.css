@@ -487,6 +487,16 @@
 	width: 100%;
 	gap: 15px;
 }
+.popup-message-vertical-buttons {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex-wrap: nowrap;
+	justify-content: center;
+	width: 90%;
+	gap: 12px;
+	margin-top: 5px;
+}
 .popup-message-button {
 	height: 100%;
 	min-width: 70px;
@@ -507,6 +517,9 @@
 }
 .popup-message-button:active {
 	transform: scale(0.98);
+}
+.vertical-button {
+	width: 100%;
 }
 .popup-message-characters {
 	justify-content: space-evenly;

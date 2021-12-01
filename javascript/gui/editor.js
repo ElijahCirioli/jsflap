@@ -22,7 +22,6 @@ class Editor {
 		};
 
 		this.stopDrag();
-		this.resizeCanvas();
 		this.setupListeners();
 	}
 
@@ -79,17 +78,8 @@ class Editor {
 		return this.automaton;
 	}
 
-	resizeCanvas() {
-		this.canvas.width = 0;
-		this.canvas.height = 0;
-
-		const width = this.parent.children(".editor").css("width");
-		this.canvas.width = width.substring(width, width.length - 2);
-
-		const height = this.parent.children(".editor").css("height");
-		this.canvas.height = height.substring(height, height.length - 2);
-
-		this.draw();
+	getType() {
+		return "finite";
 	}
 
 	draw() {
@@ -567,11 +557,6 @@ class Editor {
 	}
 
 	setupListeners() {
-		// resize window
-		$(window).resize((e) => {
-			this.resizeCanvas();
-		});
-
 		// click on editor
 		this.editorWrap.click((e) => {
 			e.stopPropagation();

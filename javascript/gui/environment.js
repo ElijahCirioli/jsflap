@@ -17,9 +17,20 @@ class Environment {
 
 		this.input = new InputContainer(this.content, callback);
 		this.messages = new MessagesContainer(this.content);
-		this.editor = new Editor(this.content, callback);
 		this.popups = this.content.children(".editor").children(".editor-popup-container");
+		this.addPopupMessage(
+			new PopupEditorChoiceMessage(
+				() => {
+					this.createFiniteEditor();
+				},
+				() => {
+					this.createPushdownEditor();
+				},
+				true
+			)
+		);
 
+		this.resizeCanvas();
 		this.setupListeners();
 	}
 
@@ -52,6 +63,26 @@ class Environment {
 		this.id = newId;
 	}
 
+	createFiniteEditor() {
+		// wrap the callback function to preserve "this"
+		const callback = (change) => {
+			this.testAllInputs(change);
+		};
+
+		this.editor = new Editor(this.content, callback);
+		this.removePopupMessages();
+	}
+
+	createPushdownEditor() {
+		// wrap the callback function to preserve "this"
+		const callback = (change) => {
+			this.testAllInputs(change);
+		};
+
+		this.editor = new PushdownEditor(this.content, callback);
+		this.removePopupMessages();
+	}
+
 	generateId() {
 		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 		const idLength = 32;
@@ -63,7 +94,7 @@ class Environment {
 	}
 
 	testAllInputs(automataChanged) {
-		if (!this.respondToTriggers) {
+		if (!this.respondToTriggers || this.editor === undefined) {
 			return;
 		}
 		// gather all inputs from sidebar
@@ -133,6 +164,22 @@ class Environment {
 		this.content.remove();
 	}
 
+	resizeCanvas() {
+		const canvas = this.content.children(".editor").children(".editor-canvas")[0];
+		canvas.width = 0;
+		canvas.height = 0;
+
+		const width = this.content.children(".editor").css("width");
+		canvas.width = width.substring(width, width.length - 2);
+
+		const height = this.content.children(".editor").css("height");
+		canvas.height = height.substring(height, height.length - 2);
+
+		if (this.editor) {
+			this.editor.draw();
+		}
+	}
+
 	addPopupMessage(message) {
 		this.popups.empty();
 		this.popups.append(message);
@@ -145,15 +192,20 @@ class Environment {
 	}
 
 	isEmpty() {
-		return this.editor.getAutomaton().getStates().size === 0;
+		if (this.editor) {
+			return this.editor.getAutomaton().getStates().size === 0;
+		}
+		return true;
 	}
 
 	forgetMousePos() {
-		this.editor.pasteMousePos = undefined;
+		if (this.editor) {
+			this.editor.pasteMousePos = undefined;
+		}
 	}
 
 	undo() {
-		if (this.history.length === 0) {
+		if (this.history.length === 0 || this.editor === undefined) {
 			return;
 		}
 		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
@@ -169,7 +221,7 @@ class Environment {
 	}
 
 	redo() {
-		if (this.history.length === 0 || this.historyPos === 0) {
+		if (this.history.length === 0 || this.historyPos === 0 || this.editor === undefined) {
 			return;
 		}
 		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
@@ -224,6 +276,12 @@ class Environment {
 			states: [],
 			transitions: [],
 		};
+
+		if (this.editor === undefined) {
+			return data;
+		}
+
+		data.type = this.editor.getType();
 		const automaton = this.editor.getAutomaton();
 
 		automaton.getStates().forEach((s) => {
@@ -248,6 +306,11 @@ class Environment {
 	}
 
 	setupListeners() {
+		// resize window
+		$(window).resize((e) => {
+			this.resizeCanvas();
+		});
+
 		// change tools
 		this.content
 			.children(".tool-bar")

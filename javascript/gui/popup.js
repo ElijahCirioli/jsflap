@@ -200,3 +200,34 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 		return button;
 	}
 }
+
+class PopupEditorChoiceMessage {
+	// choose what type of automaton to create
+
+	constructor(onFinite, onPushdown, doReturn) {
+		this.content = $(`
+        <div class="popup-message">
+            <h2 class="popup-message-title">Create new</h2>
+            <div class="popup-message-content">
+                <div class="popup-message-vertical-buttons"></div>
+            </div>
+        </div>`);
+		this.buttons = this.content.children(".popup-message-content").children(".popup-message-vertical-buttons");
+
+		this.finiteButton = $(`<button class="popup-message-button vertical-button">Finite State Automaton</button>`);
+		this.buttons.append(this.finiteButton);
+		this.finiteButton.click((e) => {
+			onFinite();
+		});
+
+		this.pushdownButton = $(`<button class="popup-message-button vertical-button">Pushdown Automaton</button>`);
+		this.buttons.append(this.pushdownButton);
+		this.pushdownButton.click((e) => {
+			onPushdown();
+		});
+
+		if (doReturn) {
+			return this.content;
+		}
+	}
+}

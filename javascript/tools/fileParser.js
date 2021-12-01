@@ -125,7 +125,21 @@ class FileParser {
 	static parseJSON(obj, autoId, environment) {
 		// parse a json object into an environment
 
-		const env = environment || createEnvironment();
+		let env = environment;
+		if (env === undefined) {
+			env = createEnvironment();
+			switch (obj.type) {
+				case "finite":
+					env.createFiniteEditor();
+					break;
+				case "pushdown":
+					env.createPushdownEditor();
+					break;
+				default:
+					env.createFiniteEditor();
+					break;
+			}
+		}
 		const editor = env.getEditor();
 		const elementMap = new Map();
 
