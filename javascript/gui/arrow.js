@@ -41,7 +41,7 @@ class Arrow {
 		context.fill();
 	}
 
-	static drawArrow(canvas, cache, calculate, scale, offset, color) {
+	static drawArrow(canvas, cache, calculate, scale, offset, height, color) {
 		const context = canvas.getContext("2d");
 
 		if (calculate) {
@@ -57,7 +57,8 @@ class Arrow {
 			const multiplier = Math.sign(cache.start.x - cache.end.x);
 			const center = new Point((cache.from.x + cache.to.x) / 2, (cache.from.y + cache.to.y) / 2);
 			const orthogonalAngle = angle + Math.PI / 2;
-			const labelOffset = 22;
+
+			const labelOffset = height + 2.5;
 			cache.labelPoint = new Point(
 				center.x + Math.cos(orthogonalAngle) * labelOffset * multiplier,
 				center.y + Math.sin(orthogonalAngle) * labelOffset * multiplier
@@ -82,7 +83,7 @@ class Arrow {
 		return cache.labelPoint;
 	}
 
-	static drawCurvedArrow(canvas, cache, calculate, scale, offset, color) {
+	static drawCurvedArrow(canvas, cache, calculate, scale, offset, height, color) {
 		const context = canvas.getContext("2d");
 
 		if (calculate) {
@@ -105,7 +106,7 @@ class Arrow {
 
 			// calculate a point above the apex of the curve
 			const orthogonalAngle = Math.atan2(cache.end.y - cache.start.y, cache.end.x - cache.start.x) + Math.PI / 2;
-			const labelOffset = cache.start.x > cache.end.x ? 17 : -3;
+			const labelOffset = cache.start.x > cache.end.x ? height - 2 : -2;
 			cache.labelPoint = new Point(
 				(cache.control1.x + cache.control2.x) / 2 + Math.cos(orthogonalAngle) * labelOffset,
 				(cache.control1.y + cache.control2.y) / 2 + Math.sin(orthogonalAngle) * labelOffset
@@ -132,7 +133,7 @@ class Arrow {
 		return cache.labelPoint;
 	}
 
-	static drawSelfArrow(canvas, cache, calculate, scale, offset, color) {
+	static drawSelfArrow(canvas, cache, calculate, scale, offset, labelHeight, color) {
 		const context = canvas.getContext("2d");
 
 		if (calculate) {
@@ -148,7 +149,7 @@ class Arrow {
 			cache.endPoint.add(cache.end);
 
 			// calculate a point above the apex of the curve
-			const labelOffset = 10;
+			const labelOffset = labelHeight - 9;
 			const labelOffsetX = 0;
 			cache.labelPoint = new Point(cache.from.x + labelOffsetX, cache.start.y - height - labelOffset);
 

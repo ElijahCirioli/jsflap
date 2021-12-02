@@ -71,8 +71,13 @@ class Transition {
 		this.element.children(".label-input")[0].setSelectionRange(9999, 9999);
 	}
 
+	clearCache() {
+		this.cache = {};
+	}
+
 	draw(canvas, scale, offset, updateLabel) {
 		let labelPoint;
+		const height = this.element ? this.element.outerHeight() : 0;
 
 		// see if the values need to be recalculated
 		let needsCalculation = false;
@@ -99,7 +104,7 @@ class Transition {
 				this.cache.end = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
 				this.cache.type = "self";
 			}
-			labelPoint = Arrow.drawSelfArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
+			labelPoint = Arrow.drawSelfArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
 		} else if (this.to.hasTransitionToState(this.from)) {
 			// matched inverse transitions
 			if (needsCalculation || this.cache.type !== "matched") {
@@ -108,7 +113,7 @@ class Transition {
 				this.cache.end = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
 				this.cache.type = "matched";
 			}
-			labelPoint = Arrow.drawCurvedArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
+			labelPoint = Arrow.drawCurvedArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
 		} else {
 			// normal straight arrow
 			if (needsCalculation || this.cache.type !== "straight") {
@@ -117,7 +122,7 @@ class Transition {
 				this.cache.end = this.to.radiusPoint(this.from.getPos(), 0, 0);
 				this.cache.type = "straight";
 			}
-			labelPoint = Arrow.drawArrow(canvas, this.cache, needsCalculation, scale, offset, this.color);
+			labelPoint = Arrow.drawArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
 		}
 
 		// only draw the labels sometimes to increase performance

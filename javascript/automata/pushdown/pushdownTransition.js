@@ -44,7 +44,7 @@ class PushdownTransition extends Transition {
 		});
 	}
 
-	addTuple(editor, autoLambda) {
+	addTuple(editor, tuple) {
 		const element = $(`
 			<div class="pushdown-tuple">
 				<input type="text" spellcheck="false" maxlength="1" class="label-input char-input">
@@ -54,9 +54,8 @@ class PushdownTransition extends Transition {
 				<input type="text" spellcheck="false" maxlength="256" class="label-input push-input">
 			</div>`);
 		this.element.append(element);
-		const tuple = autoLambda ? { char: "", push: "", pop: "" } : undefined;
 		this.labels.add(tuple);
-		editor.setupTupleListeners(element, tuple);
+		editor.setupTupleListeners(element, this, tuple);
 	}
 
 	focusElement() {
@@ -66,6 +65,6 @@ class PushdownTransition extends Transition {
 
 	selectLabelText() {
 		// highlight the text of the tuple
-		this.element.children(".pushdown-tuple").first().children(".label-input").first()[0].setSelectionRange(0, 9999);
+		this.element.children(".pushdown-tuple").last().children(".label-input").first()[0].setSelectionRange(0, 9999);
 	}
 }

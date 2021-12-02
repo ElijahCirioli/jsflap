@@ -7,6 +7,7 @@ class PushdownEditor extends Editor {
 	endTransition(element, autoLambda) {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
+		const tuple = autoLambda ? { char: "", push: "", pop: "" } : undefined;
 		let t;
 
 		this.labelsWrap.children(".label-form").css("pointer-events", "all");
@@ -23,17 +24,18 @@ class PushdownEditor extends Editor {
 				</div>
 			</form>`);
 			this.labelsWrap.append(labelElement);
-			const tuple = autoLambda ? { char: "", push: "", pop: "" } : undefined;
 			t = this.automaton.addTransition(this.startState, endState, tuple, labelElement);
 			this.setupLabelListeners(labelElement, t);
 		} else {
 			// there's already a transition here so just select it
 			t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
-			t.addTuple(this, autoLambda);
+			t.addTuple(this, tuple);
 		}
+
 		if (autoLambda) {
 			this.unselectAllTransitions();
 			this.selectTransition(t);
+			t.clearCache();
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 			t.focusElement();
 			t.selectLabelText();

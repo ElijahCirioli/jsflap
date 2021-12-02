@@ -237,7 +237,9 @@ $("document").ready(() => {
 	// edit menu
 	$("#menu-select-all-button").click((e) => {
 		hideDropdowns();
-		activeEnvironment.getEditor().selectAll();
+		if (activeEnvironment.hasEditor()) {
+			activeEnvironment.getEditor().selectAll();
+		}
 	});
 
 	$("#menu-cut-button").click((e) => {
@@ -268,17 +270,23 @@ $("document").ready(() => {
 	// view menu
 	$("#menu-zoom-in-button").click((e) => {
 		hideDropdowns();
-		activeEnvironment.getEditor().zoomIn();
+		if (activeEnvironment.hasEditor()) {
+			activeEnvironment.getEditor().zoomIn();
+		}
 	});
 
 	$("#menu-zoom-out-button").click((e) => {
 		hideDropdowns();
-		activeEnvironment.getEditor().zoomOut();
+		if (activeEnvironment.hasEditor()) {
+			activeEnvironment.getEditor().zoomOut();
+		}
 	});
 
 	$("#menu-zoom-fit-button").click((e) => {
 		hideDropdowns();
-		activeEnvironment.getEditor().zoomFit();
+		if (activeEnvironment.hasEditor()) {
+			activeEnvironment.getEditor().zoomFit();
+		}
 	});
 
 	$("#menu-character-choice-button").click((e) => {
@@ -295,7 +303,9 @@ $("document").ready(() => {
 					window.localStorage.setItem("jsflap lambda character", lambdaChar);
 					environments.forEach((env) => {
 						env.getContent().show();
-						env.getEditor().draw();
+						if (env.hasEditor()) {
+							env.getEditor().draw();
+						}
 						env.getContent().hide();
 					});
 					activeEnvironment.getContent().show();

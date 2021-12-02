@@ -131,6 +131,9 @@ class Editor {
 			const toState = this.previewTransition.getToState();
 			fromState.removeTransition(toState, "PREVIEW");
 			this.previewTransition = undefined;
+			if (toState.hasTransitionToState(fromState)) {
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+			}
 		}
 	}
 

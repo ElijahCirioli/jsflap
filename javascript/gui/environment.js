@@ -42,6 +42,10 @@ class Environment {
 		return this.editor;
 	}
 
+	hasEditor() {
+		return this.editor !== undefined;
+	}
+
 	getName() {
 		return this.name;
 	}
@@ -189,6 +193,19 @@ class Environment {
 	removePopupMessages() {
 		this.popups.empty();
 		this.popups.hide();
+		if (this.editor === undefined) {
+			this.addPopupMessage(
+				new PopupEditorChoiceMessage(
+					() => {
+						this.createFiniteEditor();
+					},
+					() => {
+						this.createPushdownEditor();
+					},
+					true
+				)
+			);
+		}
 	}
 
 	isEmpty() {
