@@ -3,4 +3,268 @@ class PushdownEditor extends Editor {
 		super(parent, callback);
 		this.automaton = new PushdownAutomaton();
 	}
+
+	endTransition(element, autoLambda) {
+		const endId = element.attr("id");
+		const endState = this.automaton.getStateById(endId);
+		let t;
+
+		this.labelsWrap.children(".label-form").css("pointer-events", "all");
+		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
+			// no existing transition so create a new one
+			const labelElement = $(`
+			<form class="label-form tuple-form">
+				<div class="pushdown-tuple">
+					<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
+					<p class="tuple-delimeter">,&nbsp;</p>
+					<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
+					<p class="tuple-delimeter">🠦</p>
+					<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
+				</div>
+			</form>`);
+			this.labelsWrap.append(labelElement);
+			const tuple = autoLambda ? { char: "", push: "", pop: "" } : undefined;
+			t = this.automaton.addTransition(this.startState, endState, tuple, labelElement);
+			this.setupLabelListeners(labelElement, t);
+		} else {
+			// there's already a transition here so just select it
+			t = this.automaton.getTransitionsBetweenStates(this.startState, endState);
+			t.addTuple(this, autoLambda);
+		}
+		if (autoLambda) {
+			this.unselectAllTransitions();
+			this.selectTransition(t);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+			t.focusElement();
+			t.selectLabelText();
+		}
+
+		this.triggerTest();
+		this.startState = undefined;
+		return t;
+	}
+
+	setupLabelListeners(label, transition) {
+		const input = label.children(".pushdown-tuple").children(".label-input");
+
+		// click on transition label
+		label.click((e) => {
+			// middle click
+			if (("which" in e && e.which === 2) || ("button" in e && e.button === 4)) {
+				return;
+			}
+
+			e.stopPropagation();
+
+			if (this.tool === "point" || this.tool === "transition" || this.tool === "chain") {
+				if (controlKey || shiftKey) {
+					if (this.selectedTransitions.has(transition)) {
+						this.unselectTransition(transition);
+						input.blur();
+						if (this.selectedTransitions.size > 0) {
+							const first = this.selectedTransitions.values().next().value;
+							first.focusElement();
+						}
+					} else {
+						this.selectTransition(transition);
+					}
+				} else {
+					if (!this.selectedTransitions.has(transition)) {
+						this.unselectAllTransitions();
+						this.unselectAllStates();
+					}
+					this.selectTransition(transition);
+				}
+			} else if (this.tool === "trash") {
+				if (this.selectedTransitions.has(transition)) {
+					this.selectedTransitions.forEach((t) => {
+						this.automaton.removeTransition(t);
+					});
+				} else {
+					this.automaton.removeTransition(transition);
+				}
+				this.unselectAllTransitions();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				this.triggerTest();
+			}
+		});
+
+		// put mouse down on transition label
+		label.on("mousedown", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
+		});
+
+		// lift mouse up on transition label
+		label.on("mouseup", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
+			this.removeSelectionBox();
+		});
+
+		// move mouse onto transition label
+		label.on("mouseenter mousemove", (e) => {
+			if (this.tool === "chain") {
+				this.movePreviewState(new Point(9999999, 9999999));
+				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+				e.stopPropagation();
+			}
+		});
+
+		let i = 0;
+		transition.getLabels().forEach((tuple) => {
+			const element = label.children(".pushdown-tuple").eq(i);
+			this.setupTupleListeners(element, transition, tuple);
+			i++;
+		});
+	}
+
+	setupTupleListeners(element, transition, tuple) {
+		this.setupSingleCharacterInputListener(element.children(".char-input"), tuple, "char");
+		this.setupSingleCharacterInputListener(element.children(".pop-input"), tuple, "pop");
+		this.setupMultipleCharacterInputListener(element.children(".push-input"), transition, tuple, "push");
+	}
+
+	setupSingleCharacterInputListener(element, tuple, type) {
+		element.on("focusout", (e) => {
+			element[0].setSelectionRange(0, 0);
+		});
+
+		element.on("focusin", (e) => {
+			element[0].setSelectionRange(0, 9999);
+		});
+
+		// type in the box
+		element.on("keydown", (e) => {
+			e = window.event || e;
+			const key = e.key;
+			e.preventDefault();
+
+			// make sure deleting text doesn't delete the whole transition
+			if (key === "Delete" || key === "Backspace") {
+				e.stopPropagation();
+			} else if (key === "Enter") {
+				// lose focus when they press enter
+				element.blur();
+				this.unselectAllTransitions();
+			} else if (key === "ArrowRight" || key === "Tab") {
+				element.next().next(".label-input").focus();
+				e.stopPropagation();
+			} else if (key === "ArrowLeft") {
+				element.prev().prev(".label-input").focus();
+				e.stopPropagation();
+			} else if (key === "ArrowUp" || key === "ArrowDown") {
+				e.stopPropagation();
+			} else {
+				if (key === "Backspace" || key === "Delete") {
+					tuple[type] = "";
+				} else if (key.length === 1) {
+					// add chars
+					if (key === ",") {
+						tuple[type] = "";
+					} else {
+						tuple[type] = key;
+					}
+					element.next().next(".label-input").focus();
+				}
+
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				this.triggerTest();
+			}
+		});
+	}
+
+	setupMultipleCharacterInputListener(element, transition, tuple, type) {
+		element.on("focusout", (e) => {
+			element[0].setSelectionRange(0, 0);
+			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+		});
+
+		element.on("focusin", (e) => {
+			if (element.val() === lambdaChar) {
+				element[0].setSelectionRange(0, 9999);
+			} else {
+				element[0].setSelectionRange(9999, 9999);
+			}
+		});
+
+		element.on("keydown", (e) => {
+			e = window.event || e;
+			e.stopPropagation();
+			e.preventDefault();
+			const key = e.key;
+
+			let str = element.val();
+			const selectionStart = element[0].selectionStart;
+			const selectionEnd = element[0].selectionEnd;
+
+			if (key === "Enter") {
+				// lose focus when they press enter
+				element.blur();
+				this.unselectAllTransitions();
+			} else {
+				let newCursorPos = selectionStart;
+				// deleting
+				if (selectionStart !== selectionEnd) {
+					if (key === "Backspace" || key === "Delete" || key.length === 1) {
+						// delete multiple labels
+						element.val(str.substring(0, selectionStart) + key.length === 1 ? key : "" + str.substring(selectionEnd + 1, str.length));
+						newCursorPos = selectionStart + 1;
+					}
+				} else {
+					if (key === "Backspace" && selectionStart > 0) {
+						element.val(str.substring(0, selectionStart - 1) + str.substring(selectionEnd, str.length));
+						newCursorPos = selectionStart - 1;
+					} else if (key === "Delete" && selectionEnd < str.length) {
+						element.val(str.substring(0, selectionStart) + str.substring(selectionEnd + 1, str.length));
+						newCursorPos = selectionStart;
+					}
+				}
+
+				if (key === "ArrowRight") {
+					e.stopPropagation();
+					newCursorPos = selectionEnd + 1;
+				} else if (key === "ArrowLeft") {
+					e.stopPropagation();
+					newCursorPos = Math.max(selectionStart - 1, 0);
+				} else if (key === "ArrowUp" || key === "ArrowDown") {
+					e.stopPropagation();
+				}
+				if (key.length === 1) {
+					if (key === ",") {
+						if (str.length === 0) {
+							element.val(lambdaChar);
+						}
+					} else {
+						element.val(str.substring(0, selectionStart) + key + str.substring(selectionEnd, str.length));
+						newCursorPos = selectionEnd + 1;
+					}
+				}
+
+				str = element.val();
+				if (str.length > 1) {
+					element.val(str.replaceAll(lambdaChar, ""));
+				}
+
+				let stackPushString = "";
+				for (const char of str) {
+					if (char !== lambdaChar) {
+						stackPushString += char;
+					}
+				}
+				tuple[type] = stackPushString;
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				this.triggerTest();
+				if (stackPushString.length === 0) {
+					element.val("");
+				}
+				element[0].setSelectionRange(newCursorPos, newCursorPos);
+			}
+		});
+	}
 }

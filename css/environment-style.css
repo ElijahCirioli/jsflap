@@ -682,3 +682,50 @@
 .environment-dropdown-container:focus-within .dropdown-up-arrow {
 	display: block;
 }
+.tuple-form {
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0;
+}
+.pushdown-tuple {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+}
+.tuple-delimeter {
+	margin: 0;
+	padding: 0;
+	height: 1.1rem;
+	line-height: 1.1rem;
+	font-family: "Rubik", sans-serif;
+	font-size: 1rem;
+	text-align: center;
+	color: var(--dark-text-color);
+}
+.tuple-input {
+	background-color: transparent;
+	border: 1px solid transparent;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+.tuple-input:focus {
+	border: 1px solid var(--dark-text-color);
+}
+.tuple-input:hover {
+	background-color: transparent;
+}
+.pushdown-tuple:focus-within {
+	background-color: rgba(150, 150, 150, 0.5);
+	-webkit-box-shadow: 0px 0px 6px 2px var(--glow-color);
+	-moz-box-shadow: 0px 0px 6px 2px var(--glow-color);
+	box-shadow: 0px 0px 6px 2px var(--glow-color);
+	z-index: 10;
+}
+.pushdown-tuple:hover {
+	background-color: rgba(150, 150, 150, 0.5);
+}

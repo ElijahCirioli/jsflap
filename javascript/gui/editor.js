@@ -976,8 +976,8 @@ class Editor {
 
 		// click on transition label
 		label.click((e) => {
-			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
-			if (middleClick) {
+			// middle click
+			if (("which" in e && e.which === 2) || ("button" in e && e.button === 4)) {
 				return;
 			}
 
