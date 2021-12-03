@@ -127,12 +127,12 @@ class PushdownEditor extends Editor {
 	}
 
 	setupTupleListeners(element, transition, tuple) {
-		this.setupSingleCharacterInputListener(element.children(".char-input"), tuple, "char");
-		this.setupSingleCharacterInputListener(element.children(".pop-input"), tuple, "pop");
+		this.setupSingleCharacterInputListener(element.children(".char-input"), transition, tuple, "char");
+		this.setupSingleCharacterInputListener(element.children(".pop-input"), transition, tuple, "pop");
 		this.setupMultipleCharacterInputListener(element.children(".push-input"), transition, tuple, "push");
 	}
 
-	setupSingleCharacterInputListener(element, tuple, type) {
+	setupSingleCharacterInputListener(element, transition, tuple, type) {
 		element.on("focusout", (e) => {
 			element[0].setSelectionRange(0, 0);
 		});
@@ -146,22 +146,34 @@ class PushdownEditor extends Editor {
 			e = window.event || e;
 			const key = e.key;
 			e.preventDefault();
+			e.stopPropagation();
 
 			// make sure deleting text doesn't delete the whole transition
 			if (key === "Delete" || key === "Backspace") {
 				e.stopPropagation();
 			} else if (key === "Enter") {
-				// lose focus when they press enter
-				element.blur();
+				transition.addTuple(this, { char: "", push: "", pop: "" });
 				this.unselectAllTransitions();
+				this.selectTransition(transition);
+				transition.clearCache();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				transition.focusElement();
+				transition.selectLabelText();
 			} else if (key === "ArrowRight" || key === "Tab") {
 				element.next().next(".label-input").focus();
-				e.stopPropagation();
+				if (element.prev().length > 0 && element.next().next(".label-input").length > 0) {
+					element.next().next(".label-input")[0].setSelectionRange(0, 0);
+				}
 			} else if (key === "ArrowLeft") {
-				element.prev().prev(".label-input").focus();
-				e.stopPropagation();
-			} else if (key === "ArrowUp" || key === "ArrowDown") {
-				e.stopPropagation();
+				if (element.prev().length > 0) {
+					element.prev().prev(".label-input").focus();
+				} else {
+					element.parent().next().children(".label-input").last().focus();
+				}
+			} else if (key === "ArrowUp") {
+				element.parent().next().children().eq(element.index()).focus();
+			} else if (key === "ArrowDown") {
+				element.parent().prev().children().eq(element.index()).focus();
 			} else {
 				if (key === "Backspace" || key === "Delete") {
 					tuple[type] = "";
@@ -197,18 +209,22 @@ class PushdownEditor extends Editor {
 
 		element.on("keydown", (e) => {
 			e = window.event || e;
+			const key = e.key;
 			e.stopPropagation();
 			e.preventDefault();
-			const key = e.key;
 
 			let str = element.val();
 			const selectionStart = element[0].selectionStart;
 			const selectionEnd = element[0].selectionEnd;
 
 			if (key === "Enter") {
-				// lose focus when they press enter
-				element.blur();
+				transition.addTuple(this, { char: "", push: "", pop: "" });
 				this.unselectAllTransitions();
+				this.selectTransition(transition);
+				transition.clearCache();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				transition.focusElement();
+				transition.selectLabelText();
 			} else {
 				let newCursorPos = selectionStart;
 				// deleting
@@ -229,15 +245,31 @@ class PushdownEditor extends Editor {
 				}
 
 				if (key === "ArrowRight") {
-					e.stopPropagation();
 					newCursorPos = selectionEnd + 1;
+					if (newCursorPos > str.length) {
+						element.parent().prev().children(".label-input").first().focus();
+					}
+					element[0].setSelectionRange(newCursorPos, newCursorPos);
+					return;
 				} else if (key === "ArrowLeft") {
-					e.stopPropagation();
-					newCursorPos = Math.max(selectionStart - 1, 0);
-				} else if (key === "ArrowUp" || key === "ArrowDown") {
-					e.stopPropagation();
-				}
-				if (key.length === 1) {
+					newCursorPos = selectionStart - 1;
+					if (newCursorPos < 0) {
+						element.prev().prev(".label-input").focus();
+					} else {
+						element[0].setSelectionRange(newCursorPos, newCursorPos);
+					}
+					return;
+				} else if (key === "ArrowUp") {
+					element.parent().next().children().eq(element.index()).focus();
+					return;
+				} else if (key === "ArrowDown") {
+					element.parent().prev().children().eq(element.index()).focus();
+					return;
+				} else if (key === "Tab") {
+					element.parent().prev().children(".label-input").first().focus();
+					this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+					return;
+				} else if (key.length === 1) {
 					if (key === ",") {
 						if (str.length === 0) {
 							element.val(lambdaChar);

@@ -7,12 +7,11 @@ class PushdownTransition extends Transition {
 		// shrink the text to try and fit between states
 		this.element.children(".pushdown-tuple").each((index) => {
 			const tuple = this.element.children(".pushdown-tuple").eq(index);
-
 			const distance = this.from.getPos().distance(this.to.getPos()) - 45;
+			tuple.children().removeClass("small-text-label");
+			this.adjustInputSize(tuple.children(".push-input"));
 			if (this.from !== this.to && tuple.width() > distance) {
 				tuple.children().addClass("small-text-label");
-			} else {
-				tuple.children().removeClass("small-text-label");
 			}
 			this.adjustInputSize(tuple.children(".push-input"));
 		});
@@ -27,7 +26,7 @@ class PushdownTransition extends Transition {
 		}
 		$("#content-wrap").append(sensor);
 		sensor.text(input.val());
-		const textWidth = Math.round(sensor.width()) + 14;
+		const textWidth = Math.round(sensor.width()) + 8;
 		input.width(textWidth);
 		sensor.remove();
 	}

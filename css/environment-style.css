@@ -709,12 +709,12 @@
 .tuple-input {
 	background-color: transparent;
 	border: 1px solid transparent;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	box-shadow: none;
 }
 .tuple-input:focus {
 	border: 1px solid var(--dark-text-color);
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
 .tuple-input:hover {
 	background-color: transparent;
@@ -728,4 +728,10 @@
 }
 .pushdown-tuple:hover {
 	background-color: rgba(150, 150, 150, 0.5);
+}
+.small-text-label.char-input {
+	width: 0.7rem;
+}
+.small-text-label.pop-input {
+	width: 0.7rem;
 }
