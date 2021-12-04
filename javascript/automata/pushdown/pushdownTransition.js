@@ -46,11 +46,11 @@ class PushdownTransition extends Transition {
 	addTuple(editor, tuple) {
 		const element = $(`
 			<div class="pushdown-tuple">
-				<input type="text" spellcheck="false" maxlength="1" class="label-input char-input">
+				<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
 				<p class="tuple-delimeter">,&nbsp;</p>
-				<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input">
+				<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
 				<p class="tuple-delimeter">🠦</p>
-				<input type="text" spellcheck="false" maxlength="256" class="label-input push-input">
+				<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
 			</div>`);
 		this.element.append(element);
 		this.labels.add(tuple);
