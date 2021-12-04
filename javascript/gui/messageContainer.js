@@ -39,10 +39,14 @@ class MessagesContainer {
 					messages.push(new Message(msgString));
 
 					if (!hasUnreachable) {
-						if (automaton.isDFA(alphabet)) {
-							messages.push(new Message("The automaton is a DFA."));
-						} else {
-							messages.push(new Message("The automaton is an NFA."));
+						if (automaton instanceof PushdownAutomaton) {
+							messages.push(new Message("The automaton is a PDA."));
+						} else if (automaton instanceof Automaton) {
+							if (automaton.isDFA(alphabet)) {
+								messages.push(new Message("The automaton is a DFA."));
+							} else {
+								messages.push(new Message("The automaton is an NFA."));
+							}
 						}
 					}
 

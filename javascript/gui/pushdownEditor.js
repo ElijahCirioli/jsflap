@@ -118,39 +118,40 @@ class PushdownEditor extends Editor {
 			}
 		});
 
+		label.on("focusout", (e) => {
+			setTimeout(() => {
+				if ($(document.activeElement).parent().parent()[0] === label[0]) {
+					return;
+				}
+
+				const foundTuples = new Set();
+				const removeTuples = [];
+				let i = 0;
+				transition.getLabels().forEach((tuple) => {
+					const key = tuple.char + "," + tuple.pop + "," + tuple.push;
+					if (foundTuples.has(key)) {
+						label.children(".pushdown-tuple").eq(i).remove();
+						removeTuples.push(tuple);
+					} else {
+						foundTuples.add(key);
+						i++;
+					}
+				});
+				for (const t of removeTuples) {
+					transition.removeLabel(t);
+				}
+
+				transition.clearCache();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+			}, 50);
+		});
+
 		let i = 0;
 		transition.getLabels().forEach((tuple) => {
 			const element = label.children(".pushdown-tuple").eq(i);
 			this.setupTupleListeners(element, transition, tuple);
 			i++;
 		});
-	}
-
-	removeDuplicateTuples(element, transition) {
-		if ($(document.activeElement).parent().parent()[0] === element.parent().parent()[0]) {
-			return;
-		}
-
-		const foundTuples = new Set();
-		const removeTuples = [];
-		let i = 0;
-		transition.getLabels().forEach((tuple) => {
-			const key = tuple.char + "-" + tuple.pop + "-" + tuple.push;
-			if (foundTuples.has(key)) {
-				element.parent().parent().children(".pushdown-tuple").eq(i).remove();
-				removeTuples.push(tuple);
-			} else {
-				foundTuples.add(key);
-				i++;
-			}
-		});
-		console.log(removeTuples);
-		for (const t of removeTuples) {
-			transition.removeLabel(t);
-		}
-
-		transition.clearCache();
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 	}
 
 	setupTupleListeners(element, transition, tuple) {
@@ -162,9 +163,6 @@ class PushdownEditor extends Editor {
 	setupSingleCharacterInputListener(element, transition, tuple, type) {
 		element.on("focusout", (e) => {
 			element[0].setSelectionRange(0, 0);
-			setTimeout(() => {
-				this.removeDuplicateTuples(element, transition);
-			}, 50);
 		});
 
 		element.on("focusin", (e) => {
@@ -227,9 +225,6 @@ class PushdownEditor extends Editor {
 		element.on("focusout", (e) => {
 			element[0].setSelectionRange(0, 0);
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
-			setTimeout(() => {
-				this.removeDuplicateTuples(element, transition);
-			}, 50);
 		});
 
 		element.on("focusin", (e) => {
