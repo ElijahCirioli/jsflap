@@ -60,6 +60,25 @@ class PushdownTransition extends Transition {
 		editor.setupTupleListeners(element, this, tuple);
 	}
 
+	removeTuple(tuple) {
+		let i = 0;
+		let match;
+		this.labels.forEach((t) => {
+			if (tuple.char === t.char && tuple.pop === t.pop && tuple.push === t.push) {
+				this.element.children(".pushdown-tuple").eq(i).remove();
+				match = t;
+			}
+			i++;
+		});
+		if (match) {
+			this.labels.delete(match);
+			this.clearCache();
+			if (this.labels.size === 0) {
+				this.fromState.removeTransition(this.toState);
+			}
+		}
+	}
+
 	focusElement() {
 		this.element.children(".pushdown-tuple").last().children(".label-input").first().focus();
 		this.element.children(".pushdown-tuple").last().children(".label-input").first()[0].setSelectionRange(9999, 9999);

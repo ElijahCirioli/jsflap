@@ -71,6 +71,12 @@
 	left: 0;
 	pointer-events: none;
 	z-index: 3;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 .environment-sidebar {
 	width: 250px;
@@ -763,7 +769,7 @@
 	flex-direction: column-reverse;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 0;
+	gap: 1px;
 }
 .pushdown-tuple {
 	display: flex;

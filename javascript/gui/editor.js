@@ -651,9 +651,11 @@ class Editor {
 		// put mouse down on editor
 		this.editorWrap.on("mousedown", (e) => {
 			e.stopPropagation();
+			e.preventDefault();
 			const pos = this.getAdjustedPos(e);
 
 			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			this.editorWrap.focus();
 
 			if (this.tool === "pan" || middleClick) {
 				this.startDrag(pos);
@@ -749,6 +751,17 @@ class Editor {
 				this.selectedStates.forEach((s) => {
 					this.automaton.removeState(s);
 				});
+
+				if (this.selectedTuples) {
+					this.selectedTuples.forEach((t) => {
+						const obj = JSON.parse(t);
+						const ids = obj.transition.split("-");
+						const fromState = this.automaton.getStateById(ids[0]);
+						const toState = this.automaton.getStateById(ids[1]);
+						const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
+						transition.removeTuple(obj.tuple);
+					});
+				}
 
 				this.unselectAllStates();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);

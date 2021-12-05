@@ -97,6 +97,77 @@ class PushdownEditor extends Editor {
 		return t;
 	}
 
+	removeSelectionBox() {
+		if (!this.selectionBoxPoint) {
+			return;
+		}
+
+		// calculate intersections
+		const selectionBoxes = this.labelsWrap.children(".selection-box");
+		if (selectionBoxes.length > 0) {
+			const selectionBox = selectionBoxes[0];
+			this.statesWrap
+				.children(".state")
+				.toArray()
+				.forEach((stateElement) => {
+					if (this.elementBoundingBoxCollision(stateElement, selectionBox)) {
+						const state = this.automaton.getStateById($(stateElement).attr("id"));
+						if (this.tool === "trash") {
+							this.automaton.removeState(state);
+						} else {
+							this.selectState(state);
+						}
+					}
+				});
+
+			this.getAutomaton()
+				.getStates()
+				.forEach((state) => {
+					state.getTransitions().forEach((transition) => {
+						const labelElement = transition.getElement();
+						let i = 0;
+						let removeTuples = [];
+						transition.getLabels().forEach((tuple) => {
+							const element = labelElement.children(".pushdown-tuple").eq(i);
+							if (this.elementBoundingBoxCollision(element[0], selectionBox)) {
+								if (this.tool === "trash") {
+									removeTuples.push({
+										element: element,
+										tuple: tuple,
+									});
+								} else {
+									this.selectTuple(tuple, element, transition);
+									if (this.selectedStates.size === 0) {
+										element.focus();
+									}
+								}
+							}
+							i++;
+						});
+
+						if (removeTuples.length > 0) {
+							transition.clearCache();
+						}
+						for (const r of removeTuples) {
+							r.element.remove();
+							transition.removeLabel(r.tuple);
+							if (transition.getLabels().size === 0) {
+								this.automaton.removeTransition(transition);
+							}
+						}
+					});
+				});
+
+			this.draw();
+			if (this.tool === "trash") {
+				this.triggerTest();
+			}
+		}
+
+		this.labelsWrap.children(".selection-box").remove();
+		this.selectionBoxPoint = undefined;
+	}
+
 	setupLabelListeners(label, transition) {
 		label.on("focusout", (e) => {
 			setTimeout(() => {
@@ -150,7 +221,6 @@ class PushdownEditor extends Editor {
 			if (this.tool === "point" || this.tool === "transition" || this.tool === "chain") {
 				const selectionTuple = JSON.stringify({ tuple: tuple, transition: transition.getId() });
 				if (controlKey || shiftKey) {
-					console.log("A");
 					if (this.selectedTuples.has(selectionTuple)) {
 						this.unselectTuple(tuple, element, transition);
 						element.children(".label-input").blur();
@@ -159,15 +229,12 @@ class PushdownEditor extends Editor {
 						this.selectTuple(tuple, element, transition);
 					}
 				} else {
-					console.log("B");
 					if (!this.selectedTuples.has(selectionTuple)) {
 						this.unselectAllTransitions();
 						this.unselectAllStates();
 					}
 					this.selectTuple(tuple, element, transition);
 				}
-
-				console.log(this.selectedTuples);
 			}
 		});
 
