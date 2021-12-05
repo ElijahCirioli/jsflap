@@ -37,8 +37,13 @@ class FileParser {
 				const xml = parser.parseFromString(e.target.result, "text/xml");
 				const body = xml.getElementsByTagName("structure")[0];
 				const type = body.getElementsByTagName("type")[0].childNodes[0].nodeValue;
-				if (type === "fa") {
+				if (type === "fa" || type === "pda") {
 					const env = createEnvironment();
+					if (type === "fa") {
+						env.createFiniteEditor();
+					} else {
+						env.createPushdownEditor();
+					}
 					const editor = env.getEditor();
 					const a = body.getElementsByTagName("automaton")[0];
 					const states = a.getElementsByTagName("state");
@@ -70,20 +75,28 @@ class FileParser {
 					for (const t of transitions) {
 						const fromId = t.getElementsByTagName("from")[0].childNodes[0].nodeValue;
 						const toId = t.getElementsByTagName("to")[0].childNodes[0].nodeValue;
-						const label = t.getElementsByTagName("read")[0].childNodes[0].nodeValue;
-
 						const fromState = elementMap.get(fromId);
 						const toState = elementMap.get(toId);
+						console.log(t);
 						if (fromState && toState) {
 							editor.startTransition(fromState);
 							const transitionObj = editor.endTransition(toState, false);
-							transitionObj.addLabel(label);
+							const char = FileParser.getTransitionElementJFF(t, "read", 1);
+							if (type === "fa") {
+								transitionObj.addLabel(char);
+							} else {
+								const pop = FileParser.getTransitionElementJFF(t, "pop", 1);
+								const push = FileParser.getTransitionElementJFF(t, "push");
+								const tuple = { char: char, pop: pop, push: push };
+								transitionObj.addTuple(editor, tuple);
+							}
 						}
 					}
 
 					editor.zoomFit();
 				}
 			} catch (ex) {
+				console.log(ex);
 				activeEnvironment.addPopupMessage(
 					new PopupMessage(
 						"Error",
@@ -96,6 +109,17 @@ class FileParser {
 				);
 			}
 		};
+	}
+
+	static getTransitionElementJFF(transition, element, maxLength) {
+		if (transition.getElementsByTagName(element)[0].childNodes.length > 0) {
+			const value = transition.getElementsByTagName(element)[0].childNodes[0].nodeValue;
+			if (maxLength) {
+				return value.substring(0, Math.min(maxLength, value.length));
+			}
+			return value;
+		}
+		return "";
 	}
 
 	static parseJSF(file) {

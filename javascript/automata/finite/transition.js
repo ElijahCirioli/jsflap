@@ -189,6 +189,7 @@ class Transition {
 		if (fromPos.x > toPos.x) {
 			angle += Math.PI;
 		}
+
 		const top = pos.y - (Math.sin(angle) * width) / 2;
 		const left = pos.x - (Math.cos(angle) * width) / 2;
 

@@ -106,6 +106,7 @@ class PushdownAutomaton extends Automaton {
 	}
 
 	canUseTransitionTuple(desc, tuple) {
+		// can the automaton take this transition tuple from this instantanenous description
 		const charMatches = tuple.char === "" || (desc.word.length > 0 && tuple.char === desc.word.substring(0, 1));
 		const popMatches = tuple.pop === "" || (desc.stack.length > 0 && tuple.pop === desc.stack.substring(0, 1));
 

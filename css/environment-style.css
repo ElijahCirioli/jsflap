@@ -769,7 +769,7 @@
 	flex-direction: column-reverse;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 1px;
+	gap: 0;
 }
 .pushdown-tuple {
 	display: flex;
