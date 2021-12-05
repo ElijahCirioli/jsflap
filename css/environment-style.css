@@ -686,6 +686,72 @@
 .environment-dropdown-container:focus-within .dropdown-up-arrow {
 	display: block;
 }
+.popup-message-form {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: space-evenly;
+	width: 100%;
+	height: 1.6rem;
+}
+.popup-message-form-bottom {
+	padding-bottom: 30px;
+}
+.popup-message-form-label {
+	margin: 0;
+	height: 100%;
+	line-height: 1.6rem;
+}
+.popup-message-form-bottom .popup-message-form-label {
+	line-height: 1.3rem;
+}
+.popup-message-form-input {
+	padding: 0;
+	margin: 0;
+	width: 1.8rem;
+	height: 1.6rem;
+	font-family: "Rubik", sans-serif;
+	font-size: 1.3rem;
+	text-align: center;
+	color: var(--dark-text-color);
+	background-color: var(--text-color);
+	border: none;
+	border-radius: 0;
+	outline: none;
+}
+.popup-message-form-range-wrap {
+	display: flex;
+	flex-direction: column;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: center;
+	height: 100%;
+	width: 60%;
+	gap: 5px;
+	margin-top: 16px;
+}
+.popup-message-form-range {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 7px;
+	background: var(--text-color);
+	outline: none;
+}
+.popup-message-form-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 6px;
+	height: 18px;
+	background: var(--accent-color);
+	cursor: pointer;
+}
+.popup-message-form-range::-moz-range-thumb {
+	width: 6px;
+	height: 18px;
+	background: var(--accent-color);
+	cursor: pointer;
+}
 .tuple-form {
 	display: flex;
 	flex-direction: column-reverse;

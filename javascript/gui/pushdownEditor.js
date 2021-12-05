@@ -155,17 +155,12 @@ class PushdownEditor extends Editor {
 
 		element.click((e) => {
 			if (this.tool === "trash") {
-				if (this.selectedTransitions.has(transition)) {
-					this.selectedTransitions.forEach((t) => {
-						this.automaton.removeTransition(t);
-					});
-				} else {
-					$(e.currentTarget).remove();
-					transition.removeLabel(tuple);
-					if (transition.getLabels().size === 0) {
-						this.automaton.removeTransition(transition);
-					}
+				$(e.currentTarget).remove();
+				transition.removeLabel(tuple);
+				if (transition.getLabels().size === 0) {
+					this.automaton.removeTransition(transition);
 				}
+
 				this.unselectAllTransitions();
 				transition.clearCache();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);

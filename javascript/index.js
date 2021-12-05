@@ -219,6 +219,29 @@ $("document").ready(() => {
 		new FileParser();
 	});
 
+	$("#menu-settings-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.addPopupMessage(
+			new PopupSettingsMessage(
+				(settings) => {
+					activeEnvironment.removePopupMessages();
+
+					initialStackChar = settings.initialStackChar;
+					maxConfigurations = settings.maxConfigurations;
+
+					window.localStorage.setItem("jsflap initial stack character", initialStackChar);
+					window.localStorage.setItem("jsflap max configurations", maxConfigurations);
+
+					activeEnvironment.testAllInputs(false);
+				},
+				() => {
+					activeEnvironment.removePopupMessages();
+				},
+				true
+			)
+		);
+	});
+
 	$("#menu-save-button").on("mouseenter focus", (e) => {
 		const data = activeEnvironment.getSaveObject();
 		const file = new Blob([JSON.stringify(data, null, 4)], { type: "text/plain" });

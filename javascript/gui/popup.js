@@ -231,3 +231,69 @@ class PopupEditorChoiceMessage {
 		}
 	}
 }
+
+class PopupSettingsMessage extends PopupCancelMessage {
+	// pushdown automata settings menu
+
+	constructor(onConfirm, onCancel, doReturn) {
+		super(
+			"Parsing Settings",
+			"",
+			() => {
+				onConfirm(this.settings);
+			},
+			onCancel,
+			false
+		);
+		this.content.children(".popup-message-content").children(".popup-message-text").remove();
+
+		this.settings = {
+			maxConfigurations: maxConfigurations,
+			initialStackChar: initialStackChar,
+		};
+
+		const form = $(`
+		<form class="popup-message-form">
+			<p class="popup-message-form-label" title="The character that signifies the bottom of the stack for pushdown automata.">Initial stack contents: </p>
+			<input type="text" spellcheck="false" maxlength="1" class="popup-message-form-input" value="${initialStackChar}">
+		</form>`);
+		form.on("submit", (e) => {
+			e.preventDefault();
+		});
+
+		const input = form.children(".popup-message-form-input");
+		input.on("focusout", (e) => {
+			if (input.val() === "") {
+				input.val(initialStackChar);
+			}
+		});
+		input.on("keyup change", (e) => {
+			if (input.val().length > 0) {
+				this.settings.initialStackChar = input.val();
+			}
+		});
+
+		const sliderWrap = $(`
+		<div class="popup-message-form popup-message-form-bottom">
+			<p class="popup-message-form-label" title="The maximum number of configurations that will be examined when parsing words with pushdown automata. More non-determinism can lead to more configurations.">Maximum configurations: </p>
+			<div class="popup-message-form-range-wrap">
+				<input type="range" min="5" max="500" value="${maxConfigurations / 10}" class="popup-message-form-range">
+				<p class="popup-message-form-label" class="num-configurations-label">${maxConfigurations}</p>
+			</div>
+		</div>`);
+
+		const slider = sliderWrap.children(".popup-message-form-range-wrap").children(".popup-message-form-range");
+		slider.on("change mousedown mousemove", (e) => {
+			const num = parseInt(slider.val()) * 10;
+			this.settings.maxConfigurations = num;
+			slider.next().text(num);
+		});
+
+		this.buttons.before(form);
+		this.buttons.before(sliderWrap);
+
+		if (doReturn) {
+			return this.content;
+		}
+	}
+}
