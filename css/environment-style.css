@@ -339,6 +339,10 @@
 	color: #f04d41;
 	font-size: 18px;
 }
+.unknown {
+	color: #faf037;
+	font-size: 18px;
+}
 .selection-box {
 	position: absolute;
 	z-index: 20;

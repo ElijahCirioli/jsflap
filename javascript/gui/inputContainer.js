@@ -37,7 +37,10 @@ class InputContainer {
 				const word = itemInput.val();
 				$(item).children(".inputs-form-item-output").children().hide();
 				if (word.length > 0 && inputs.has(word)) {
-					if (inputs.get(word)) {
+					const accepted = inputs.get(word);
+					if (accepted === undefined) {
+						$(item).children(".inputs-form-item-output").children(".unknown").show();
+					} else if (accepted) {
 						$(item).children(".inputs-form-item-output").children(".accepted").show();
 					} else {
 						$(item).children(".inputs-form-item-output").children(".rejected").show();
@@ -66,8 +69,9 @@ class InputContainer {
 		const input = $(`<input type="text" spellcheck="false" maxlength="256" class="inputs-form-item-input">`);
 		const output = $(`
         <div class="inputs-form-item-output">
-            <i class="fas fa-times-circle rejected"></i>
-            <i class="fas fa-check-circle accepted"></i>
+            <i title="The word is not accepted by the automaton." class="fas fa-times-circle rejected"></i>
+            <i title="The word is accepted by the automaton." class="fas fa-check-circle accepted"></i>
+			<i title="Maximum number of configurations reached. Unable to determine if the word is accepted." class="fas fa-question-circle unknown"></i>
         </div>`);
 		output.children().hide();
 		const wrap = $(`<div class="inputs-form-item"></div>`);

@@ -44,14 +44,14 @@ class PushdownAutomaton extends Automaton {
 		}
 
 		// step through instanenous descriptions in a breadth-first manner
-		const queue = [{ word: word, stack: "Z", state: this.initialState }];
+		const queue = [{ word: word, stack: initialStackChar, state: this.initialState }];
 		const visited = new Set();
 		visited.add(this.getInstantaneousDescriptionKey(queue[0]));
 		let numConfigurations = 0;
 
 		while (queue.length > 0) {
 			numConfigurations++;
-			if (numConfigurations > 500) {
+			if (numConfigurations > maxConfigurations) {
 				return undefined;
 			}
 
@@ -59,7 +59,6 @@ class PushdownAutomaton extends Automaton {
 			const curr = queue.shift();
 			// see if we're at an accept state
 			if (curr.word.length === 0 && curr.state.isFinal()) {
-				console.log(numConfigurations);
 				return true;
 			} else {
 				// look at every other state we can go to

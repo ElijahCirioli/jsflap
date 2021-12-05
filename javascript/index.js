@@ -8,6 +8,8 @@ let shiftKey = false;
 let lambdaChar = window.localStorage.getItem("jsflap lambda character") || "\u03BB";
 let editorTheme = window.localStorage.getItem("jsflap theme color") || "dark";
 let stateColor = window.localStorage.getItem("jsflap state color") || "yellow";
+let initialStackChar = window.localStorage.getItem("jsflap initial stack character") || "Z";
+let maxConfigurations = window.localStorage.getItem("jsflap max configurations") || 500;
 
 function createEnvironment() {
 	unselectAllEnvironments();

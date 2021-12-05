@@ -82,17 +82,6 @@ class PushdownEditor extends Editor {
 					}
 					this.selectTransition(transition);
 				}
-			} else if (this.tool === "trash") {
-				if (this.selectedTransitions.has(transition)) {
-					this.selectedTransitions.forEach((t) => {
-						this.automaton.removeTransition(t);
-					});
-				} else {
-					this.automaton.removeTransition(transition);
-				}
-				this.unselectAllTransitions();
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
-				this.triggerTest();
 			}
 		});
 
@@ -163,6 +152,26 @@ class PushdownEditor extends Editor {
 		this.setupSingleCharacterInputListener(element.children(".char-input"), transition, tuple, "char");
 		this.setupSingleCharacterInputListener(element.children(".pop-input"), transition, tuple, "pop");
 		this.setupMultipleCharacterInputListener(element.children(".push-input"), transition, tuple, "push");
+
+		element.click((e) => {
+			if (this.tool === "trash") {
+				if (this.selectedTransitions.has(transition)) {
+					this.selectedTransitions.forEach((t) => {
+						this.automaton.removeTransition(t);
+					});
+				} else {
+					$(e.currentTarget).remove();
+					transition.removeLabel(tuple);
+					if (transition.getLabels().size === 0) {
+						this.automaton.removeTransition(transition);
+					}
+				}
+				this.unselectAllTransitions();
+				transition.clearCache();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				this.triggerTest();
+			}
+		});
 	}
 
 	setupSingleCharacterInputListener(element, transition, tuple, type) {
@@ -184,6 +193,9 @@ class PushdownEditor extends Editor {
 			// make sure deleting text doesn't delete the whole transition
 			if (key === "Delete" || key === "Backspace") {
 				e.stopPropagation();
+				tuple[type] = "";
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+				this.triggerTest();
 			} else if (key === "Enter") {
 				transition.addTuple(this, { char: "", push: "", pop: "" });
 				this.unselectAllTransitions();
@@ -207,19 +219,15 @@ class PushdownEditor extends Editor {
 				element.parent().next().children().eq(element.index()).focus();
 			} else if (key === "ArrowDown") {
 				element.parent().prev().children().eq(element.index()).focus();
-			} else {
-				if (key === "Backspace" || key === "Delete") {
+			} else if (key.length === 1) {
+				// add chars
+				if (key === ",") {
 					tuple[type] = "";
-				} else if (key.length === 1) {
-					// add chars
-					if (key === ",") {
-						tuple[type] = "";
-					} else {
-						tuple[type] = key;
-					}
-					element.next().next(".label-input").focus();
+				} else {
+					tuple[type] = key;
 				}
 
+				element.next().next(".label-input").focus();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			}
