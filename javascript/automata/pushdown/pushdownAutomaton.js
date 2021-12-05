@@ -35,6 +35,24 @@ class PushdownAutomaton extends Automaton {
 		return alphabet;
 	}
 
+	getStackAlphabet() {
+		const alphabet = new Set();
+		alphabet.add(initialStackChar);
+		if (this.initialState) {
+			this.states.forEach((s) => {
+				s.getTransitions().forEach((t) => {
+					t.getLabels().forEach((tuple) => {
+						alphabet.add(tuple.pop);
+						for (const char of tuple.push.split("")) {
+							alphabet.add(char);
+						}
+					});
+				});
+			});
+		}
+		return alphabet;
+	}
+
 	languageContains(word) {
 		// is the word in the language of this FSA?
 
@@ -95,5 +113,44 @@ class PushdownAutomaton extends Automaton {
 
 	getInstantaneousDescriptionKey(tuple) {
 		return tuple.word + "," + tuple.stack + "," + tuple.state.getId();
+	}
+
+	isDeterministic() {
+		// return whether this is a DPDA (loosely defined)
+		// this does not check for every combination of stack character and input for each transition, it just looks for multiple possibilities with the same input and character
+
+		if (!this.initialState) {
+			return false;
+		}
+
+		const queue = [this.initialState];
+		const visited = new Set();
+		while (queue.length > 0) {
+			const state = queue.shift();
+			visited.add(state);
+			const transitions = state.getTransitions();
+			const foundTuples = [];
+			for (const item of transitions) {
+				const t = item[1];
+
+				for (const tuple of t.getLabels()) {
+					for (const found of foundTuples) {
+						if (tuple.char === "" || found.char === "" || tuple.char === found.char) {
+							if (tuple.pop === "" || found.pop === "" || tuple.pop === found.pop) {
+								return false;
+							}
+						}
+					}
+					foundTuples.push(tuple);
+				}
+
+				// add toState to queue
+				const toState = t.getToState();
+				if (!visited.has(toState)) {
+					queue.push(toState);
+				}
+			}
+		}
+		return true;
 	}
 }

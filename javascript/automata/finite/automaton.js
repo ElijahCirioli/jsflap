@@ -187,7 +187,7 @@ class Automaton {
 		return alphabet;
 	}
 
-	isDFA(alphabet) {
+	isDeterministic(alphabet) {
 		// return whether this is a DFA
 
 		if (!this.initialState) {

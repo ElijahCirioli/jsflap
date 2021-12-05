@@ -34,19 +34,34 @@ class MessagesContainer {
 							msgString += ", ";
 						}
 					});
-					msgString = msgString.substring(0, msgString.length - 2);
-					msgString += "</i>.";
+					msgString = msgString.substring(0, msgString.length - 2) + "</i>.";
 					messages.push(new Message(msgString));
 
-					if (!hasUnreachable) {
-						if (automaton instanceof PushdownAutomaton) {
-							messages.push(new Message("The automaton is a PDA."));
-						} else if (automaton instanceof Automaton) {
-							if (automaton.isDFA(alphabet)) {
-								messages.push(new Message("The automaton is a DFA."));
-							} else {
-								messages.push(new Message("The automaton is an NFA."));
+					if (automaton instanceof PushdownAutomaton) {
+						const stackAlphabet = automaton.getStackAlphabet();
+
+						msgString = "The stack alphabet is <i>";
+						stackAlphabet.forEach((char) => {
+							if (char.length <= 1) {
+								msgString += char === "" ? lambdaChar : char;
+								msgString += ", ";
 							}
+						});
+						msgString = msgString.substring(0, msgString.length - 2) + "</i>.";
+						messages.push(new Message(msgString));
+
+						if (!hasUnreachable) {
+							if (automaton.isDeterministic()) {
+								messages.push(new Message("The automaton is a DPDA."));
+							} else {
+								messages.push(new Message("The automaton is an NPDA."));
+							}
+						}
+					} else if (!hasUnreachable) {
+						if (automaton.isDeterministic(alphabet)) {
+							messages.push(new Message("The automaton is a DFA."));
+						} else {
+							messages.push(new Message("The automaton is an NFA."));
 						}
 					}
 
