@@ -2,10 +2,56 @@ class PushdownEditor extends Editor {
 	constructor(parent, callback) {
 		super(parent, callback);
 		this.automaton = new PushdownAutomaton();
+		this.selectedTuples = new Set();
 	}
 
 	getType() {
 		return "pushdown";
+	}
+
+	selectTuple(tuple, element, transition) {
+		element.addClass("selected-tuple");
+		this.selectedTuples.add(JSON.stringify({ tuple: tuple, transition: transition.getId() }));
+	}
+
+	unselectTuple(tuple, element, transition) {
+		element.removeClass("selected-tuple");
+		const key = JSON.stringify({ tuple: tuple, transition: transition.getId() });
+		this.selectedTuples.delete(key);
+	}
+
+	unselectAllTuples() {
+		this.labelsWrap.children(".label-form").children(".pushdown-tuple").removeClass("selected-tuple");
+		this.selectedTuples.clear();
+	}
+
+	unselectAllTransitions() {
+		this.unselectAllTuples();
+		this.labelsWrap.children(".label-form").children(".label-input").removeClass("selected-label");
+		this.selectedTransitions.clear();
+	}
+
+	selectAll() {
+		this.automaton.getStates().forEach((s) => {
+			this.selectState(s);
+			s.getTransitions().forEach((t) => {
+				const element = t.getElement();
+				let i = 0;
+				t.getLabels().forEach((tuple) => {
+					const tupleElement = element.children(".pushdown-tuple").eq(i);
+					this.selectTuple(tuple, tupleElement, transition);
+					i++;
+				});
+			});
+		});
+	}
+
+	getSelectedStates() {
+		return this.selectedStates;
+	}
+
+	getSelectedTransitions() {
+		return this.selectedTransitions;
 	}
 
 	endTransition(element, autoLambda) {
@@ -39,7 +85,7 @@ class PushdownEditor extends Editor {
 
 		if (autoLambda) {
 			this.unselectAllTransitions();
-			this.selectTransition(t);
+			this.selectTuple(tuple, t.getElement().children(".pushdown-tuple").last(), t);
 			t.clearCache();
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 			t.focusElement();
@@ -52,66 +98,6 @@ class PushdownEditor extends Editor {
 	}
 
 	setupLabelListeners(label, transition) {
-		const input = label.children(".pushdown-tuple").children(".label-input");
-
-		// click on transition label
-		label.click((e) => {
-			// middle click
-			if (("which" in e && e.which === 2) || ("button" in e && e.button === 4)) {
-				return;
-			}
-
-			e.stopPropagation();
-
-			if (this.tool === "point" || this.tool === "transition" || this.tool === "chain") {
-				if (controlKey || shiftKey) {
-					if (this.selectedTransitions.has(transition)) {
-						this.unselectTransition(transition);
-						input.blur();
-						if (this.selectedTransitions.size > 0) {
-							const first = this.selectedTransitions.values().next().value;
-							first.focusElement();
-						}
-					} else {
-						this.selectTransition(transition);
-					}
-				} else {
-					if (!this.selectedTransitions.has(transition)) {
-						this.unselectAllTransitions();
-						this.unselectAllStates();
-					}
-					this.selectTransition(transition);
-				}
-			}
-		});
-
-		// put mouse down on transition label
-		label.on("mousedown", (e) => {
-			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
-			if (!middleClick) {
-				e.stopPropagation();
-			}
-		});
-
-		// lift mouse up on transition label
-		label.on("mouseup", (e) => {
-			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
-			if (!middleClick) {
-				e.stopPropagation();
-			}
-			this.removeSelectionBox();
-		});
-
-		// move mouse onto transition label
-		label.on("mouseenter mousemove", (e) => {
-			if (this.tool === "chain") {
-				this.movePreviewState(new Point(9999999, 9999999));
-				this.removePreviewTransition();
-				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
-				e.stopPropagation();
-			}
-		});
-
 		label.on("focusout", (e) => {
 			setTimeout(() => {
 				if ($(document.activeElement).parent().parent()[0] === label[0]) {
@@ -152,6 +138,65 @@ class PushdownEditor extends Editor {
 		this.setupSingleCharacterInputListener(element.children(".char-input"), transition, tuple, "char");
 		this.setupSingleCharacterInputListener(element.children(".pop-input"), transition, tuple, "pop");
 		this.setupMultipleCharacterInputListener(element.children(".push-input"), transition, tuple, "push");
+
+		element.click((e) => {
+			// middle click
+			if (("which" in e && e.which === 2) || ("button" in e && e.button === 4)) {
+				return;
+			}
+
+			e.stopPropagation();
+
+			if (this.tool === "point" || this.tool === "transition" || this.tool === "chain") {
+				const selectionTuple = JSON.stringify({ tuple: tuple, transition: transition.getId() });
+				if (controlKey || shiftKey) {
+					console.log("A");
+					if (this.selectedTuples.has(selectionTuple)) {
+						this.unselectTuple(tuple, element, transition);
+						element.children(".label-input").blur();
+						this.labelsWrap.children(".label-form").children(".selected-tuple").first().focus();
+					} else {
+						this.selectTuple(tuple, element, transition);
+					}
+				} else {
+					console.log("B");
+					if (!this.selectedTuples.has(selectionTuple)) {
+						this.unselectAllTransitions();
+						this.unselectAllStates();
+					}
+					this.selectTuple(tuple, element, transition);
+				}
+
+				console.log(this.selectedTuples);
+			}
+		});
+
+		// put mouse down on tuple
+		element.on("mousedown", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
+		});
+
+		// lift mouse up on tuple
+		element.on("mouseup", (e) => {
+			const middleClick = ("which" in e && e.which === 2) || ("button" in e && e.button === 4);
+			if (!middleClick) {
+				e.stopPropagation();
+			}
+			this.removeSelectionBox();
+		});
+
+		// move mouse onto tuple
+		element.on("mouseenter mousemove", (e) => {
+			if (this.tool === "chain") {
+				this.movePreviewState(new Point(9999999, 9999999));
+				this.removePreviewTransition();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+				e.stopPropagation();
+			}
+		});
 
 		element.click((e) => {
 			if (this.tool === "trash") {

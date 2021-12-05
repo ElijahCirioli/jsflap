@@ -75,6 +75,7 @@ class PushdownAutomaton extends Automaton {
 
 			// take from front of the queue
 			const curr = queue.shift();
+			console.log(curr);
 			// see if we're at an accept state
 			if (curr.word.length === 0 && curr.state.isFinal()) {
 				return true;

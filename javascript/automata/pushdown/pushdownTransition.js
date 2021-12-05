@@ -10,7 +10,7 @@ class PushdownTransition extends Transition {
 			const distance = this.from.getPos().distance(this.to.getPos()) - 45;
 			tuple.children().removeClass("small-text-label");
 			this.adjustInputSize(tuple.children(".push-input"));
-			if (this.from !== this.to && tuple.width() > distance) {
+			if (this.from !== this.to && tuple.outerWidth() > distance) {
 				tuple.children().addClass("small-text-label");
 			}
 			this.adjustInputSize(tuple.children(".push-input"));
