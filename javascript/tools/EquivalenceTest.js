@@ -135,4 +135,14 @@ class EquivalenceTest {
 			)
 		);
 	}
+
+	static isApplicable() {
+		const finiteEnvironments = [];
+		for (const env of environments) {
+			if (env.getType() === "finite") {
+				finiteEnvironments.push(env);
+			}
+		}
+		return finiteEnvironments.length > 1;
+	}
 }

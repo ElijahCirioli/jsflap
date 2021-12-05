@@ -46,6 +46,13 @@ class Environment {
 		return this.editor !== undefined;
 	}
 
+	getType() {
+		if (this.editor) {
+			return this.editor.getType();
+		}
+		return "none";
+	}
+
 	getName() {
 		return this.name;
 	}

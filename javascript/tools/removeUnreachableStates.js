@@ -2,6 +2,10 @@ class RemoveUnreachableStates {
 	constructor() {}
 
 	static action(environment) {
+		if (environment.getEditor() === undefined) {
+			return;
+		}
+
 		const automaton = environment.getEditor().getAutomaton();
 
 		if (automaton.hasInitialState()) {

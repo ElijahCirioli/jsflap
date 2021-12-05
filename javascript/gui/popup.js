@@ -106,7 +106,7 @@ class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
 		let count = 0;
 		const dropdown = $(`<div class="environment-dropdown" tabindex="1"></div>`);
 		environments.forEach((env) => {
-			if (env !== activeEnvironment) {
+			if (env !== activeEnvironment && env.getEditor() !== undefined && env.getEditor().getType() === "finite") {
 				const button = $(`<button class="dropdown-item">${env.getName()}</button>`);
 				button.click((e) => {
 					if (this.choice !== env) {

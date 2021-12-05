@@ -186,4 +186,8 @@ class DFAConverter {
 		// get a random point on the canvas
 		return new Point(Math.floor(Math.random() * (editor.canvas.width - 100)) + 50, Math.floor(Math.random() * (editor.canvas.height - 100)) + 50);
 	}
+
+	static isApplicable() {
+		return activeEnvironment.getType() === "finite";
+	}
 }

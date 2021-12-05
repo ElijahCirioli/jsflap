@@ -341,26 +341,51 @@ $("document").ready(() => {
 	});
 
 	// tools menu
+	$("#tools-menu").on("mouseenter focus pointerenter", (e) => {
+		if (activeEnvironment.getType() === "finite") {
+			$("#menu-compare-equivalence-button").show();
+			$("#menu-convert-dfa-button").show();
+			$("#menu-layout-subgroup").css("top", "calc(2 * 1.3rem)");
+		} else {
+			$("#menu-compare-equivalence-button").hide();
+			$("#menu-convert-dfa-button").hide();
+			$("#menu-layout-subgroup").css("top", 0);
+		}
+	});
+
 	$("#menu-compare-equivalence-button").click((e) => {
 		hideDropdowns();
-		if (environments.size > 1) {
-			activeEnvironment.addPopupMessage(
-				new PopupEnvironmentChoiceMessage(
-					(env) => {
-						activeEnvironment.removePopupMessages();
-						EquivalenceTest.action(activeEnvironment, env);
-					},
-					() => {
-						activeEnvironment.removePopupMessages();
-					},
-					true
-				)
-			);
+		if (activeEnvironment.getType() === "finite") {
+			if (EquivalenceTest.isApplicable()) {
+				activeEnvironment.addPopupMessage(
+					new PopupEnvironmentChoiceMessage(
+						(env) => {
+							activeEnvironment.removePopupMessages();
+							EquivalenceTest.action(activeEnvironment, env);
+						},
+						() => {
+							activeEnvironment.removePopupMessages();
+						},
+						true
+					)
+				);
+			} else {
+				activeEnvironment.addPopupMessage(
+					new PopupMessage(
+						"Error",
+						"No other finite state automata were found.",
+						() => {
+							activeEnvironment.removePopupMessages();
+						},
+						true
+					)
+				);
+			}
 		} else {
 			activeEnvironment.addPopupMessage(
 				new PopupMessage(
 					"Error",
-					"Only one automaton was found",
+					"Equivalence comparison is only available for Finite State Automata.",
 					() => {
 						activeEnvironment.removePopupMessages();
 					},
@@ -372,7 +397,20 @@ $("document").ready(() => {
 
 	$("#menu-convert-dfa-button").click((e) => {
 		hideDropdowns();
-		DFAConverter.action(activeEnvironment);
+		if (DFAConverter.isApplicable()) {
+			DFAConverter.action(activeEnvironment);
+		} else {
+			activeEnvironment.addPopupMessage(
+				new PopupMessage(
+					"Error",
+					"Only Finite State Automata can be converted to DFAs.",
+					() => {
+						activeEnvironment.removePopupMessages();
+					},
+					true
+				)
+			);
+		}
 	});
 
 	$("#menu-remove-unreachable-button").click((e) => {
