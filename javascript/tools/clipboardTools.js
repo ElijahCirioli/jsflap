@@ -2,6 +2,10 @@ class ClipboardTools {
 	constructor() {}
 
 	static cut() {
+		if (!activeEnvironment.hasEditor()) {
+			return;
+		}
+
 		ClipboardTools.copy();
 		const editor = activeEnvironment.getEditor();
 		const automaton = editor.getAutomaton();
@@ -20,6 +24,10 @@ class ClipboardTools {
 	}
 
 	static copy() {
+		if (!activeEnvironment.hasEditor()) {
+			return;
+		}
+
 		const editor = activeEnvironment.getEditor();
 		const selectedStates = editor.getSelectedStates();
 		const selectedTransitions = editor.getSelectedTransitions();
@@ -40,6 +48,7 @@ class ClipboardTools {
 		const data = {
 			pos: minPos,
 			id: activeEnvironment.getId(),
+			type: activeEnvironment.getType(),
 			states: [],
 			transitions: [],
 		};
@@ -70,7 +79,13 @@ class ClipboardTools {
 	}
 
 	static paste() {
-		if (clipboard === undefined) {
+		// make sure data exists to be pasted
+		if (clipboard === undefined || !activeEnvironment.hasEditor()) {
+			return;
+		}
+
+		// make sure we're pasting the right type of data
+		if (activeEnvironment.getType() !== clipboard.type) {
 			return;
 		}
 
@@ -108,7 +123,12 @@ class ClipboardTools {
 				editor.startTransition(fromState);
 				const transitionObj = editor.endTransition(toState, false);
 				for (const label of t.labels) {
-					transitionObj.addLabel(label);
+					if (clipboard.type === "pushdown") {
+						const element = transitionObj.addTuple(editor, label);
+						editor.selectTuple(label, element, transitionObj);
+					} else {
+						transitionObj.addLabel(label);
+					}
 				}
 				editor.selectTransition(transitionObj);
 			}

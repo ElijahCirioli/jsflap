@@ -18,6 +18,16 @@ class PushdownEditor extends Editor {
 		element.removeClass("selected-tuple");
 		const key = JSON.stringify({ tuple: tuple, transition: transition.getId() });
 		this.selectedTuples.delete(key);
+		let hasSelectedTuples = false;
+		transition.getLabels().forEach((t) => {
+			const otherKey = JSON.stringify({ tuple: t, transition: transition.getId() });
+			if (this.selectedTuples.has(otherKey)) {
+				hasSelectedTuples = true;
+			}
+		});
+		if (!hasSelectedTuples) {
+			this.unselectTransition(transition);
+		}
 	}
 
 	unselectAllTuples() {
@@ -26,6 +36,10 @@ class PushdownEditor extends Editor {
 	}
 
 	unselectAllTransitions() {
+		const active = $(document.activeElement);
+		if (active.parent().hasClass("selected-tuple")) {
+			active.blur();
+		}
 		this.unselectAllTuples();
 		this.labelsWrap.children(".label-form").children(".label-input").removeClass("selected-label");
 		this.selectedTransitions.clear();
@@ -35,23 +49,16 @@ class PushdownEditor extends Editor {
 		this.automaton.getStates().forEach((s) => {
 			this.selectState(s);
 			s.getTransitions().forEach((t) => {
+				this.selectedTransitions.add(t);
 				const element = t.getElement();
 				let i = 0;
 				t.getLabels().forEach((tuple) => {
 					const tupleElement = element.children(".pushdown-tuple").eq(i);
-					this.selectTuple(tuple, tupleElement, transition);
+					this.selectTuple(tuple, tupleElement, t);
 					i++;
 				});
 			});
 		});
-	}
-
-	getSelectedStates() {
-		return this.selectedStates;
-	}
-
-	getSelectedTransitions() {
-		return this.selectedTransitions;
 	}
 
 	endTransition(element, autoLambda) {
@@ -86,6 +93,7 @@ class PushdownEditor extends Editor {
 		if (autoLambda) {
 			this.unselectAllTransitions();
 			this.selectTuple(tuple, t.getElement().children(".pushdown-tuple").last(), t);
+			this.selectTransition(t);
 			t.clearCache();
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 			t.focusElement();
@@ -137,6 +145,7 @@ class PushdownEditor extends Editor {
 									});
 								} else {
 									this.selectTuple(tuple, element, transition);
+									this.selectTransition(transition);
 									if (this.selectedStates.size === 0) {
 										element.focus();
 									}
@@ -227,6 +236,7 @@ class PushdownEditor extends Editor {
 						this.labelsWrap.children(".label-form").children(".selected-tuple").first().focus();
 					} else {
 						this.selectTuple(tuple, element, transition);
+						this.selectTransition(transition);
 					}
 				} else {
 					if (!this.selectedTuples.has(selectionTuple)) {
@@ -234,6 +244,7 @@ class PushdownEditor extends Editor {
 						this.unselectAllStates();
 					}
 					this.selectTuple(tuple, element, transition);
+					this.selectTransition(transition);
 				}
 			}
 		});

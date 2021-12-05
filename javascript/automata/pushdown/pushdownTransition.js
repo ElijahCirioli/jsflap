@@ -58,6 +58,7 @@ class PushdownTransition extends Transition {
 		this.element.append(element);
 		this.labels.add(tuple);
 		editor.setupTupleListeners(element, this, tuple);
+		return element;
 	}
 
 	removeTuple(tuple) {

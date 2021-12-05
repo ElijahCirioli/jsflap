@@ -126,7 +126,7 @@ class Transition {
 		}
 
 		// only draw the labels sometimes to increase performance
-		if (this.element && updateLabel) {
+		if (this.element && (updateLabel || needsCalculation)) {
 			this.drawLabel(labelPoint);
 		}
 	}

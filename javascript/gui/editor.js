@@ -83,7 +83,7 @@ class Editor {
 	}
 
 	draw() {
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
 		this.automaton.drawAllStates();
 	}
 
@@ -264,6 +264,10 @@ class Editor {
 	}
 
 	unselectAllTransitions() {
+		const active = $(document.activeElement);
+		if (active.hasClass("selected-label")) {
+			active.blur();
+		}
 		this.labelsWrap.children(".label-form").children(".label-input").removeClass("selected-label");
 		this.selectedTransitions.clear();
 	}
@@ -758,8 +762,10 @@ class Editor {
 						const ids = obj.transition.split("-");
 						const fromState = this.automaton.getStateById(ids[0]);
 						const toState = this.automaton.getStateById(ids[1]);
-						const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
-						transition.removeTuple(obj.tuple);
+						if (fromState && toState) {
+							const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
+							transition.removeTuple(obj.tuple);
+						}
 					});
 				}
 
