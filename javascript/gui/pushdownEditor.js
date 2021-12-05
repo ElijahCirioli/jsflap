@@ -4,6 +4,10 @@ class PushdownEditor extends Editor {
 		this.automaton = new PushdownAutomaton();
 	}
 
+	getType() {
+		return "pushdown";
+	}
+
 	endTransition(element, autoLambda) {
 		const endId = element.attr("id");
 		const endState = this.automaton.getStateById(endId);
@@ -13,16 +17,17 @@ class PushdownEditor extends Editor {
 		this.labelsWrap.children(".label-form").css("pointer-events", "all");
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
 			// no existing transition so create a new one
-			const labelElement = $(`
-			<form class="label-form tuple-form">
+			const labelElement = $(`<form class="label-form tuple-form"></form>`);
+			if (autoLambda) {
+				labelElement.append(`
 				<div class="pushdown-tuple">
 					<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
 					<p class="tuple-delimeter">,&nbsp;</p>
 					<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
 					<p class="tuple-delimeter">🠦</p>
 					<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
-				</div>
-			</form>`);
+				</div>`);
+			}
 			this.labelsWrap.append(labelElement);
 			t = this.automaton.addTransition(this.startState, endState, tuple, labelElement);
 			this.setupLabelListeners(labelElement, t);

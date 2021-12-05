@@ -230,7 +230,11 @@ class Environment {
 		this.respondToTriggers = false;
 		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
-		this.editor.automaton = new Automaton();
+		if (this.editor.getType() === "pushdown") {
+			this.editor.automaton = new PushdownAutomaton();
+		} else {
+			this.editor.automaton = new Automaton();
+		}
 		FileParser.parseJSON(this.history[this.historyPos], false, this);
 		this.respondToTriggers = true;
 		this.content.children(".editor").focus();
@@ -246,7 +250,11 @@ class Environment {
 		this.respondToTriggers = false;
 		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
-		this.editor.automaton = new Automaton();
+		if (this.editor.getType() === "pushdown") {
+			this.editor.automaton = new PushdownAutomaton();
+		} else {
+			this.editor.automaton = new Automaton();
+		}
 		FileParser.parseJSON(this.history[this.historyPos], false, this);
 		this.respondToTriggers = true;
 		this.content.children(".editor").focus();

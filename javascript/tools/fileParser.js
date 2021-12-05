@@ -180,7 +180,11 @@ class FileParser {
 				const transitionObj = editor.endTransition(toState, false);
 				for (const label of t.labels) {
 					if (label !== "PREVIEW") {
-						transitionObj.addLabel(label);
+						if (obj.type === "pushdown") {
+							transitionObj.addTuple(editor, label);
+						} else {
+							transitionObj.addLabel(label);
+						}
 					}
 				}
 			}

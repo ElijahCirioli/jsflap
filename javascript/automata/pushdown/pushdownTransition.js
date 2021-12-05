@@ -44,6 +44,9 @@ class PushdownTransition extends Transition {
 	}
 
 	addTuple(editor, tuple) {
+		if (tuple === undefined) {
+			return;
+		}
 		const element = $(`
 			<div class="pushdown-tuple">
 				<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">

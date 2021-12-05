@@ -7,7 +7,9 @@ class PushdownState extends State {
 		// check if this toState is in the hashmap
 		if (this.transitions.has(toState.getId())) {
 			// add the label to the set
-			this.transitions.get(toState.getId()).addLabel(tuple);
+			if (this.tuple) {
+				this.transitions.get(toState.getId()).addLabel(tuple);
+			}
 			return this.transitions.get(toState.getId());
 		} else {
 			// add the toState to the set
