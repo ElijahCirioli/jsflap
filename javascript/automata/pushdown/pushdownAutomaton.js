@@ -61,7 +61,7 @@ class PushdownAutomaton extends Automaton {
 			return false;
 		}
 
-		// step through instanenous descriptions in a breadth-first manner
+		// step through instantaneous descriptions in a breadth-first manner
 		const queue = [{ word: word, stack: initialStackChar, state: this.initialState }];
 		const visited = new Set();
 		visited.add(this.getInstantaneousDescriptionKey(queue[0]));
