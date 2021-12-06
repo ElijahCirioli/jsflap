@@ -65,11 +65,9 @@ class PushdownAutomaton extends Automaton {
 		const queue = [{ word: word, stack: initialStackChar, state: this.initialState }];
 		const visited = new Set();
 		visited.add(this.getInstantaneousDescriptionKey(queue[0]));
-		let numConfigurations = 0;
 
 		while (queue.length > 0) {
-			numConfigurations++;
-			if (numConfigurations > maxConfigurations) {
+			if (visited.size > maxConfigurations) {
 				return undefined;
 			}
 
