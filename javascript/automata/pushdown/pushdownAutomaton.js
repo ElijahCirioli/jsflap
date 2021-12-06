@@ -54,7 +54,7 @@ class PushdownAutomaton extends Automaton {
 	}
 
 	languageContains(word) {
-		// is the word in the language of this FSA?
+		// is the word in the language of this PDA?
 
 		// make sure there's an initial state
 		if (!this.initialState) {
@@ -73,32 +73,32 @@ class PushdownAutomaton extends Automaton {
 
 			// take from front of the queue
 			const curr = queue.shift();
-			console.log(curr);
+
 			// see if we're at an accept state
 			if (curr.word.length === 0 && curr.state.isFinal()) {
 				return true;
-			} else {
-				// look at every other state we can go to
-				curr.state.getTransitions().forEach((t) => {
-					const toState = t.getToState();
-					// look at every tuple we can use to get there
-					t.getLabels().forEach((tuple) => {
-						if (this.canUseTransitionTuple(curr, tuple)) {
-							const newWord = tuple.char === "" ? curr.word : curr.word.substring(1);
-							const newStack = tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
-
-							// make sure we haven't computed this description before
-							const next = { word: newWord, stack: newStack, state: toState };
-							const key = this.getInstantaneousDescriptionKey(next);
-							if (!visited.has(key)) {
-								// add to queue
-								visited.add(key);
-								queue.push(next);
-							}
-						}
-					});
-				});
 			}
+
+			// look at every other state we can go to
+			curr.state.getTransitions().forEach((t) => {
+				const toState = t.getToState();
+				// look at every tuple we can use to get there
+				t.getLabels().forEach((tuple) => {
+					if (this.canUseTransitionTuple(curr, tuple)) {
+						const newWord = tuple.char === "" ? curr.word : curr.word.substring(1);
+						const newStack = tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
+
+						// make sure we haven't computed this description before
+						const next = { word: newWord, stack: newStack, state: toState };
+						const key = this.getInstantaneousDescriptionKey(next);
+						if (!visited.has(key)) {
+							// add to queue
+							visited.add(key);
+							queue.push(next);
+						}
+					}
+				});
+			});
 		}
 		return false;
 	}
