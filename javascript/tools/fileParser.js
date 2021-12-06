@@ -77,7 +77,7 @@ class FileParser {
 						const toId = t.getElementsByTagName("to")[0].childNodes[0].nodeValue;
 						const fromState = elementMap.get(fromId);
 						const toState = elementMap.get(toId);
-						console.log(t);
+
 						if (fromState && toState) {
 							editor.startTransition(fromState);
 							const transitionObj = editor.endTransition(toState, false);
