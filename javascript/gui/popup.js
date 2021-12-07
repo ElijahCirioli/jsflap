@@ -41,52 +41,6 @@ class PopupCancelMessage extends PopupMessage {
 	}
 }
 
-class PopupCharacterChoiceMessage extends PopupCancelMessage {
-	// choose lambda character message
-
-	constructor(onConfirm, onCancel, doReturn) {
-		super(
-			"Choose character",
-			"",
-			() => {
-				onConfirm(this.choice);
-			},
-			onCancel,
-			false
-		);
-		this.content.children(".popup-message-content").children(".popup-message-text").remove();
-		this.choice = lambdaChar;
-		const choiceButtons = $(`<div class="popup-message-buttons popup-message-characters"></div>`);
-		const lambdaButton = $(`<button class="popup-message-button character-button">\u03BB</button>`);
-		const epsilonButton = $(`<button class="popup-message-button character-button">\u03B5</button>`);
-
-		if (lambdaChar === "\u03BB") {
-			lambdaButton.addClass("chosen-character");
-		} else {
-			epsilonButton.addClass("chosen-character");
-		}
-
-		lambdaButton.click((e) => {
-			lambdaButton.addClass("chosen-character");
-			epsilonButton.removeClass("chosen-character");
-			this.choice = "\u03BB";
-		});
-		epsilonButton.click((e) => {
-			epsilonButton.addClass("chosen-character");
-			lambdaButton.removeClass("chosen-character");
-			this.choice = "\u03B5";
-		});
-
-		choiceButtons.append(lambdaButton);
-		choiceButtons.append(epsilonButton);
-		this.buttons.before(choiceButtons);
-
-		if (doReturn) {
-			return this.content;
-		}
-	}
-}
-
 class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
 	// choose an environment message
 
