@@ -240,6 +240,9 @@ class PopupSettingsMessage extends PopupCancelMessage {
 			"Parsing Settings",
 			"",
 			() => {
+				if (this.settings.initialStackChar === "" || this.settings.initialStackChar === ",") {
+					this.settings.initialStackChar = initialStackChar;
+				}
 				onConfirm(this.settings);
 			},
 			onCancel,
@@ -263,7 +266,7 @@ class PopupSettingsMessage extends PopupCancelMessage {
 
 		const input = form.children(".popup-message-form-input");
 		input.on("focusout", (e) => {
-			if (input.val() === "") {
+			if (input.val() === "" || input.val() === ",") {
 				input.val(initialStackChar);
 			}
 		});
