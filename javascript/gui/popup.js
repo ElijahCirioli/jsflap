@@ -233,11 +233,11 @@ class PopupEditorChoiceMessage {
 }
 
 class PopupSettingsMessage extends PopupCancelMessage {
-	// pushdown automata settings menu
+	// settings menu
 
 	constructor(onConfirm, onCancel, doReturn) {
 		super(
-			"Parsing Settings",
+			"Settings",
 			"",
 			() => {
 				if (this.settings.initialStackChar === "" || this.settings.initialStackChar === ",") {
@@ -249,11 +249,42 @@ class PopupSettingsMessage extends PopupCancelMessage {
 			false
 		);
 		this.content.children(".popup-message-content").children(".popup-message-text").remove();
+		this.content.children(".popup-message-content").css("gap", "20px");
 
 		this.settings = {
+			lambdaChar: lambdaChar,
 			maxConfigurations: maxConfigurations,
 			initialStackChar: initialStackChar,
 		};
+
+		const choiceButtons = $(`
+		<div class="popup-message-buttons-wrap">
+			<p class="popup-message-form-label" title="The character representing the empty string.">Lambda character:</p>
+			<div class="popup-message-buttons popup-message-characters"></div>
+		</div>`);
+		const lambdaButton = $(`<button class="popup-message-button character-button">\u03BB</button>`);
+		const epsilonButton = $(`<button class="popup-message-button character-button">\u03B5</button>`);
+
+		if (lambdaChar === "\u03BB") {
+			lambdaButton.addClass("chosen-character");
+		} else {
+			epsilonButton.addClass("chosen-character");
+		}
+
+		lambdaButton.click((e) => {
+			lambdaButton.addClass("chosen-character");
+			epsilonButton.removeClass("chosen-character");
+			this.settings.lambdaChar = "\u03BB";
+		});
+		epsilonButton.click((e) => {
+			epsilonButton.addClass("chosen-character");
+			lambdaButton.removeClass("chosen-character");
+			this.settings.lambdaChar = "\u03B5";
+		});
+
+		choiceButtons.children(".popup-message-characters").append(lambdaButton);
+		choiceButtons.children(".popup-message-characters").append(epsilonButton);
+		this.buttons.before(choiceButtons);
 
 		const form = $(`
 		<form class="popup-message-form">

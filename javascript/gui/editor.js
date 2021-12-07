@@ -82,8 +82,8 @@ class Editor {
 		return "finite";
 	}
 
-	draw() {
-		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, false);
+	draw(updateLabels) {
+		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, updateLabels);
 		this.automaton.drawAllStates();
 	}
 

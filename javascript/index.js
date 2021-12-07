@@ -226,12 +226,28 @@ $("document").ready(() => {
 				(settings) => {
 					activeEnvironment.removePopupMessages();
 
+					$(".inputs-form-item-input").val((i, v) => {
+						return v.replaceAll(lambdaChar, settings.lambdaChar);
+					});
+					$(".inputs-lambda-button").text(settings.lambdaChar);
+
+					lambdaChar = settings.lambdaChar;
 					initialStackChar = settings.initialStackChar;
 					maxConfigurations = settings.maxConfigurations;
 
 					window.localStorage.setItem("jsflap initial stack character", initialStackChar);
 					window.localStorage.setItem("jsflap max configurations", maxConfigurations);
+					window.localStorage.setItem("jsflap lambda character", lambdaChar);
 
+					environments.forEach((env) => {
+						env.getContent().show();
+						if (env.hasEditor()) {
+							env.getEditor().draw(true);
+						}
+						env.getContent().hide();
+					});
+
+					activeEnvironment.getContent().show();
 					activeEnvironment.testAllInputs(false);
 				},
 				() => {
@@ -312,35 +328,6 @@ $("document").ready(() => {
 		if (activeEnvironment.hasEditor()) {
 			activeEnvironment.getEditor().zoomFit();
 		}
-	});
-
-	$("#menu-character-choice-button").click((e) => {
-		hideDropdowns();
-		activeEnvironment.addPopupMessage(
-			new PopupCharacterChoiceMessage(
-				(newChar) => {
-					activeEnvironment.removePopupMessages();
-					$(".inputs-form-item-input").val((i, v) => {
-						return v.replaceAll(lambdaChar, newChar);
-					});
-					$(".inputs-lambda-button").text(newChar);
-					lambdaChar = newChar;
-					window.localStorage.setItem("jsflap lambda character", lambdaChar);
-					environments.forEach((env) => {
-						env.getContent().show();
-						if (env.hasEditor()) {
-							env.getEditor().draw();
-						}
-						env.getContent().hide();
-					});
-					activeEnvironment.getContent().show();
-				},
-				() => {
-					activeEnvironment.removePopupMessages();
-				},
-				true
-			)
-		);
 	});
 
 	$("#menu-theme-choice-button").click((e) => {
