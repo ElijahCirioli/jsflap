@@ -128,22 +128,22 @@ class Environment {
 		const content = $(`
 			<div class="environment-wrap">
 				<div class="tool-bar">
-					<button class="tool-item active" id="point-tool">
+					<button title="Pointer tool" class="tool-item active" id="point-tool">
 						<i class="fas fa-mouse-pointer"></i>
 					</button>
-					<button class="tool-item" id="pan-tool">
+					<button title="Pan tool" class="tool-item" id="pan-tool">
 						<i class="fas fa-arrows-alt"></i>
 					</button>
-					<button class="tool-item" id="state-tool">
+					<button title="State tool" class="tool-item" id="state-tool">
 						<i class="fas fa-circle"></i>
 					</button>
-					<button class="tool-item" id="transition-tool">
+					<button title="Transition tool" class="tool-item" id="transition-tool">
 						<i class="fas fa-long-arrow-alt-right"></i>
 					</button>
-					<button class="tool-item" id="chain-tool">
+					<button title="Chain tool" class="tool-item" id="chain-tool">
 						<i class="fas fa-link"></i>
 					</button>
-					<button class="tool-item" id="trash-tool">
+					<button title="Trash tool" class="tool-item" id="trash-tool">
 						<i class="fas fa-trash-alt"></i>
 					</button>
 				</div>
@@ -151,11 +151,11 @@ class Environment {
 					<div class="editor-popup-container"></div>
 					<div class="editor-zoom-container">
 						<div class="zoom-in-out-wrap">
-							<button class="zoom-button" id="zoom-in-button"><i class="fas fa-plus"></i></button>
-							<button class="zoom-button" id="zoom-out-button"><i class="fas fa-minus"></i></button>
+							<button title="Zoom in" class="zoom-button" id="zoom-in-button"><i class="fas fa-plus"></i></button>
+							<button title="Zoom out" class="zoom-button" id="zoom-out-button"><i class="fas fa-minus"></i></button>
 						</div>
-						<button class="zoom-button" id="zoom-fit-button"><i class="fas fa-expand"></i></button>
-						<button class="zoom-button" id="zoom-home-button"><i class="fas fa-home"></i></button>
+						<button title="Zoom to fit" class="zoom-button" id="zoom-fit-button"><i class="fas fa-expand"></i></button>
+						<button title="Zoom to home" class="zoom-button" id="zoom-home-button"><i class="fas fa-home"></i></button>
 					</div>
 					<div class="editor-label-container"></div>
 					<div class="editor-state-container"></div>
@@ -235,7 +235,12 @@ class Environment {
 		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
 		this.historyPos = Math.min(this.historyPos + 1, this.history.length - 1);
 		this.respondToTriggers = false;
-		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
+		this.content
+			.children(".editor")
+			.children(".editor-state-container")
+			.children(".state")
+			.not(".preview-state")
+			.remove();
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
 		if (this.editor.getType() === "pushdown") {
 			this.editor.automaton = new PushdownAutomaton();
@@ -255,7 +260,12 @@ class Environment {
 		// this is really inefficient since I am remaking the whole automaton from scratch but it's easiest given the tools I've already made
 		this.historyPos = Math.max(this.historyPos - 1, 0);
 		this.respondToTriggers = false;
-		this.content.children(".editor").children(".editor-state-container").children(".state").not(".preview-state").remove();
+		this.content
+			.children(".editor")
+			.children(".editor-state-container")
+			.children(".state")
+			.not(".preview-state")
+			.remove();
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
 		if (this.editor.getType() === "pushdown") {
 			this.editor.automaton = new PushdownAutomaton();

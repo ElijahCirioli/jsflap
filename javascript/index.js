@@ -18,7 +18,7 @@ function createEnvironment() {
 	const newTab = $(`
 	<div class="active environment-tab">
 		<h2 class="environment-tab-name" contenteditable="true" spellcheck="false">${name}</h2>
-		<button class="environment-tab-delete-button"><i class="fas fa-times"></i></button>
+		<button title="Delete environment" class="environment-tab-delete-button"><i class="fas fa-times"></i></button>
 	</div>`);
 	$("#new-environment-button").before(newTab);
 	const newEnv = new Environment(newTab);
@@ -196,7 +196,9 @@ $("document").ready(() => {
 		for (let i = 0; i < allProjects.length; i++) {
 			const project = allProjects[i];
 			if (i < numToDisplay) {
-				const button = $(`<button class="menu-child-item menu-child-subgroup-item">${project.name}</button>`);
+				const button = $(
+					`<button class="menu-child-item menu-child-subgroup-item">${project.name}</button>`
+				);
 				$("#menu-open-recent-subgroup").append(button);
 				button.click((e) => {
 					hideDropdowns();
