@@ -1,7 +1,6 @@
 class Editor {
 	constructor(parent, callback) {
 		this.parent = parent;
-		this.tool = "point";
 		this.startState = undefined;
 		this.selectionBoxPoint = undefined;
 		this.scale = 1;
@@ -16,6 +15,18 @@ class Editor {
 		this.labelsWrap = this.editorWrap.children(".editor-label-container");
 		this.previewState = undefined;
 		this.previewTransition = undefined;
+
+		// determine tool from selected button
+		const tool = this.parent
+			.children(".tool-bar")
+			.children(".active")
+			.not("#grid-toggle")
+			.attr("id")
+			.split("-")[0];
+		this.setTool(tool);
+
+		// determine grid alignment setting
+		this.alignToGrid = this.parent.children(".tool-bar").children("#grid-toggle").hasClass("active");
 
 		this.triggerTest = () => {
 			callback(true);
@@ -82,6 +93,10 @@ class Editor {
 		return "finite";
 	}
 
+	setAlignToGrid(newSetting) {
+		this.alignToGrid = newSetting;
+	}
+
 	draw(updateLabels) {
 		this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, updateLabels);
 		this.automaton.drawAllStates();
@@ -108,7 +123,12 @@ class Editor {
 		if (!this.previewState) {
 			return;
 		}
-		const elementPos = new Point(pos.x - 25, pos.y - 25);
+		const elementPos = new Point(pos.x, pos.y);
+		if (this.alignToGrid && !controlKey && !shiftKey) {
+			elementPos.alignToGrid();
+		}
+		elementPos.subtract(new Point(25, 25));
+
 		this.previewState.css("top", elementPos.y + "px");
 		this.previewState.css("left", elementPos.x + "px");
 	}
@@ -166,7 +186,9 @@ class Editor {
 		this.labelsWrap.children(".label-form").css("pointer-events", "all");
 		if (!this.automaton.hasTransitionBetweenStates(this.startState, endState)) {
 			// no existing transition so create a new one
-			const labelElement = $(`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`);
+			const labelElement = $(
+				`<form class="label-form"><input type="text" spellcheck="false" maxlength="256" class="label-input"></form>`
+			);
 			this.labelsWrap.append(labelElement);
 			const tLabel = autoLambda ? "" : undefined;
 			t = this.automaton.addTransition(this.startState, endState, tLabel, labelElement);
@@ -378,7 +400,12 @@ class Editor {
 		const rect1 = el1.getBoundingClientRect();
 		const rect2 = el2.getBoundingClientRect();
 
-		return rect1.top <= rect2.bottom && rect1.right >= rect2.left && rect1.bottom >= rect2.top && rect1.left <= rect2.right;
+		return (
+			rect1.top <= rect2.bottom &&
+			rect1.right >= rect2.left &&
+			rect1.bottom >= rect2.top &&
+			rect1.left <= rect2.right
+		);
 	}
 
 	createRightClickMenu(state, pos) {
@@ -574,6 +601,11 @@ class Editor {
 			if (this.tool === "state" || this.tool === "chain") {
 				this.unselectAllStates();
 				this.unselectAllTransitions();
+
+				if (this.alignToGrid && !controlKey && !shiftKey) {
+					pos.alignToGrid();
+				}
+
 				const state = this.createState(pos, true);
 
 				if (this.tool === "chain") {
@@ -599,7 +631,10 @@ class Editor {
 			if (this.tool === "pan" || middleClick) {
 				if (this.clicked && this.lastMousePos) {
 					// this is a lot of work to basically unadjust the mouse coordinates to be in their raw form but it means we need less variables
-					const delta = new Point((pos.x - this.lastMousePos.x) * this.scale, (pos.y - this.lastMousePos.y) * this.scale);
+					const delta = new Point(
+						(pos.x - this.lastMousePos.x) * this.scale,
+						(pos.y - this.lastMousePos.y) * this.scale
+					);
 					this.adjustOffset(delta);
 					// recalculate adjusted pos with new offset
 					this.lastMousePos = this.getAdjustedPos(e);
@@ -645,7 +680,10 @@ class Editor {
 			} else if (this.tool === "chain") {
 				this.movePreviewState(pos);
 				if (this.startState) {
-					const arrowDelta = new Point(pos.x - this.startState.getPos().x, pos.y - this.startState.getPos().y);
+					const arrowDelta = new Point(
+						pos.x - this.startState.getPos().x,
+						pos.y - this.startState.getPos().y
+					);
 					const radiusPos = pos.normalizeEndPoint(this.startState.pos, arrowDelta.magnitude() - 25);
 					this.statelessPreviewTransition(radiusPos);
 				}
@@ -734,7 +772,10 @@ class Editor {
 			const pos = this.getAdjustedPos(e);
 			this.movePreviewState(pos);
 			if (this.tool === "chain" && this.startState) {
-				const arrowDelta = new Point(pos.x - this.startState.getPos().x, pos.y - this.startState.getPos().y);
+				const arrowDelta = new Point(
+					pos.x - this.startState.getPos().x,
+					pos.y - this.startState.getPos().y
+				);
 				const radiusPos = pos.normalizeEndPoint(this.startState.pos, arrowDelta.magnitude() - 25);
 				this.statelessPreviewTransition(radiusPos);
 			}
@@ -929,6 +970,14 @@ class Editor {
 			}
 
 			if (this.tool === "point") {
+				// snap to grid if necessary
+				if (this.alignToGrid && !controlKey && !shiftKey) {
+					this.selectedStates.forEach((s) => {
+						s.getPos().alignToGrid();
+					});
+					this.draw();
+				}
+
 				if (!controlKey && !shiftKey && this.selectedStates.size === 1) {
 					this.unselectState(stateObj);
 				}
@@ -1145,7 +1194,10 @@ class Editor {
 					newCursorPos = chunkLength * Math.ceil(selectionEnd / chunkLength) + 1;
 				} else if (key === "ArrowLeft") {
 					e.stopPropagation();
-					newCursorPos = Math.max(chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1, 0);
+					newCursorPos = Math.max(
+						chunkLength * (Math.floor(selectionStart / chunkLength) - 1) + 1,
+						0
+					);
 				} else if (key === "ArrowUp" || key === "ArrowDown") {
 					e.stopPropagation();
 				}

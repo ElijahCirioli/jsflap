@@ -7,11 +7,20 @@ class Point {
 	add(p) {
 		this.x += p.x;
 		this.y += p.y;
+		return this;
 	}
 
 	subtract(p) {
 		this.x -= p.x;
 		this.y -= p.y;
+		return this;
+	}
+
+	alignToGrid() {
+		const gridSize = 27;
+		this.x = Math.round(this.x / gridSize) * gridSize;
+		this.y = Math.round(this.y / gridSize) * gridSize;
+		return this;
 	}
 
 	clone() {

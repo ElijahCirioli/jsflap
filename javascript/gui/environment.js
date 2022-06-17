@@ -81,6 +81,7 @@ class Environment {
 		};
 
 		this.editor = new Editor(this.content, callback);
+		this.updateHistory();
 		this.removePopupMessages();
 	}
 
@@ -91,6 +92,7 @@ class Environment {
 		};
 
 		this.editor = new PushdownEditor(this.content, callback);
+		this.updateHistory();
 		this.removePopupMessages();
 	}
 
@@ -145,6 +147,9 @@ class Environment {
 					</button>
 					<button title="Trash tool" class="tool-item" id="trash-tool">
 						<i class="fas fa-trash-alt"></i>
+					</button>
+					<button title="Snap to grid" class="tool-item" id="grid-toggle">
+						<i class="fas fa-border-all"></i>
 					</button>
 				</div>
 				<div class="editor" tabindex="0">
@@ -357,13 +362,40 @@ class Environment {
 		this.content
 			.children(".tool-bar")
 			.children(".tool-item")
+			.not("#grid-toggle")
 			.click((e) => {
 				e.stopPropagation();
 				const target = $(e.currentTarget);
-				this.content.children(".tool-bar").children(".tool-item").removeClass("active");
+				this.content
+					.children(".tool-bar")
+					.children(".tool-item")
+					.not("#grid-toggle")
+					.removeClass("active");
 				target.addClass("active");
-				const tool = target.attr("id").split("-")[0];
-				this.editor.setTool(tool);
+				if (this.editor) {
+					const tool = target.attr("id").split("-")[0];
+					this.editor.setTool(tool);
+				}
+			});
+
+		// toggle snapping to grid
+		this.content
+			.children(".tool-bar")
+			.children("#grid-toggle")
+			.click((e) => {
+				e.stopPropagation();
+				const target = $(e.currentTarget);
+				let newSetting = true;
+				if (target.hasClass("active")) {
+					target.removeClass("active");
+					newSetting = false;
+				} else {
+					target.addClass("active");
+				}
+
+				if (this.editor) {
+					this.editor.setAlignToGrid(newSetting);
+				}
 			});
 
 		// type on name

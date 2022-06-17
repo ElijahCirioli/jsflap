@@ -425,6 +425,11 @@ $("document").ready(() => {
 		}
 	});
 
+	$("#menu-align-to-grid-button").click((e) => {
+		hideDropdowns();
+		AlignToGrid.action(activeEnvironment);
+	});
+
 	$("#menu-remove-unreachable-button").click((e) => {
 		hideDropdowns();
 		RemoveUnreachableStates.action(activeEnvironment);

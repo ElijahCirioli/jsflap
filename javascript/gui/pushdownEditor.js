@@ -32,7 +32,9 @@ class PushdownEditor extends Editor {
 
 	unselectAllTuples() {
 		this.labelsWrap.children(".label-form").children(".pushdown-tuple").removeClass("selected-tuple");
-		this.selectedTuples.clear();
+		if (this.selectedTuples) {
+			this.selectedTuples.clear();
+		}
 	}
 
 	unselectAllTransitions() {
@@ -390,15 +392,23 @@ class PushdownEditor extends Editor {
 				if (selectionStart !== selectionEnd) {
 					if (key === "Backspace" || key === "Delete" || key.length === 1) {
 						// delete multiple labels
-						element.val(str.substring(0, selectionStart) + key.length === 1 ? key : "" + str.substring(selectionEnd + 1, str.length));
+						element.val(
+							str.substring(0, selectionStart) + key.length === 1
+								? key
+								: "" + str.substring(selectionEnd + 1, str.length)
+						);
 						newCursorPos = selectionStart + 1;
 					}
 				} else {
 					if (key === "Backspace" && selectionStart > 0) {
-						element.val(str.substring(0, selectionStart - 1) + str.substring(selectionEnd, str.length));
+						element.val(
+							str.substring(0, selectionStart - 1) + str.substring(selectionEnd, str.length)
+						);
 						newCursorPos = selectionStart - 1;
 					} else if (key === "Delete" && selectionEnd < str.length) {
-						element.val(str.substring(0, selectionStart) + str.substring(selectionEnd + 1, str.length));
+						element.val(
+							str.substring(0, selectionStart) + str.substring(selectionEnd + 1, str.length)
+						);
 						newCursorPos = selectionStart;
 					}
 				}
@@ -434,7 +444,9 @@ class PushdownEditor extends Editor {
 							element.val(lambdaChar);
 						}
 					} else {
-						element.val(str.substring(0, selectionStart) + key + str.substring(selectionEnd, str.length));
+						element.val(
+							str.substring(0, selectionStart) + key + str.substring(selectionEnd, str.length)
+						);
 						newCursorPos = selectionEnd + 1;
 					}
 				}
