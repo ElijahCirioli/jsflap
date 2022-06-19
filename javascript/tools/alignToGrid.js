@@ -2,13 +2,14 @@ class AlignToGrid {
 	constructor() {}
 
 	static action(environment) {
-		if (environment.getEditor() === undefined) {
+		const editor = environment.getEditor();
+		if (editor === undefined) {
 			return;
 		}
 		environment.updateHistory();
 
-		const automaton = environment.getEditor().getAutomaton();
-		const selectedStates = environment.getEditor().getSelectedStates();
+		const automaton = editor.getAutomaton();
+		const selectedStates = editor.getSelectedStates();
 
 		if (selectedStates.size > 0) {
 			selectedStates.forEach((s) => {
@@ -20,7 +21,8 @@ class AlignToGrid {
 			});
 		}
 
-		environment.getEditor().draw();
+		editor.draw();
 		environment.updateHistory();
+		editor.editorWrap.focus();
 	}
 }

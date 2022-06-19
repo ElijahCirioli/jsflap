@@ -3,6 +3,9 @@ class CircleLayout {
 
 	static action(environment) {
 		const editor = environment.getEditor();
+		if (!editor) {
+			return;
+		}
 		const automaton = editor.getAutomaton();
 		const states = automaton.getStates();
 		if (states.size === 0) {

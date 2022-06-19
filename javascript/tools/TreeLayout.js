@@ -3,6 +3,9 @@ class TreeLayout {
 
 	static action(environment) {
 		const editor = environment.getEditor();
+		if (!editor) {
+			return;
+		}
 		const automaton = editor.getAutomaton();
 
 		if (!automaton.hasInitialState()) {

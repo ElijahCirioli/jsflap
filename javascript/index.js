@@ -445,5 +445,10 @@ $("document").ready(() => {
 		CircleLayout.action(activeEnvironment);
 	});
 
+	$("#menu-layout-force-directed-button").click((e) => {
+		hideDropdowns();
+		ForceDirectedLayout.action(activeEnvironment);
+	});
+
 	updateColors();
 });
