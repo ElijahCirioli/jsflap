@@ -173,6 +173,83 @@ class Automaton {
 		return false;
 	}
 
+	getParseSteps(word) {
+		// get a step-by-step process for parsing whether a word is in the language
+
+		// make sure there's an initial state
+		if (!this.initialState) {
+			return [];
+		}
+
+		let foundAccept = false;
+		let totalConfigurations = 0;
+		const steps = [];
+		const queue = [{ word: word, state: this.initialState, depth: 0, accept: undefined }];
+
+		while (queue.length > 0) {
+			// take from front of the queue
+			const curr = queue.shift();
+
+			// add to steps tree
+			if (steps.length <= curr.depth) {
+				// break the loop early if there's an accept in the last layer or we've tried too many things
+				if (foundAccept || totalConfigurations > maxConfigurations) {
+					break;
+				}
+				steps.push([curr]);
+			} else {
+				steps[curr.depth].push(curr);
+			}
+			totalConfigurations++;
+
+			// see if we're at an accept state
+			if (curr.word.length === 0 && curr.state.isFinal()) {
+				curr.accept = true;
+				foundAccept = true;
+				continue;
+			}
+
+			const index = steps[curr.depth].length - 1; // track where we came from in this layer
+			let foundTransition = false;
+
+			// look at every transition we can take
+			curr.state.getTransitions().forEach((t) => {
+				// normal transition
+				if (curr.word.length > 0 && t.hasLabel(curr.word[0])) {
+					const next = {
+						word: curr.word.substring(1),
+						state: t.getToState(),
+						depth: curr.depth + 1,
+						accept: undefined,
+						predecessor: index,
+					};
+					queue.push(next);
+					foundTransition = true;
+				}
+
+				// lambda transition
+				if (t.hasLabel("")) {
+					const next = {
+						word: curr.word,
+						state: t.getToState(),
+						depth: curr.depth + 1,
+						accept: undefined,
+						predecessor: index,
+					};
+					queue.push(next);
+					foundTransition = true;
+				}
+			});
+
+			// check whether there was anywhere to go
+			if (!foundTransition) {
+				curr.accept = false;
+			}
+		}
+
+		return steps;
+	}
+
 	getAlphabet() {
 		const alphabet = new Set();
 		if (this.initialState) {

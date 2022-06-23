@@ -86,7 +86,8 @@ class PushdownAutomaton extends Automaton {
 				t.getLabels().forEach((tuple) => {
 					if (this.canUseTransitionTuple(curr, tuple)) {
 						const newWord = tuple.char === "" ? curr.word : curr.word.substring(1);
-						const newStack = tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
+						const newStack =
+							tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
 
 						// make sure we haven't computed this description before
 						const next = { word: newWord, stack: newStack, state: toState };
@@ -105,14 +106,90 @@ class PushdownAutomaton extends Automaton {
 
 	canUseTransitionTuple(desc, tuple) {
 		// can the automaton take this transition tuple from this instantaneous  description
-		const charMatches = tuple.char === "" || (desc.word.length > 0 && tuple.char === desc.word.substring(0, 1));
-		const popMatches = tuple.pop === "" || (desc.stack.length > 0 && tuple.pop === desc.stack.substring(0, 1));
+		const charMatches =
+			tuple.char === "" || (desc.word.length > 0 && tuple.char === desc.word.substring(0, 1));
+		const popMatches =
+			tuple.pop === "" || (desc.stack.length > 0 && tuple.pop === desc.stack.substring(0, 1));
 
 		return charMatches && popMatches;
 	}
 
 	getInstantaneousDescriptionKey(tuple) {
 		return tuple.word + "," + tuple.stack + "," + tuple.state.getId();
+	}
+
+	getParseSteps(word) {
+		// get a step-by-step process for parsing whether a word is in the language
+
+		// make sure there's an initial state
+		if (!this.initialState) {
+			return [];
+		}
+
+		let foundAccept = false;
+		let totalConfigurations = 0;
+		const steps = [];
+		const queue = [
+			{ word: word, stack: initialStackChar, state: this.initialState, depth: 0, accept: undefined },
+		];
+
+		while (queue.length > 0) {
+			// take from front of the queue
+			const curr = queue.shift();
+
+			// add to steps tree
+			if (steps.length <= curr.depth) {
+				// break the loop early if there's an accept in the last layer or we've tried too many things
+				if (foundAccept || totalConfigurations > maxConfigurations) {
+					break;
+				}
+				steps.push([curr]);
+			} else {
+				steps[curr.depth].push(curr);
+			}
+			totalConfigurations++;
+
+			// see if we're at an accept state
+			if (curr.word.length === 0 && curr.state.isFinal()) {
+				curr.accept = true;
+				foundAccept = true;
+				continue;
+			}
+
+			const index = steps[curr.depth].length - 1; // track where we came from in this layer
+			let foundTransition = false;
+
+			// look at every transition we can take
+			curr.state.getTransitions().forEach((t) => {
+				const toState = t.getToState();
+				// look at every tuple we can use to get there
+				t.getLabels().forEach((tuple) => {
+					if (this.canUseTransitionTuple(curr, tuple)) {
+						const newWord = tuple.char === "" ? curr.word : curr.word.substring(1);
+						const newStack =
+							tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
+
+						const next = {
+							word: newWord,
+							stack: newStack,
+							state: toState,
+							depth: curr.depth + 1,
+							accept: undefined,
+							predecessor: index,
+						};
+						queue.push(next);
+						foundTransition = true;
+					}
+				});
+			});
+
+			// check whether there was anywhere to go
+			if (!foundTransition) {
+				curr.accept = false;
+			}
+		}
+
+		return steps;
 	}
 
 	isDeterministic() {
