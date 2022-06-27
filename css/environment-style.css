@@ -832,3 +832,44 @@
 .small-text-label.pop-input {
 	width: 0.7rem;
 }
+.single-line-input {
+	width: calc(100% - 55px);
+	height: 25px;
+	margin: 10px auto;
+}
+.step-tree-wrap {
+	width: 90%;
+	min-height: 100px;
+	max-height: 250px;
+	overflow: auto;
+	margin: 10px auto;
+	position: relative;
+}
+.step-tree-canvas {
+	background-color: var(--text-color);
+}
+.step-tree-nodes-wrap {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 5;
+}
+.step-tree-node {
+	position: absolute;
+	background-color: var(--state-color);
+	width: 12px;
+	height: 12px;
+	cursor: pointer;
+	border-radius: 50%;
+	outline: none;
+	border: 1px solid var(--dark-text-color);
+	margin: 0;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	transition: box-shadow 0.1s, background-color 0.2s;
+}

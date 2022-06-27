@@ -16,6 +16,7 @@ class Environment {
 		};
 
 		this.input = new InputContainer(this.content, callback);
+		this.stepInput = new StepInputContainer(this.content, callback);
 		this.messages = new MessagesContainer(this.content);
 		this.popups = this.content.children(".editor").children(".editor-popup-container");
 		this.addPopupMessage(
@@ -167,6 +168,7 @@ class Environment {
 					<canvas class="editor-canvas"></canvas>
 				</div>
 				<div class="environment-sidebar">
+					<div class="sidebar-item step-wrap"></div>
 					<div class="sidebar-item inputs-wrap"></div>
 					<div class="sidebar-item messages-wrap"></div>
 				</div>
