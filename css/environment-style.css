@@ -842,8 +842,9 @@
 	min-height: 100px;
 	max-height: 250px;
 	overflow: auto;
-	margin: 10px auto;
+	margin: 10px auto 5px auto;
 	position: relative;
+	background-color: var(--text-color);
 }
 .step-tree-canvas {
 	background-color: var(--text-color);
@@ -858,7 +859,7 @@
 }
 .step-tree-node {
 	position: absolute;
-	background-color: var(--state-color);
+	background-color: #ffbe39;
 	width: 12px;
 	height: 12px;
 	cursor: pointer;
@@ -871,5 +872,69 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	transition: box-shadow 0.1s, background-color 0.2s;
+	transition: box-shadow 0.1s;
+}
+.step-tree-node:hover {
+	-webkit-box-shadow: 0px 0px 4px 2px var(--glow-color);
+	-moz-box-shadow: 0px 0px 4px 2px var(--glow-color);
+	box-shadow: 0px 0px 4px 2px var(--glow-color);
+}
+.step-tree-node-selected {
+
+}
+.step-tree-node-accept {
+	background-color: #5fd14b;
+}
+.step-tree-node-reject {
+	background-color: #f04d41;
+}
+.step-tree-label {
+	margin: 0 auto 5px auto;
+	text-align: center;
+}
+.step-table-wrap {
+	margin: 5px auto;
+	width: 90%;
+	max-width: 90%;
+	overflow: auto;
+	max-height: 100px;
+}
+.step-table {
+	--border-color: var(--dark-text-color);
+	width: 100%;
+	text-align: center;
+	border-spacing: 0;
+}
+.step-table tr {
+	color: var(--dark-text-color);
+	background-color: var(--text-color);
+}
+.step-table tr:nth-child(2n+1) {
+	background-color: #d4d4d4;
+}
+.step-table th {
+	background-color: var(--selected-color);
+	border-left: 2px solid var(--border-color);
+	color: var(--text-color);
+	font-weight: normal;
+	padding: 2px 0;
+}
+.step-table th:nth-child(1) {
+	border: none;
+}
+.step-table td {
+	border-left: 2px solid var(--border-color);
+	color: var(--dark-text-color);
+}
+.step-table td:nth-child(1) {
+	border: none;
+	padding-bottom: 2px;
+}
+.step-table td:nth-child(2) {
+	text-align: left;
+	padding-left: 6px;
+}
+.step-table td:nth-child(3) {
+	text-align: left;
+	padding-left: 6px;
 }
