@@ -66,7 +66,9 @@ class InputContainer {
 
 	createSingleInput() {
 		const form = this.inputContent.children(".inputs-form");
-		const input = $(`<input type="text" spellcheck="false" maxlength="256" class="inputs-form-item-input">`);
+		const input = $(
+			`<input type="text" spellcheck="false" maxlength="256"  placeholder="Input word" class="inputs-form-item-input" >`
+		);
 		const output = $(`
         <div class="inputs-form-item-output">
             <i title="The word is not accepted by the automaton." class="fas fa-times-circle rejected"></i>
@@ -179,7 +181,12 @@ class InputContainer {
 			if (lastItem.children(".inputs-form-item-input").val().length > 0) {
 				this.createSingleInput();
 			}
-			this.inputContent.children(".inputs-form").children(".inputs-form-item").last().children(".inputs-form-item-input").val(lambdaChar);
+			this.inputContent
+				.children(".inputs-form")
+				.children(".inputs-form-item")
+				.last()
+				.children(".inputs-form-item-input")
+				.val(lambdaChar);
 			this.createSingleInput();
 			this.triggerTest();
 		});

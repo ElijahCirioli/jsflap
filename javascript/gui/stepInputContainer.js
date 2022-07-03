@@ -4,6 +4,10 @@ class StepInputContainer {
 		this.layers = [];
 		this.margin = 20;
 
+		this.triggerTest = () => {
+			callback(false);
+		};
+
 		this.setupContainer();
 		this.setupListeners();
 	}
@@ -24,7 +28,15 @@ class StepInputContainer {
             <div class="step-tree-nodes-wrap"></div>
             <canvas class="step-tree-canvas" width="225" height="100"></canvas>
         </div>
-        <div class="step-tree-buttons-wrap"></div>
+        <div class="step-tree-buttons-wrap">
+            <button class="inputs-button step-tree-back-button">
+                <i class="fas fa-solid fa-backward-step"></i>
+            </button>
+            <p class="step-tree-buttons-label">Step</p>
+            <button class="inputs-button step-tree-forward-button">
+                <i class="fas fa-solid fa-forward-step"></i>
+            </button>
+        </div>
         <div class="step-table-wrap">
             <table class="step-table"></table>
         </div>`;
@@ -55,11 +67,29 @@ class StepInputContainer {
 				this.drawTree(parseSteps);
 			}
 		});
+
+		textInput.parent().on("submit", (e) => {
+			e.preventDefault();
+		});
+
+		const buttonsWrap = this.stepWrap.children(".step-input").children(".inputs-buttons-wrap");
+
+		// lambda button
+		buttonsWrap.children(".inputs-lambda-button").click((e) => {
+			textInput.val(lambdaChar);
+			this.triggerTest();
+		});
+
+		// clear button
+		buttonsWrap.children(".inputs-clear-button").click((e) => {
+			textInput.val("");
+			this.triggerTest();
+		});
 	}
 
 	drawTree(layers) {
 		this.layers = layers;
-		let nodeHeight = 20;
+		let nodeHeight = 18;
 
 		// calculate required width to fit all nodes
 		const defaultWidth = this.stepWrap.children(".step-tree-wrap").width() - 2 * this.margin;
@@ -186,6 +216,13 @@ class StepInputContainer {
 			if (editor instanceof PushdownEditor) {
 				row.append(`<td>${step.stack}</td>`);
 			}
+
+			if (step.accept) {
+				row.children().first().addClass("step-table-accept");
+			} else if (step.accept === false) {
+				row.children().first().addClass("step-table-reject");
+			}
+
 			this.table.append(row);
 		}
 	}

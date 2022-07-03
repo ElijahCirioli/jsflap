@@ -840,7 +840,7 @@
 .step-tree-wrap {
 	width: 90%;
 	min-height: 100px;
-	max-height: 250px;
+	max-height: 200px;
 	overflow: auto;
 	margin: 10px auto 5px auto;
 	position: relative;
@@ -879,25 +879,18 @@
 	-moz-box-shadow: 0px 0px 4px 2px var(--glow-color);
 	box-shadow: 0px 0px 4px 2px var(--glow-color);
 }
-.step-tree-node-selected {
-
-}
 .step-tree-node-accept {
 	background-color: #5fd14b;
 }
 .step-tree-node-reject {
 	background-color: #f04d41;
 }
-.step-tree-label {
-	margin: 0 auto 5px auto;
-	text-align: center;
-}
 .step-table-wrap {
 	margin: 5px auto;
 	width: 90%;
 	max-width: 90%;
 	overflow: auto;
-	max-height: 100px;
+	max-height: 120px;
 }
 .step-table {
 	--border-color: var(--dark-text-color);
@@ -909,7 +902,7 @@
 	color: var(--dark-text-color);
 	background-color: var(--text-color);
 }
-.step-table tr:nth-child(2n+1) {
+.step-table tr:nth-child(2n + 1) {
 	background-color: #d4d4d4;
 }
 .step-table th {
@@ -918,6 +911,8 @@
 	color: var(--text-color);
 	font-weight: normal;
 	padding: 2px 0;
+	position: sticky;
+	top: 0;
 }
 .step-table th:nth-child(1) {
 	border: none;
@@ -937,4 +932,32 @@
 .step-table td:nth-child(3) {
 	text-align: left;
 	padding-left: 6px;
+}
+.step-table td i {
+	font-size: 16px;
+}
+.step-table-accept {
+	background-color: #5fd14b;
+}
+.step-table tr:nth-child(2n) .step-table-accept {
+	background-color: #85ed72;
+}
+.step-table-reject {
+	background-color: #f04d41;
+}
+.step-table tr:nth-child(2n) .step-table-reject {
+	background-color: #f3645a;
+}
+.step-tree-buttons-wrap {
+	width: 90%;
+	height: 20px;
+	margin: 7px auto 10px auto;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+.step-tree-buttons-label {
+	text-align: center;
+	margin: 0;
 }
