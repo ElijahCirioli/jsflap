@@ -848,6 +848,7 @@
 }
 .step-tree-canvas {
 	background-color: var(--text-color);
+	display: block;
 }
 .step-tree-nodes-wrap {
 	position: absolute;
@@ -874,7 +875,7 @@
 	user-select: none;
 	transition: box-shadow 0.1s;
 }
-.step-tree-node:hover {
+.step-tree-node-selected {
 	-webkit-box-shadow: 0px 0px 4px 2px var(--glow-color);
 	-moz-box-shadow: 0px 0px 4px 2px var(--glow-color);
 	box-shadow: 0px 0px 4px 2px var(--glow-color);
@@ -946,7 +947,7 @@
 	background-color: #f04d41;
 }
 .step-table tr:nth-child(2n) .step-table-reject {
-	background-color: #f3645a;
+	background-color: #f36c62;
 }
 .step-tree-buttons-wrap {
 	width: 90%;

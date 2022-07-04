@@ -49,6 +49,8 @@ class StepInputContainer {
 
 	setupListeners() {
 		const textInput = this.stepWrap.children(".step-input").children(".inputs-form").children("input");
+
+		// input box
 		textInput.on("keyup change", (e) => {
 			const word = textInput.val();
 
@@ -68,6 +70,25 @@ class StepInputContainer {
 			}
 		});
 
+		textInput.on("keydown", (e) => {
+			e = window.event || e;
+			e.stopPropagation();
+			const key = e.key;
+			const empty = textInput.val().length === 0;
+
+			if (key === ",") {
+				e.preventDefault();
+				if (empty) {
+					textInput.val(lambdaChar);
+					this.triggerTest();
+				}
+			} else if (empty && (key === "Tab" || key === "Enter")) {
+				e.preventDefault();
+				textInput.val(lambdaChar);
+				this.triggerTest();
+			}
+		});
+
 		textInput.parent().on("submit", (e) => {
 			e.preventDefault();
 		});
@@ -84,6 +105,44 @@ class StepInputContainer {
 		buttonsWrap.children(".inputs-clear-button").click((e) => {
 			textInput.val("");
 			this.triggerTest();
+		});
+
+		const treeButtonsWrap = this.stepWrap.children(".step-tree-buttons-wrap");
+
+		// step forward button
+		treeButtonsWrap.children(".step-tree-forward-button").click((e) => {
+			if (!this.selectedStep) {
+				this.selectStep(0, 0);
+				return;
+			}
+
+			if (this.selectedStep.layer < this.layers.length - 1) {
+				const nextLayer = this.selectedStep.layer + 1;
+				let nextIndex = 0;
+				for (let i = 0; i < this.layers[nextLayer]; i++) {
+					if (this.layers[nextLayer][i].predecessor === this.selectedStep.index) {
+						nextIndex = i;
+						break;
+					}
+				}
+
+				this.selectStep(nextLayer, nextIndex);
+			}
+		});
+
+		// step backward button
+		treeButtonsWrap.children(".step-tree-back-button").click((e) => {
+			if (!this.selectedStep) {
+				if (this.layers && this.layers.length > 0) {
+					this.selectStep(this.layers.length - 1, 0);
+				}
+				return;
+			}
+
+			if (this.selectedStep.layer > 0) {
+				const step = this.layers[this.selectedStep.layer][this.selectedStep.index];
+				this.selectStep(this.selectedStep.layer - 1, step.predecessor);
+			}
 		});
 	}
 
@@ -145,7 +204,7 @@ class StepInputContainer {
 		}
 
 		this.drawLines();
-		this.centerView(head);
+		this.selectStep(0, 0);
 	}
 
 	createNode(step, pos) {
@@ -162,15 +221,16 @@ class StepInputContainer {
 
 		// add to div
 		this.nodesWrap.append(node);
+		step.element = node;
 
 		// create listeners
 		node.on("mouseenter", (e) => {
-			this.highlightLayer(step.canvasPos.x);
-			this.populateTable(this.layers[step.depth]);
+			//this.highlightLayer(step.canvasPos.x);
+			//this.populateTable(this.layers[step.depth]);
 		});
 
 		node.on("mouseleave", (e) => {
-			this.drawLines();
+			//this.drawLines();
 		});
 	}
 
@@ -187,6 +247,21 @@ class StepInputContainer {
 				this.context.stroke();
 			}
 		}
+	}
+
+	selectStep(layer, index) {
+		if (!this.layers) {
+			return;
+		}
+		this.selectedStep = { layer: layer, index: index };
+		const step = this.layers[layer][index];
+
+		this.nodesWrap.children().removeClass("step-tree-node-selected");
+		step.element.addClass("step-tree-node-selected");
+
+		this.centerView(step);
+		this.populateTable(this.layers[layer]);
+		this.highlightLayer(step.canvasPos.x);
 	}
 
 	highlightLayer(xPos) {
