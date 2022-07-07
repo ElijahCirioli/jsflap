@@ -837,6 +837,9 @@
 	height: 25px;
 	margin: 10px auto;
 }
+.step-wrap {
+	padding-bottom: 5px;
+}
 .step-tree-wrap {
 	width: 90%;
 	min-height: 100px;
@@ -873,12 +876,13 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	transition: box-shadow 0.1s;
+	transition: box-shadow 0.1s, transform 0.3s;
 }
 .step-tree-node-selected {
 	-webkit-box-shadow: 0px 0px 4px 2px var(--glow-color);
 	-moz-box-shadow: 0px 0px 4px 2px var(--glow-color);
 	box-shadow: 0px 0px 4px 2px var(--glow-color);
+	transform: scale(1.15);
 }
 .step-tree-node-accept {
 	background-color: #5fd14b;

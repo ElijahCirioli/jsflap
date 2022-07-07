@@ -49,10 +49,15 @@ class StepInputContainer {
 
 	setupListeners() {
 		const textInput = this.stepWrap.children(".step-input").children(".inputs-form").children("input");
+		let prevWord = "";
 
 		// input box
 		textInput.on("keyup change", (e) => {
 			const word = textInput.val();
+			if (word === prevWord) {
+				return;
+			}
+			prevWord = word;
 
 			if (word.length === 0) {
 				this.restoreDefault();
@@ -111,39 +116,81 @@ class StepInputContainer {
 
 		// step forward button
 		treeButtonsWrap.children(".step-tree-forward-button").click((e) => {
+			if (this.layers.length === 0) {
+				return;
+			}
+
 			if (!this.selectedStep) {
-				this.selectStep(0, 0);
+				this.selectStep(0, 0, true);
 				return;
 			}
 
 			if (this.selectedStep.layer < this.layers.length - 1) {
 				const nextLayer = this.selectedStep.layer + 1;
-				let nextIndex = 0;
-				for (let i = 0; i < this.layers[nextLayer]; i++) {
-					if (this.layers[nextLayer][i].predecessor === this.selectedStep.index) {
-						nextIndex = i;
-						break;
-					}
-				}
+				const nextIndex = this.getNextIndex();
 
-				this.selectStep(nextLayer, nextIndex);
+				this.selectStep(nextLayer, nextIndex, true);
 			}
 		});
 
 		// step backward button
 		treeButtonsWrap.children(".step-tree-back-button").click((e) => {
+			if (this.layers.length === 0) {
+				return;
+			}
+
 			if (!this.selectedStep) {
 				if (this.layers && this.layers.length > 0) {
-					this.selectStep(this.layers.length - 1, 0);
+					this.selectStep(this.layers.length - 1, 0, true);
 				}
 				return;
 			}
 
 			if (this.selectedStep.layer > 0) {
 				const step = this.layers[this.selectedStep.layer][this.selectedStep.index];
-				this.selectStep(this.selectedStep.layer - 1, step.predecessor);
+				this.selectStep(this.selectedStep.layer - 1, step.predecessor, true);
 			}
 		});
+	}
+
+	setupNodeListeners(step, index) {
+		step.element.click((e) => {
+			this.selectStep(step.depth, index, true);
+		});
+
+		step.element.on("mouseenter", (e) => {
+			this.highlightLayer(step.canvasPos.x);
+			this.populateTable(this.layers[step.depth]);
+		});
+
+		step.element.on("mouseleave", (e) => {
+			this.selectStep(this.selectedStep.layer, this.selectedStep.index, false);
+		});
+	}
+
+	getNextIndex() {
+		const nextLayer = this.layers[this.selectedStep.layer + 1];
+		for (let i = 0; i < nextLayer.length; i++) {
+			if (nextLayer[i].predecessor === this.selectedStep.index) {
+				return i;
+			}
+		}
+
+		const currLayer = this.layers[this.selectedStep.layer];
+		for (let i = 0; i < currLayer.length; i++) {
+			if (i === this.selectedStep.index) {
+				continue;
+			}
+			if (currLayer[i].predecessor === currLayer[this.selectedStep.index].predecessor) {
+				for (let j = 0; j < nextLayer.length; j++) {
+					if (nextLayer[j].predecessor === i) {
+						return j;
+					}
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	drawTree(layers) {
@@ -175,7 +222,7 @@ class StepInputContainer {
 		const head = layers[0][0];
 		head.height = height;
 		head.topEdge = 0;
-		this.createNode(head, new Point(0, height / 2));
+		this.createNode(head, new Point(0, height / 2), 0);
 
 		// position one layer at a time
 		for (let i = 1; i < layers.length; i++) {
@@ -191,6 +238,7 @@ class StepInputContainer {
 			}
 
 			// place the nodes within their bounding boxes
+			let globalIndex = 0;
 			groups.forEach((steps, parentIndex) => {
 				const parent = layers[i - 1][parentIndex];
 				for (let j = 0; j < steps.length; j++) {
@@ -198,16 +246,17 @@ class StepInputContainer {
 					step.height = parent.height / steps.length;
 					step.topEdge = (j / steps.length) * parent.height + parent.topEdge;
 					const yPos = step.topEdge + step.height / 2;
-					this.createNode(step, new Point(i * 30, yPos));
+					this.createNode(step, new Point(i * 30, yPos), globalIndex);
+					globalIndex++;
 				}
 			});
 		}
 
 		this.drawLines();
-		this.selectStep(0, 0);
+		this.selectStep(0, 0, true);
 	}
 
-	createNode(step, pos) {
+	createNode(step, pos, index) {
 		const node = $(`<div class="step-tree-node"></div>`);
 		step.canvasPos = new Point(pos.x + this.margin, pos.y + this.margin);
 		node.css("left", step.canvasPos.x - 7 + "px");
@@ -223,15 +272,7 @@ class StepInputContainer {
 		this.nodesWrap.append(node);
 		step.element = node;
 
-		// create listeners
-		node.on("mouseenter", (e) => {
-			//this.highlightLayer(step.canvasPos.x);
-			//this.populateTable(this.layers[step.depth]);
-		});
-
-		node.on("mouseleave", (e) => {
-			//this.drawLines();
-		});
+		this.setupNodeListeners(step, index);
 	}
 
 	drawLines() {
@@ -249,7 +290,7 @@ class StepInputContainer {
 		}
 	}
 
-	selectStep(layer, index) {
+	selectStep(layer, index, centerView) {
 		if (!this.layers) {
 			return;
 		}
@@ -259,7 +300,9 @@ class StepInputContainer {
 		this.nodesWrap.children().removeClass("step-tree-node-selected");
 		step.element.addClass("step-tree-node-selected");
 
-		this.centerView(step);
+		if (centerView) {
+			this.centerView(step);
+		}
 		this.populateTable(this.layers[layer]);
 		this.highlightLayer(step.canvasPos.x);
 	}
