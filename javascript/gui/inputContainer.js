@@ -50,7 +50,12 @@ class InputContainer {
 	}
 
 	setupContainer() {
-		this.inputWrap.append(`<h1 class="environment-sidebar-title">Test inputs</h1>`);
+		this.inputWrap.append(`
+		<h1 class="environment-sidebar-title">Test inputs
+			<button class="switch-button step-switch-button" title="Step-by-step test">
+				<i class="fas fa-solid fa-code-fork"></i>
+			</button>
+		</h1>`);
 		this.inputContent = $(`
         <div class="inputs-content">
             <form class="inputs-form">
@@ -207,5 +212,15 @@ class InputContainer {
 		this.inputContent.children(".inputs-form").on("submit", (e) => {
 			e.preventDefault();
 		});
+
+		// switch to step-by-step mode
+		this.inputWrap
+			.children("h1")
+			.children(".switch-button")
+			.click((e) => {
+				this.inputWrap.siblings().show();
+				this.inputWrap.hide();
+				this.triggerTest();
+			});
 	}
 }

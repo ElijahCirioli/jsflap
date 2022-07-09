@@ -168,7 +168,7 @@ class Environment {
 					<canvas class="editor-canvas"></canvas>
 				</div>
 				<div class="environment-sidebar">
-					<div class="sidebar-item step-wrap"></div>
+					<div class="sidebar-item step-wrap" hidden></div>
 					<div class="sidebar-item inputs-wrap"></div>
 					<div class="sidebar-item messages-wrap"></div>
 				</div>

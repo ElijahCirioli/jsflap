@@ -86,18 +86,23 @@
 .environment-sidebar {
 	width: 250px;
 	flex-grow: 0;
+	flex-shrink: 0;
 	height: fit-content;
+	max-height: calc(100vh - 150px);
 	display: flex;
 	flex-direction: column;
 	flex-wrap: nowrap;
 	justify-content: flex-start;
 	align-items: center;
 	gap: 30px;
+	overflow-y: auto;
 }
 .sidebar-item {
 	min-height: 150px;
 	width: 100%;
 	background-color: var(--regular-color);
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 .state {
 	position: absolute;
@@ -953,6 +958,9 @@
 .step-table tr:nth-child(2n) .step-table-reject {
 	background-color: #f36c62;
 }
+.step-table-highlighted {
+	font-weight: bold;
+}
 .step-tree-buttons-wrap {
 	width: 90%;
 	height: 20px;
@@ -965,4 +973,37 @@
 .step-tree-buttons-label {
 	text-align: center;
 	margin: 0;
+}
+.switch-button {
+	background: none;
+	color: var(--text-color);
+	cursor: pointer;
+	padding: 0;
+	float: right;
+	border: none;
+	outline: none;
+	height: 100%;
+	font-size: 15px;
+	margin-right: 8px;
+	margin-top: 1px;
+	transition: transform 0.1s, color 0.2s;
+}
+.switch-button:hover {
+	color: var(--accent-color);
+	transform: scale(1.1);
+}
+.switch-button:active {
+	transform: scale(0.96);
+}
+.step-switch-button {
+	margin-right: 10px;
+	margin-top: 0;
+	transform: rotate(90deg);
+}
+.step-switch-button:hover {
+	color: var(--accent-color);
+	transform: rotate(90deg) scale(1.1);
+}
+.step-switch-button:active {
+	transform: rotate(90deg) scale(0.96);
 }

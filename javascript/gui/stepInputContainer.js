@@ -14,7 +14,11 @@ class StepInputContainer {
 
 	setupContainer() {
 		this.stepWrap[0].innerHTML = `
-        <h1 class="environment-sidebar-title">Step-by-step test</h1>
+        <h1 class="environment-sidebar-title">Step-by-step test 
+			<button class="switch-button" title="Test multiple inputs">
+				<i class="fas fa-solid fa-align-justify"></i>
+			</button>
+		</h1>
         <div class="step-input">
             <form class="inputs-form">
                 <input type="text" spellcheck="false" maxlength="256" placeholder="Input word" class="inputs-form-item-input single-line-input">
@@ -151,6 +155,16 @@ class StepInputContainer {
 				this.selectStep(this.selectedStep.layer - 1, step.predecessor, true);
 			}
 		});
+
+		// switch to multiple run mode
+		this.stepWrap
+			.children("h1")
+			.children(".switch-button")
+			.click((e) => {
+				this.stepWrap.siblings().show();
+				this.stepWrap.hide();
+				this.triggerTest();
+			});
 	}
 
 	setupNodeListeners(step, index) {
@@ -160,7 +174,7 @@ class StepInputContainer {
 
 		step.element.on("mouseenter", (e) => {
 			this.highlightLayer(step.canvasPos.x);
-			this.populateTable(this.layers[step.depth]);
+			this.populateTable(this.layers[step.depth], index);
 		});
 
 		step.element.on("mouseleave", (e) => {
@@ -169,6 +183,7 @@ class StepInputContainer {
 	}
 
 	getNextIndex() {
+		// look for actual successor
 		const nextLayer = this.layers[this.selectedStep.layer + 1];
 		for (let i = 0; i < nextLayer.length; i++) {
 			if (nextLayer[i].predecessor === this.selectedStep.index) {
@@ -176,21 +191,18 @@ class StepInputContainer {
 			}
 		}
 
-		const currLayer = this.layers[this.selectedStep.layer];
-		for (let i = 0; i < currLayer.length; i++) {
-			if (i === this.selectedStep.index) {
-				continue;
-			}
-			if (currLayer[i].predecessor === currLayer[this.selectedStep.index].predecessor) {
-				for (let j = 0; j < nextLayer.length; j++) {
-					if (nextLayer[j].predecessor === i) {
-						return j;
-					}
-				}
+		// go to the next closest node
+		const currStep = this.layers[this.selectedStep.layer][this.selectedStep.index];
+		let closestIndex = 0;
+		for (let i = 1; i < nextLayer.length; i++) {
+			const currDist = Math.abs(currStep.canvasPos.y - nextLayer[closestIndex].canvasPos.y);
+			const newDist = Math.abs(currStep.canvasPos.y - nextLayer[i].canvasPos.y);
+			if (newDist < currDist) {
+				closestIndex = i;
 			}
 		}
 
-		return 0;
+		return closestIndex;
 	}
 
 	drawTree(layers) {
@@ -303,7 +315,7 @@ class StepInputContainer {
 		if (centerView) {
 			this.centerView(step);
 		}
-		this.populateTable(this.layers[layer]);
+		this.populateTable(this.layers[layer], index);
 		this.highlightLayer(step.canvasPos.x);
 	}
 
@@ -313,7 +325,7 @@ class StepInputContainer {
 		this.context.fillRect(xPos - 10, 0, 20, this.canvas.height());
 	}
 
-	populateTable(layer) {
+	populateTable(layer, index) {
 		this.table.empty();
 
 		const editor = activeEnvironment.getEditor();
@@ -329,7 +341,8 @@ class StepInputContainer {
 		this.table.append(header);
 
 		// add the steps
-		for (const step of layer) {
+		for (let i = 0; i < layer.length; i++) {
+			const step = layer[i];
 			const row = $(`<tr><td>${step.state.getName()}</td><td>${step.word}</td></tr>`);
 			if (editor instanceof PushdownEditor) {
 				row.append(`<td>${step.stack}</td>`);
@@ -339,6 +352,10 @@ class StepInputContainer {
 				row.children().first().addClass("step-table-accept");
 			} else if (step.accept === false) {
 				row.children().first().addClass("step-table-reject");
+			}
+
+			if (i === index) {
+				row.addClass("step-table-highlighted");
 			}
 
 			this.table.append(row);
