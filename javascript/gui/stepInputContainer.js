@@ -3,6 +3,7 @@ class StepInputContainer {
 		this.stepWrap = content.children(".environment-sidebar").children(".step-wrap");
 		this.layers = [];
 		this.margin = 20;
+		this.prevWord = undefined;
 
 		this.triggerTest = () => {
 			callback(false);
@@ -53,30 +54,10 @@ class StepInputContainer {
 
 	setupListeners() {
 		const textInput = this.stepWrap.children(".step-input").children(".inputs-form").children("input");
-		let prevWord = "";
 
 		// input box
 		textInput.on("keyup change", (e) => {
-			const word = textInput.val();
-			if (word === prevWord) {
-				return;
-			}
-			prevWord = word;
-
-			if (word.length === 0) {
-				this.restoreDefault();
-				return;
-			}
-
-			const editor = activeEnvironment.getEditor();
-			if (!editor) {
-				return;
-			}
-
-			const parseSteps = editor.getAutomaton().getParseSteps(word);
-			if (parseSteps.length > 0) {
-				this.drawTree(parseSteps);
-			}
+			this.triggerTest();
 		});
 
 		textInput.on("keydown", (e) => {
@@ -377,5 +358,17 @@ class StepInputContainer {
 		this.canvas.attr("height", 100);
 		this.nodesWrap.empty();
 		this.context.clearRect(0, 0, this.canvas.width(), this.canvas.height());
+	}
+
+	isVisible() {
+		return this.stepWrap.is(":visible");
+	}
+
+	getInput() {
+		const word = this.stepWrap.children(".step-input").children(".inputs-form").children("input").val();
+		if (this.prevWord === undefined || this.prevWord !== word) {
+			return word;
+		}
+		return undefined;
 	}
 }

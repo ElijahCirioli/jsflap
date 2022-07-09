@@ -111,14 +111,34 @@ class Environment {
 		if (!this.respondToTriggers || this.editor === undefined) {
 			return;
 		}
-		// gather all inputs from sidebar
-		const words = this.input.aggregateAllInputs();
-		for (const word of words) {
-			const sanitizedWord = word[0].replaceAll(lambdaChar, "");
-			// find whether it's in the language
-			words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
+
+		if (this.input.isVisible()) {
+			// gather all inputs from multiple run sidebar
+			const words = this.input.aggregateAllInputs();
+			for (const word of words) {
+				const sanitizedWord = word[0].replaceAll(lambdaChar, "");
+				// find whether it's in the language
+				words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
+			}
+			this.input.displayValidity(words);
+		} else if (this.stepInput.isVisible()) {
+			// gather input from step-by-step sidebar
+			const word = this.stepInput.getInput();
+			if (word !== undefined) {
+				// make sure the input isn't empty
+				if (word.length === 0) {
+					this.stepInput.restoreDefault();
+				} else {
+					// get the parsing steps
+					const sanitizedWord = word.replaceAll(lambdaChar, "");
+					const parseSteps = this.editor.getAutomaton().getParseSteps(sanitizedWord);
+					if (parseSteps.length > 0) {
+						this.stepInput.drawTree(parseSteps);
+					}
+				}
+			}
 		}
-		this.input.displayValidity(words);
+
 		// generate messages about the automaton
 		this.messages.generateMessages(this.editor.getAutomaton());
 		// save to undo/browser history if requested

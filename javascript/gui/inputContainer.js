@@ -223,4 +223,8 @@ class InputContainer {
 				this.triggerTest();
 			});
 	}
+
+	isVisible() {
+		return this.inputWrap.is(":visible");
+	}
 }
