@@ -94,7 +94,7 @@
 	flex-wrap: nowrap;
 	justify-content: flex-start;
 	align-items: center;
-	gap: 30px;
+	gap: 25px;
 	overflow-y: auto;
 }
 .sidebar-item {
@@ -845,12 +845,15 @@
 .step-wrap {
 	padding-bottom: 5px;
 }
+.step-input input {
+	margin: 8px auto;
+}
 .step-tree-wrap {
 	width: 90%;
 	min-height: 100px;
 	max-height: 200px;
 	overflow: auto;
-	margin: 10px auto 5px auto;
+	margin: 8px auto 5px auto;
 	position: relative;
 	background-color: var(--text-color);
 }
@@ -959,12 +962,12 @@
 	background-color: #f36c62;
 }
 .step-table-highlighted {
-	font-weight: bold;
+	font-weight: bolder;
 }
 .step-tree-buttons-wrap {
 	width: 90%;
 	height: 20px;
-	margin: 7px auto 10px auto;
+	margin: 7px auto;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;

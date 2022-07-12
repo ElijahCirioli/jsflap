@@ -2,7 +2,8 @@ class StepInputContainer {
 	constructor(content, callback) {
 		this.stepWrap = content.children(".environment-sidebar").children(".step-wrap");
 		this.layers = [];
-		this.margin = 20;
+		this.margin = 22;
+		this.scale = 1;
 		this.prevWord = undefined;
 
 		this.triggerTest = () => {
@@ -94,6 +95,7 @@ class StepInputContainer {
 		// clear button
 		buttonsWrap.children(".inputs-clear-button").click((e) => {
 			textInput.val("");
+			this.restoreDefault();
 			this.triggerTest();
 		});
 
@@ -203,7 +205,7 @@ class StepInputContainer {
 		}
 
 		// resize canvas
-		const width = Math.max(layers.length * 26, defaultWidth);
+		const width = Math.max((layers.length - 1) * 30, defaultWidth);
 		const height = Math.max(nodeHeight, defaultHeight);
 		this.canvas.attr("width", width + 2 * this.margin);
 		this.canvas.attr("height", height + 2 * this.margin);
@@ -357,7 +359,9 @@ class StepInputContainer {
 		this.canvas.attr("width", 225);
 		this.canvas.attr("height", 100);
 		this.nodesWrap.empty();
+		this.table.empty();
 		this.context.clearRect(0, 0, this.canvas.width(), this.canvas.height());
+		this.layers = [];
 	}
 
 	isVisible() {
