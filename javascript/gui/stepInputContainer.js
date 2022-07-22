@@ -1,10 +1,9 @@
 class StepInputContainer {
 	constructor(content, callback) {
 		this.stepWrap = content.children(".environment-sidebar").children(".step-wrap");
-		this.layers = [];
-		this.margin = 22;
-		this.scale = 1;
-		this.prevWord = undefined;
+		this.layers = []; // the layers of parsing steps
+		this.margin = 22; // the margin around the tree
+		this.prevWord = undefined; // the previous word parsed (to cut down on duplicate work)
 
 		this.triggerTest = () => {
 			callback(false);
@@ -56,7 +55,7 @@ class StepInputContainer {
 	setupListeners() {
 		const textInput = this.stepWrap.children(".step-input").children(".inputs-form").children("input");
 
-		// input box
+		// input text box
 		textInput.on("keyup change", (e) => {
 			this.triggerTest();
 		});
@@ -95,7 +94,6 @@ class StepInputContainer {
 		// clear button
 		buttonsWrap.children(".inputs-clear-button").click((e) => {
 			textInput.val("");
-			this.restoreDefault();
 			this.triggerTest();
 		});
 
@@ -107,11 +105,13 @@ class StepInputContainer {
 				return;
 			}
 
+			// go to start
 			if (!this.selectedStep) {
 				this.selectStep(0, 0, true);
 				return;
 			}
 
+			// go to next step
 			if (this.selectedStep.layer < this.layers.length - 1) {
 				const nextLayer = this.selectedStep.layer + 1;
 				const nextIndex = this.getNextIndex();
@@ -126,6 +126,7 @@ class StepInputContainer {
 				return;
 			}
 
+			// go to end
 			if (!this.selectedStep) {
 				if (this.layers && this.layers.length > 0) {
 					this.selectStep(this.layers.length - 1, 0, true);
@@ -133,6 +134,7 @@ class StepInputContainer {
 				return;
 			}
 
+			// go to next step
 			if (this.selectedStep.layer > 0) {
 				const step = this.layers[this.selectedStep.layer][this.selectedStep.index];
 				this.selectStep(this.selectedStep.layer - 1, step.predecessor, true);
@@ -189,26 +191,32 @@ class StepInputContainer {
 	}
 
 	drawTree(layers) {
-		this.layers = layers;
-		let nodeHeight = 18;
+		this.layers = layers; // remember these steps
+		const nodeSize = 18; // the height taken up by a single tree node
+		let totalNodeHeight = nodeSize; // the height of all the nodes combined
 
-		// calculate required width to fit all nodes
+		// resize canvas width to fit all nodes
 		const defaultWidth = this.stepWrap.children(".step-tree-wrap").width() - 2 * this.margin;
+		const width = Math.max((layers.length - 1) * 30, defaultWidth);
+		this.canvas.attr("width", width + 2 * this.margin);
+
+		// resize canvas height to fit all nodes
 		const defaultHeight =
 			parseInt(this.stepWrap.children(".step-tree-wrap").css("min-height")) - 2 * this.margin;
+		// calculate the height needed if every node in the layer had the same highest amount of children
 		for (let i = 1; i < layers.length; i++) {
 			const numChildren = new Array(layers[i - 1].length).fill(0);
 			for (const step of layers[i]) {
 				numChildren[step.predecessor]++;
 			}
-			nodeHeight *= Math.max(...numChildren);
+			totalNodeHeight *= Math.max(...numChildren);
 		}
-
-		// resize canvas
-		const width = Math.max((layers.length - 1) * 30, defaultWidth);
-		const height = Math.max(nodeHeight, defaultHeight);
-		this.canvas.attr("width", width + 2 * this.margin);
+		const height = Math.max(totalNodeHeight, defaultHeight);
 		this.canvas.attr("height", height + 2 * this.margin);
+
+		// keep track of maximum and minimum node heights to further crop canvas later
+		let maxHeight = 0;
+		let minHeight = height;
 
 		// create the nodes
 		this.nodesWrap.empty();
@@ -238,16 +246,39 @@ class StepInputContainer {
 				const parent = layers[i - 1][parentIndex];
 				for (let j = 0; j < steps.length; j++) {
 					const step = steps[j];
+					// divide the parent's height among its children
 					step.height = parent.height / steps.length;
 					step.topEdge = (j / steps.length) * parent.height + parent.topEdge;
+
+					// position the node in the center of its box
 					const yPos = step.topEdge + step.height / 2;
 					this.createNode(step, new Point(i * 30, yPos), globalIndex);
 					globalIndex++;
+
+					// update max and min heights
+					maxHeight = Math.max(maxHeight, yPos + 9);
+					minHeight = Math.min(minHeight, yPos - 9);
 				}
 			});
 		}
 
-		this.drawLines();
+		// crop canvas if the nodes didn't take up as much space as expected
+		if (maxHeight < height && maxHeight > defaultHeight) {
+			this.canvas.attr("height", maxHeight + 2 * this.margin);
+		}
+
+		if (minHeight > 0 && height - minHeight > defaultHeight) {
+			this.canvas.attr("height", height - minHeight + 2 * this.margin);
+			// shift all nodes to match
+			for (const layer of this.layers) {
+				for (const step of layer) {
+					step.canvasPos.y -= minHeight;
+					step.element.css("top", step.canvasPos.y - 7 + "px");
+				}
+			}
+		}
+
+		this.drawLines(); // add the lines between nodes
 		this.selectStep(0, 0, true);
 	}
 
@@ -276,9 +307,9 @@ class StepInputContainer {
 		this.context.strokeStyle = "#2c304d";
 		for (let i = 1; i < this.layers.length; i++) {
 			for (const step of this.layers[i]) {
+				const parent = this.layers[i - 1][step.predecessor];
 				this.context.beginPath();
 				this.context.moveTo(step.canvasPos.x, step.canvasPos.y);
-				const parent = this.layers[i - 1][step.predecessor];
 				this.context.lineTo(parent.canvasPos.x, parent.canvasPos.y);
 				this.context.stroke();
 			}
@@ -289,17 +320,21 @@ class StepInputContainer {
 		if (!this.layers) {
 			return;
 		}
+
 		this.selectedStep = { layer: layer, index: index };
 		const step = this.layers[layer][index];
 
+		// add specific class
 		this.nodesWrap.children().removeClass("step-tree-node-selected");
 		step.element.addClass("step-tree-node-selected");
 
+		// center the div on the step
 		if (centerView) {
 			this.centerView(step);
 		}
-		this.populateTable(this.layers[layer], index);
-		this.highlightLayer(step.canvasPos.x);
+
+		this.populateTable(this.layers[layer], index); // fill the table with step data
+		this.highlightLayer(step.canvasPos.x); // highlight the layer on the tree
 	}
 
 	highlightLayer(xPos) {
@@ -356,6 +391,7 @@ class StepInputContainer {
 	}
 
 	restoreDefault() {
+		// reset the canvas and table to their default state
 		this.canvas.attr("width", 225);
 		this.canvas.attr("height", 100);
 		this.nodesWrap.empty();

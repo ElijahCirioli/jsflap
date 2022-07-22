@@ -963,6 +963,8 @@
 }
 .step-table-highlighted {
 	font-weight: bolder;
+	outline: 2px solid var(--glow-color);
+	outline-offset: -2px;
 }
 .step-tree-buttons-wrap {
 	width: 90%;
