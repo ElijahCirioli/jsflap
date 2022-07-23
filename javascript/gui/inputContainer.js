@@ -219,7 +219,10 @@ class InputContainer {
 			.children(".switch-button")
 			.click((e) => {
 				this.inputWrap.siblings().show();
+				this.inputWrap.siblings().find("input").focus();
 				this.inputWrap.hide();
+				$("#menu-test-multiple-button").show();
+				$("#menu-test-step-button").hide();
 				this.triggerTest();
 			});
 	}

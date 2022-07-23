@@ -134,6 +134,9 @@ class Environment {
 					const parseSteps = this.editor.getAutomaton().getParseSteps(sanitizedWord);
 					if (parseSteps.length > 0) {
 						this.stepInput.drawTree(parseSteps);
+						if (!automataChanged) {
+							this.stepInput.selectStep(0, 0, true, true);
+						}
 					}
 				}
 			}
@@ -372,6 +375,16 @@ class Environment {
 			});
 		});
 		return data;
+	}
+
+	updateMenuButtons() {
+		if (this.input.isVisible()) {
+			$("#menu-test-multiple-button").hide();
+			$("#menu-test-step-button").show();
+		} else {
+			$("#menu-test-multiple-button").show();
+			$("#menu-test-step-button").hide();
+		}
 	}
 
 	setupListeners() {

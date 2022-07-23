@@ -24,6 +24,8 @@ function createEnvironment() {
 	const newEnv = new Environment(newTab);
 	environments.add(newEnv);
 	activeEnvironment = newEnv;
+	newEnv.updateMenuButtons();
+
 	// make active event
 	newTab.click((e) => {
 		unselectAllEnvironments();
@@ -32,10 +34,15 @@ function createEnvironment() {
 		newEnv.testAllInputs(true);
 		newTab.addClass("active");
 		activeEnvironment = newEnv;
+
 		// make the text editable
 		$(".environment-tab").not(".active").children(".environment-tab-name").attr("contenteditable", false);
 		newTab.children(".environment-tab-name").attr("contenteditable", true);
+
+		// edit the menu items
+		newEnv.updateMenuButtons();
 	});
+
 	// x button on tab
 	newTab.children(".environment-tab-delete-button").click((e) => {
 		e.stopPropagation();
@@ -448,6 +455,16 @@ $("document").ready(() => {
 	$("#menu-layout-force-directed-button").click((e) => {
 		hideDropdowns();
 		ForceDirectedLayout.action(activeEnvironment);
+	});
+
+	$("#menu-test-multiple-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getContent().find(".multiple-switch-button").click();
+	});
+
+	$("#menu-test-step-button").click((e) => {
+		hideDropdowns();
+		activeEnvironment.getContent().find(".step-switch-button").click();
 	});
 
 	updateColors();

@@ -16,7 +16,7 @@ class StepInputContainer {
 	setupContainer() {
 		this.stepWrap[0].innerHTML = `
         <h1 class="environment-sidebar-title">Step-by-step test 
-			<button class="switch-button" title="Test multiple inputs">
+			<button class="switch-button multiple-switch-button" title="Test multiple inputs">
 				<i class="fas fa-solid fa-align-justify"></i>
 			</button>
 		</h1>
@@ -107,7 +107,7 @@ class StepInputContainer {
 
 			// go to start
 			if (!this.selectedStep) {
-				this.selectStep(0, 0, true);
+				this.selectStep(0, 0, true, true);
 				return;
 			}
 
@@ -116,7 +116,7 @@ class StepInputContainer {
 				const nextLayer = this.selectedStep.layer + 1;
 				const nextIndex = this.getNextIndex();
 
-				this.selectStep(nextLayer, nextIndex, true);
+				this.selectStep(nextLayer, nextIndex, true, true);
 			}
 		});
 
@@ -129,7 +129,7 @@ class StepInputContainer {
 			// go to end
 			if (!this.selectedStep) {
 				if (this.layers && this.layers.length > 0) {
-					this.selectStep(this.layers.length - 1, 0, true);
+					this.selectStep(this.layers.length - 1, 0, true, true);
 				}
 				return;
 			}
@@ -137,7 +137,7 @@ class StepInputContainer {
 			// go to next step
 			if (this.selectedStep.layer > 0) {
 				const step = this.layers[this.selectedStep.layer][this.selectedStep.index];
-				this.selectStep(this.selectedStep.layer - 1, step.predecessor, true);
+				this.selectStep(this.selectedStep.layer - 1, step.predecessor, true, true);
 			}
 		});
 
@@ -147,14 +147,17 @@ class StepInputContainer {
 			.children(".switch-button")
 			.click((e) => {
 				this.stepWrap.siblings().show();
+				this.stepWrap.siblings().find("input").last().focus();
 				this.stepWrap.hide();
+				$("#menu-test-multiple-button").hide();
+				$("#menu-test-step-button").show();
 				this.triggerTest();
 			});
 	}
 
 	setupNodeListeners(step, index) {
 		step.element.click((e) => {
-			this.selectStep(step.depth, index, true);
+			this.selectStep(step.depth, index, true, true);
 		});
 
 		step.element.on("mouseenter", (e) => {
@@ -163,7 +166,7 @@ class StepInputContainer {
 		});
 
 		step.element.on("mouseleave", (e) => {
-			this.selectStep(this.selectedStep.layer, this.selectedStep.index, false);
+			this.selectStep(this.selectedStep.layer, this.selectedStep.index, false, false);
 		});
 	}
 
@@ -279,7 +282,7 @@ class StepInputContainer {
 		}
 
 		this.drawLines(); // add the lines between nodes
-		this.selectStep(0, 0, true);
+		this.selectStep(0, 0, true, false);
 	}
 
 	createNode(step, pos, index) {
@@ -316,7 +319,7 @@ class StepInputContainer {
 		}
 	}
 
-	selectStep(layer, index, centerView) {
+	selectStep(layer, index, centerView, selectState) {
 		if (!this.layers) {
 			return;
 		}
@@ -331,6 +334,13 @@ class StepInputContainer {
 		// center the div on the step
 		if (centerView) {
 			this.centerView(step);
+		}
+
+		// select the automata state
+		if (selectState) {
+			const editor = activeEnvironment.getEditor();
+			editor.unselectAllStates();
+			editor.selectState(step.state);
 		}
 
 		this.populateTable(this.layers[layer], index); // fill the table with step data
