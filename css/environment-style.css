@@ -909,6 +909,7 @@
 	margin: 5px auto;
 	width: 90%;
 	max-width: 90%;
+	overflow-x: auto;
 }
 .step-table {
 	--border-color: var(--dark-text-color);
