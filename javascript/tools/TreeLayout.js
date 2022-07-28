@@ -23,32 +23,45 @@ class TreeLayout {
 		}
 
 		const initial = automaton.getInitialState();
-		TreeLayout.calculateDistances(automaton, initial);
 
-		// put the states into distance layers
-		const distMap = new Map();
-		automaton.getStates().forEach((s) => {
-			// ignore states that are unreachable
-			if (s.dist !== Infinity) {
-				if (distMap.has(s.dist)) {
-					distMap.get(s.dist).push(s);
-				} else {
-					distMap.set(s.dist, [s]);
-				}
+		// create queue and stack for BFS traversal
+		const queue = TreeLayout.createTreeDataStructure(initial);
+		const stack = queue.slice().reverse();
+
+		// calculate the height required for each node
+		stack.forEach((node) => {
+			if (node.children.length === 0) {
+				// if a node has no children then set base height
+				node.height = 100;
+			} else {
+				// a node's height is the sum of the height of its children
+				node.height = node.children.reduce((sum, child) => {
+					return sum + child.height;
+				}, 0);
 			}
 		});
 
-		// draw each layer
-		for (const layer of distMap) {
-			const index = layer[0];
-			const states = layer[1];
-			const x = Math.round((index * (editor.canvas.width - 150)) / distMap.size) + 75;
-			const ratio = editor.canvas.height / (states.length + 1);
-			for (let i = 0; i < states.length; i++) {
-				const y = Math.round((i + 1) * ratio);
-				states[i].setPos(new Point(x, y));
-			}
-		}
+		// position all the states
+		initial.setPos(new Point(0, 0));
+		queue.forEach((node) => {
+			let yPos = node.state.getPos().y - node.height / 2;
+			node.children.forEach((child) => {
+				child.state.setPos(new Point(child.depth * 140, yPos + child.height / 2));
+				yPos += child.height;
+			});
+		});
+
+		// adjust positions to be in the center of their children
+		stack
+			.filter((node) => node.children.length > 0)
+			.forEach((node) => {
+				const yAvg =
+					node.children.reduce((sum, child) => {
+						return sum + child.state.getPos().y;
+					}, 0) / node.children.length;
+
+				node.state.getPos().y = yAvg;
+			});
 
 		editor.draw();
 		editor.zoomFit();
@@ -56,27 +69,32 @@ class TreeLayout {
 		editor.editorWrap.focus();
 	}
 
-	static calculateDistances(automaton, initial) {
-		// BFS to calculate minimum distances from initial state
-
-		automaton.getStates().forEach((s) => {
-			s.dist = Infinity;
-		});
-		initial.dist = 0;
-
-		const queue = [initial];
+	static createTreeDataStructure(initialState) {
+		const head = { state: initialState, children: [], depth: 0 };
+		const queue = [head];
+		const resultQueue = [];
 		const visited = new Set();
 
+		// traverse the automaton in a breadth-first manner
 		while (queue.length > 0) {
-			const state = queue.shift();
-			visited.add(state.getId());
-			state.getTransitions().forEach((t) => {
+			const curr = queue.shift();
+			resultQueue.push(curr);
+			visited.add(curr.state.getId());
+
+			// look at every transition we can take
+			curr.state.getTransitions().forEach((t) => {
 				const toState = t.getToState();
-				toState.dist = Math.min(toState.dist, state.dist + 1);
-				if (!visited.has(toState.getId())) {
-					queue.push(toState);
+				if (visited.has(toState.getId())) {
+					return;
 				}
+
+				const toNode = { state: toState, children: [], depth: curr.depth + 1 };
+
+				curr.children.push(toNode);
+				queue.push(toNode);
 			});
 		}
+
+		return resultQueue;
 	}
 }

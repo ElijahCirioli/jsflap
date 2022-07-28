@@ -11,9 +11,9 @@ Hosted at https://elijahcirioli.com/jsflap/
 -   NFA -> DFA conversion
 -   NFA/DFA equivalence testing
 -   Layout algorithms
+-   Step-by-step parsing
 
 ## Not yet implemented
 
 -   Product automata
 -   Turing machines
--   Step-by-step parsing

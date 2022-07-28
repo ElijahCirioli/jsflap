@@ -172,7 +172,7 @@ class Environment {
 					<button title="Trash tool" class="tool-item" id="trash-tool">
 						<i class="fas fa-trash-alt"></i>
 					</button>
-					<button title="Snap to grid" class="tool-item" id="grid-toggle">
+					<button title="Toggle snap to grid" class="tool-item" id="grid-toggle">
 						<i class="fas fa-border-all"></i>
 					</button>
 				</div>
