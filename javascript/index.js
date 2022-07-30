@@ -24,7 +24,6 @@ function createEnvironment() {
 	const newEnv = new Environment(newTab);
 	environments.add(newEnv);
 	activeEnvironment = newEnv;
-	newEnv.updateMenuButtons();
 
 	// make active event
 	newTab.click((e) => {
@@ -38,9 +37,6 @@ function createEnvironment() {
 		// make the text editable
 		$(".environment-tab").not(".active").children(".environment-tab-name").attr("contenteditable", false);
 		newTab.children(".environment-tab-name").attr("contenteditable", true);
-
-		// edit the menu items
-		newEnv.updateMenuButtons();
 	});
 
 	// x button on tab
@@ -369,6 +365,14 @@ $("document").ready(() => {
 			$("#menu-compare-equivalence-button").hide();
 			$("#menu-convert-dfa-button").hide();
 			$("#menu-layout-subgroup").css("top", 0);
+		}
+
+		if (activeEnvironment.getInput().isVisible()) {
+			$("#menu-test-multiple-button").hide();
+			$("#menu-test-step-button").show();
+		} else {
+			$("#menu-test-multiple-button").show();
+			$("#menu-test-step-button").hide();
 		}
 	});
 

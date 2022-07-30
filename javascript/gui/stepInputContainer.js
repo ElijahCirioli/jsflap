@@ -356,14 +356,13 @@ class StepInputContainer {
 	populateTable(layer, index) {
 		this.table.empty();
 
-		const editor = activeEnvironment.getEditor();
-		if (!editor) {
+		if (activeEnvironment.getType() === "none") {
 			return;
 		}
 
 		// create the header
 		const header = $("<tr><th>State</th><th>Input</th></tr>");
-		if (editor instanceof PushdownEditor) {
+		if (activeEnvironment.getType() === "pushdown") {
 			header.append("<th>Stack</th>");
 		}
 		this.table.append(header);
@@ -372,7 +371,7 @@ class StepInputContainer {
 		for (let i = 0; i < layer.length; i++) {
 			const step = layer[i];
 			const row = $(`<tr><td>${step.state.getName()}</td><td>${step.word}</td></tr>`);
-			if (editor instanceof PushdownEditor) {
+			if (activeEnvironment.getType() === "pushdown") {
 				row.append(`<td>${step.stack}</td>`);
 			}
 

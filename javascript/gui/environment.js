@@ -75,6 +75,10 @@ class Environment {
 		this.id = newId;
 	}
 
+	getInput() {
+		return this.input;
+	}
+
 	createFiniteEditor() {
 		// wrap the callback function to preserve "this"
 		const callback = (change) => {
@@ -375,16 +379,6 @@ class Environment {
 			});
 		});
 		return data;
-	}
-
-	updateMenuButtons() {
-		if (this.input.isVisible()) {
-			$("#menu-test-multiple-button").hide();
-			$("#menu-test-step-button").show();
-		} else {
-			$("#menu-test-multiple-button").show();
-			$("#menu-test-step-button").hide();
-		}
 	}
 
 	setupListeners() {
