@@ -74,12 +74,12 @@ class TreeLayout {
 		const queue = [head];
 		const resultQueue = [];
 		const visited = new Set();
+		visited.add(head.state.getId());
 
 		// traverse the automaton in a breadth-first manner
 		while (queue.length > 0) {
 			const curr = queue.shift();
 			resultQueue.push(curr);
-			visited.add(curr.state.getId());
 
 			// look at every transition we can take
 			curr.state.getTransitions().forEach((t) => {
@@ -87,6 +87,7 @@ class TreeLayout {
 				if (visited.has(toState.getId())) {
 					return;
 				}
+				visited.add(toState.getId());
 
 				const toNode = { state: toState, children: [], depth: curr.depth + 1 };
 

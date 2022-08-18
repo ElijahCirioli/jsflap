@@ -60,7 +60,11 @@ class PopupEnvironmentChoiceMessage extends PopupCancelMessage {
 		let count = 0;
 		const dropdown = $(`<div class="environment-dropdown" tabindex="1"></div>`);
 		environments.forEach((env) => {
-			if (env !== activeEnvironment && env.getEditor() !== undefined && env.getEditor().getType() === "finite") {
+			if (
+				env !== activeEnvironment &&
+				env.getEditor() !== undefined &&
+				env.getEditor().getType() === "finite"
+			) {
 				const button = $(`<button class="dropdown-item">${env.getName()}</button>`);
 				button.click((e) => {
 					if (this.choice !== env) {
@@ -110,7 +114,9 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 
 		this.buttons.before(`<p class="popup-message-text">State color</p>`);
 
-		const stateChoiceButtons = $(`<div class="popup-message-buttons popup-message-characters state-color-buttons"></div>`);
+		const stateChoiceButtons = $(
+			`<div class="popup-message-buttons popup-message-characters state-color-buttons"></div>`
+		);
 
 		stateChoiceButtons.append(this.createColorButton("yellow"));
 		stateChoiceButtons.append(this.createColorButton("red"));
@@ -119,7 +125,10 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 		stateChoiceButtons.append(this.createColorButton("green"));
 		this.buttons.before(stateChoiceButtons);
 
-		this.content.children(".popup-message-content").children(".popup-message-text").addClass("popup-color-text");
+		this.content
+			.children(".popup-message-content")
+			.children(".popup-message-text")
+			.addClass("popup-color-text");
 		stateChoiceButtons.children(`.${stateColor}-color`).addClass("chosen-state-color");
 		themeChoiceButtons.children(`.${editorTheme}-button`).addClass("chosen-color");
 
@@ -129,7 +138,9 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 	}
 
 	createColorButton(color) {
-		const button = $(`<button class="popup-message-button state-color-button ${color}-color"><i class="fas fa-circle"></i></button>`);
+		const button = $(
+			`<button class="popup-message-button state-color-button ${color}-color"><i class="fas fa-circle"></i></button>`
+		);
 
 		button.click((e) => {
 			stateColor = color;
@@ -142,7 +153,9 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 	}
 
 	createThemeButton(theme, text) {
-		const button = $(`<button class="popup-message-button theme-color-button ${theme}-button">${text}</button>`);
+		const button = $(
+			`<button class="popup-message-button theme-color-button ${theme}-button">${text}</button>`
+		);
 
 		button.click((e) => {
 			editorTheme = theme;
@@ -166,15 +179,21 @@ class PopupEditorChoiceMessage {
                 <div class="popup-message-vertical-buttons"></div>
             </div>
         </div>`);
-		this.buttons = this.content.children(".popup-message-content").children(".popup-message-vertical-buttons");
+		this.buttons = this.content
+			.children(".popup-message-content")
+			.children(".popup-message-vertical-buttons");
 
-		this.finiteButton = $(`<button class="popup-message-button vertical-button">Finite State Automaton</button>`);
+		this.finiteButton = $(
+			`<button class="popup-message-button vertical-button">Finite State Automaton</button>`
+		);
 		this.buttons.append(this.finiteButton);
 		this.finiteButton.click((e) => {
 			onFinite();
 		});
 
-		this.pushdownButton = $(`<button class="popup-message-button vertical-button">Pushdown Automaton</button>`);
+		this.pushdownButton = $(
+			`<button class="popup-message-button vertical-button">Pushdown Automaton</button>`
+		);
 		this.buttons.append(this.pushdownButton);
 		this.pushdownButton.click((e) => {
 			onPushdown();
@@ -270,7 +289,9 @@ class PopupSettingsMessage extends PopupCancelMessage {
 			</div>
 		</div>`);
 
-		const slider = sliderWrap.children(".popup-message-form-range-wrap").children(".popup-message-form-range");
+		const slider = sliderWrap
+			.children(".popup-message-form-range-wrap")
+			.children(".popup-message-form-range");
 		slider.on("change mousedown mousemove", (e) => {
 			const num = parseInt(slider.val()) * 10;
 			this.settings.maxConfigurations = num;
@@ -279,6 +300,45 @@ class PopupSettingsMessage extends PopupCancelMessage {
 
 		this.buttons.before(form);
 		this.buttons.before(sliderWrap);
+
+		if (doReturn) {
+			return this.content;
+		}
+	}
+}
+
+class PopupRegexInputMessage extends PopupCancelMessage {
+	// input a regular expression message
+
+	constructor(onConfirm, onCancel, doReturn) {
+		super(
+			"Construct from RegEx",
+			"This will remove the existing finite state automaton.",
+			() => {
+				const expression = this.form.children("input").val();
+				onConfirm(expression);
+			},
+			onCancel,
+			false
+		);
+
+		this.form = $(`
+		<form>
+			<input id="regex-input" type="text" spellcheck="false" maxlength="60" placeholder="Input regular expression" autocomplete="off">
+		</form>`);
+
+		this.form.on("submit", (e) => {
+			e.preventDefault();
+		});
+
+		this.content.children(".popup-message-content").children(".popup-message-text").before(this.form);
+
+		this.content
+			.children(".popup-message-content")
+			.children(".popup-message-buttons")
+			.children()
+			.last()
+			.html("Construct NFA");
 
 		if (doReturn) {
 			return this.content;

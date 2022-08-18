@@ -14,6 +14,12 @@ class ForceDirectedLayout {
 			return;
 		}
 
+		// randomly scatter the states
+		states.forEach((s) => {
+			s.getPos().x = Math.random() * 600 - 300;
+			s.getPos().y = Math.random() * 600 - 300;
+		});
+
 		// construct neighborhood by making transitions bidirectional
 		const neighborhoods = new Map();
 		states.forEach((s) => {

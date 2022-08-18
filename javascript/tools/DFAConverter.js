@@ -32,7 +32,9 @@ class DFAConverter {
 		}
 
 		const env = createEnvironment();
+		env.createFiniteEditor();
 		const editor = env.getEditor();
+
 		env.setName(`DFA ${environment.getName()}`);
 
 		// get the DFA as a table
@@ -168,7 +170,9 @@ class DFAConverter {
 				if (label === "") {
 					// recursively follow lambda transitions
 					if (!visitedStates.has(toId)) {
-						finalStatus = DFAConverter.generateLabelsTableRec(t.getToState(), labelsTable, visitedStates) || finalStatus;
+						finalStatus =
+							DFAConverter.generateLabelsTableRec(t.getToState(), labelsTable, visitedStates) ||
+							finalStatus;
 					}
 				} else {
 					if (labelsTable.has(label)) {
@@ -184,7 +188,10 @@ class DFAConverter {
 
 	static randomPoint(editor) {
 		// get a random point on the canvas
-		return new Point(Math.floor(Math.random() * (editor.canvas.width - 100)) + 50, Math.floor(Math.random() * (editor.canvas.height - 100)) + 50);
+		return new Point(
+			Math.floor(Math.random() * (editor.canvas.width - 100)) + 50,
+			Math.floor(Math.random() * (editor.canvas.height - 100)) + 50
+		);
 	}
 
 	static isApplicable() {

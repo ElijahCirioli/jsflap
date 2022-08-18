@@ -360,10 +360,12 @@ $("document").ready(() => {
 		if (activeEnvironment.getType() === "finite") {
 			$("#menu-compare-equivalence-button").show();
 			$("#menu-convert-dfa-button").show();
+			$("#menu-convert-regex-button").show();
 			$("#menu-layout-subgroup").css("top", "calc(2 * 1.3rem)");
 		} else {
 			$("#menu-compare-equivalence-button").hide();
 			$("#menu-convert-dfa-button").hide();
+			$("#menu-convert-regex-button").hide();
 			$("#menu-layout-subgroup").css("top", 0);
 		}
 
@@ -469,6 +471,22 @@ $("document").ready(() => {
 	$("#menu-test-step-button").click((e) => {
 		hideDropdowns();
 		activeEnvironment.getContent().find(".step-switch-button").click();
+	});
+
+	$("#menu-convert-regex-button").click((e) => {
+		hideDropdowns();
+		const popup = new PopupRegexInputMessage(
+			(expression) => {
+				activeEnvironment.removePopupMessages();
+				RegexConstructor.action(activeEnvironment, expression);
+			},
+			() => {
+				activeEnvironment.removePopupMessages();
+			},
+			true
+		);
+		activeEnvironment.addPopupMessage(popup);
+		popup.find("input").focus();
 	});
 
 	updateColors();

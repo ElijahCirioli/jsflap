@@ -1018,3 +1018,16 @@
 .step-switch-button:active {
 	transform: rotate(90deg) scale(0.96);
 }
+#regex-input {
+	padding: 0 0 0 5px;
+	margin: 0 auto;
+	height: 25px;
+	width: 100%;
+	border: none;
+	font-family: "Rubik", sans-serif;
+	color: var(--dark-text-color);
+	background-color: var(--text-color);
+	text-align: left;
+	font-size: 1rem;
+	outline: none;
+}

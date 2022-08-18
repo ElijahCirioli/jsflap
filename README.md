@@ -12,6 +12,7 @@ Hosted at https://elijahcirioli.com/jsflap/
 -   NFA/DFA equivalence testing
 -   Layout algorithms
 -   Step-by-step parsing
+-   Regular expression -> NFA conversion
 
 ## Not yet implemented
 

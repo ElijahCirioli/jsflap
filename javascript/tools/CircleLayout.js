@@ -14,7 +14,7 @@ class CircleLayout {
 
 		// sort the states by their distance from the initial state
 		const initial = automaton.getInitialState() || states.values().next().value;
-		TreeLayout.calculateDistances(automaton, initial);
+		CircleLayout.calculateDistances(automaton, initial);
 
 		const orderedStates = [];
 		states.forEach((s) => {
@@ -39,5 +39,29 @@ class CircleLayout {
 		editor.zoomFit();
 		environment.updateHistory();
 		editor.editorWrap.focus();
+	}
+
+	static calculateDistances(automaton, initial) {
+		// BFS to calculate minimum distances from initial state
+
+		automaton.getStates().forEach((s) => {
+			s.dist = Infinity;
+		});
+		initial.dist = 0;
+
+		const queue = [initial];
+		const visited = new Set();
+
+		while (queue.length > 0) {
+			const state = queue.shift();
+			visited.add(state.getId());
+			state.getTransitions().forEach((t) => {
+				const toState = t.getToState();
+				toState.dist = Math.min(toState.dist, state.dist + 1);
+				if (!visited.has(toState.getId())) {
+					queue.push(toState);
+				}
+			});
+		}
 	}
 }
