@@ -333,6 +333,37 @@ class PopupRegexInputMessage extends PopupCancelMessage {
 
 		this.content.children(".popup-message-content").children(".popup-message-text").before(this.form);
 
+		const helpWindow = $(`
+		<div id="regex-help-wrap">
+			<div id="regex-help-icon">
+				<i class="fas fa-solid fa-circle-question"></i>
+			</div>
+			<div id="regex-help-window">
+				<div class="regex-help-line">
+					<p><span>ABC</span></p>
+					<p>Matches <span>ABC</span></p>
+				</div>
+				<div class="regex-help-line">
+					<p><span>A|B</span></p>
+					<p>Matches either <span>A</span> or <span>B</span></p>
+				</div>
+				<div class="regex-help-line">
+					<p><span>(AB)|[CD]</span></p>
+					<p>Matches either <span>AB</span> or <span>CD</span></p>
+				</div>
+				<div class="regex-help-line">
+					<p><span>A*</span></p>
+					<p>Matches 0 or more <span>A</span>s</p>
+				</div>
+				<div class="regex-help-line">
+					<p><span>A+</span></p>
+					<p>Matches 1 or more <span>A</span>s</p>
+				</div>
+			</div>
+		</div>
+		`);
+		this.form.before(helpWindow);
+
 		this.content
 			.children(".popup-message-content")
 			.children(".popup-message-buttons")

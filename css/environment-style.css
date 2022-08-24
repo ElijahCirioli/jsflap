@@ -498,6 +498,7 @@
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	gap: 10px;
+	position: relative;
 }
 .popup-message-text {
 	text-align: left;
@@ -1030,4 +1031,43 @@
 	text-align: left;
 	font-size: 1rem;
 	outline: none;
+}
+#regex-help-icon {
+	color: var(--secondary-text-color);
+	position: absolute;
+	right: 0;
+	top: 11px;
+	font-size: 20px;
+	cursor: pointer;
+	transition: color 0.2s;
+}
+#regex-help-icon:hover {
+	color: var(--accent-color);
+}
+#regex-help-window {
+	position: absolute;
+	left: -15px;
+	top: calc(100% + 10px);
+	background-color: var(--regular-color);
+	width: 100%;
+	padding: 5px 15px;
+	font-size: 14px;
+	opacity: 0;
+	transition: opacity 0.1s;
+}
+.regex-help-line {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin: 5px 0;
+}
+.regex-help-line p {
+	margin: 0;
+}
+.regex-help-line span {
+	color: var(--accent-color);
+}
+#regex-help-wrap:hover #regex-help-window {
+	opacity: 1;
 }
