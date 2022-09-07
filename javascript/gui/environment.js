@@ -27,6 +27,9 @@ class Environment {
 				() => {
 					this.createPushdownEditor();
 				},
+				() => {
+					this.createTuringEditor();
+				},
 				true
 			)
 		);
@@ -97,6 +100,17 @@ class Environment {
 		};
 
 		this.editor = new PushdownEditor(this.content, callback);
+		this.updateHistory();
+		this.removePopupMessages();
+	}
+
+	createTuringEditor() {
+		// wrap the callback function to preserve "this"
+		const callback = (change) => {
+			this.testAllInputs(change);
+		};
+
+		this.editor = new TuringEditor(this.content, callback);
 		this.updateHistory();
 		this.removePopupMessages();
 	}
@@ -243,6 +257,9 @@ class Environment {
 					() => {
 						this.createPushdownEditor();
 					},
+					() => {
+						this.createTuringEditor();
+					},
 					true
 				)
 			);
@@ -278,6 +295,8 @@ class Environment {
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
 		if (this.editor.getType() === "pushdown") {
 			this.editor.automaton = new PushdownAutomaton();
+		} else if (this.editor.getType() === "turing") {
+			this.editor.automaton = new TuringAutomaton();
 		} else {
 			this.editor.automaton = new Automaton();
 		}
@@ -303,6 +322,8 @@ class Environment {
 		this.content.children(".editor").children(".editor-label-container").children(".label-form").remove();
 		if (this.editor.getType() === "pushdown") {
 			this.editor.automaton = new PushdownAutomaton();
+		} else if (this.editor.getType() === "turing") {
+			this.editor.automaton = new TuringAutomaton();
 		} else {
 			this.editor.automaton = new Automaton();
 		}

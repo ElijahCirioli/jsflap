@@ -31,7 +31,7 @@ class PushdownEditor extends Editor {
 	}
 
 	unselectAllTuples() {
-		this.labelsWrap.children(".label-form").children(".pushdown-tuple").removeClass("selected-tuple");
+		this.labelsWrap.children(".label-form").children(".tuple").removeClass("selected-tuple");
 		if (this.selectedTuples) {
 			this.selectedTuples.clear();
 		}
@@ -55,7 +55,7 @@ class PushdownEditor extends Editor {
 				const element = t.getElement();
 				let i = 0;
 				t.getLabels().forEach((tuple) => {
-					const tupleElement = element.children(".pushdown-tuple").eq(i);
+					const tupleElement = element.children(".tuple").eq(i);
 					this.selectTuple(tuple, tupleElement, t);
 					i++;
 				});
@@ -75,13 +75,14 @@ class PushdownEditor extends Editor {
 			const labelElement = $(`<form class="label-form tuple-form"></form>`);
 			if (autoLambda) {
 				labelElement.append(`
-				<div class="pushdown-tuple">
-					<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
-					<p class="tuple-delimeter">,&nbsp;</p>
-					<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
-					<p class="tuple-delimeter">🠦</p>
-					<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
-				</div>`);
+					<div class="tuple">
+						<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
+						<p class="tuple-delimeter">,&nbsp;</p>
+						<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
+						<p class="tuple-delimeter">🠦</p>
+						<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
+					</div>
+				`);
 			}
 			this.labelsWrap.append(labelElement);
 			t = this.automaton.addTransition(this.startState, endState, tuple, labelElement);
@@ -94,7 +95,7 @@ class PushdownEditor extends Editor {
 
 		if (autoLambda) {
 			this.unselectAllTransitions();
-			this.selectTuple(tuple, t.getElement().children(".pushdown-tuple").last(), t);
+			this.selectTuple(tuple, t.getElement().children(".tuple").last(), t);
 			this.selectTransition(t);
 			t.clearCache();
 			this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
@@ -138,7 +139,7 @@ class PushdownEditor extends Editor {
 						let i = 0;
 						let removeTuples = [];
 						transition.getLabels().forEach((tuple) => {
-							const element = labelElement.children(".pushdown-tuple").eq(i);
+							const element = labelElement.children(".tuple").eq(i);
 							if (this.elementBoundingBoxCollision(element[0], selectionBox)) {
 								if (this.tool === "trash") {
 									removeTuples.push({
@@ -192,7 +193,7 @@ class PushdownEditor extends Editor {
 				transition.getLabels().forEach((tuple) => {
 					const key = tuple.char + "," + tuple.pop + "," + tuple.push;
 					if (foundTuples.has(key)) {
-						label.children(".pushdown-tuple").eq(i).remove();
+						label.children(".tuple").eq(i).remove();
 						removeTuples.push(tuple);
 					} else {
 						foundTuples.add(key);
@@ -210,16 +211,20 @@ class PushdownEditor extends Editor {
 
 		let i = 0;
 		transition.getLabels().forEach((tuple) => {
-			const element = label.children(".pushdown-tuple").eq(i);
+			const element = label.children(".tuple").eq(i);
 			this.setupTupleListeners(element, transition, tuple);
 			i++;
 		});
 	}
 
-	setupTupleListeners(element, transition, tuple) {
+	setupTupleCharacterInputListeners(element, transition, tuple) {
 		this.setupSingleCharacterInputListener(element.children(".char-input"), transition, tuple, "char");
 		this.setupSingleCharacterInputListener(element.children(".pop-input"), transition, tuple, "pop");
 		this.setupMultipleCharacterInputListener(element.children(".push-input"), transition, tuple, "push");
+	}
+
+	setupTupleListeners(element, transition, tuple) {
+		this.setupTupleCharacterInputListeners(element, transition, tuple);
 
 		element.click((e) => {
 			// middle click
@@ -317,7 +322,7 @@ class PushdownEditor extends Editor {
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			} else if (key === "Enter") {
-				transition.addTuple(this, { char: "", push: "", pop: "" });
+				transition.addEmptyTuple(this);
 				this.unselectAllTransitions();
 				this.selectTransition(transition);
 				transition.clearCache();

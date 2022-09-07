@@ -3,11 +3,11 @@ class PushdownTransition extends Transition {
 		super(fromState, toState, tuple);
 	}
 
-	adjustLabeSize() {
+	adjustLabelSize() {
 		// shrink the text to try and fit between states
-		this.element.children(".pushdown-tuple").each((index) => {
-			const tuple = this.element.children(".pushdown-tuple").eq(index);
-			const distance = this.from.getPos().distance(this.to.getPos()) - 45;
+		const distance = this.from.getPos().distance(this.to.getPos()) - 45;
+		this.element.children(".tuple").each((index) => {
+			const tuple = this.element.children(".tuple").eq(index);
 			tuple.children().removeClass("small-text-label");
 			this.adjustInputSize(tuple.children(".push-input"));
 			if (this.from !== this.to && tuple.outerWidth() > distance) {
@@ -35,7 +35,7 @@ class PushdownTransition extends Transition {
 		// generate the grid of tuples from the set
 		let i = 0;
 		this.labels.forEach((tuple) => {
-			const element = this.element.children(".pushdown-tuple").eq(i);
+			const element = this.element.children(".tuple").eq(i);
 			element.children(".char-input").val(tuple.char.length > 0 ? tuple.char : lambdaChar);
 			element.children(".pop-input").val(tuple.pop.length > 0 ? tuple.pop : lambdaChar);
 			element.children(".push-input").val(tuple.push.length > 0 ? tuple.push : lambdaChar);
@@ -49,7 +49,7 @@ class PushdownTransition extends Transition {
 		}
 
 		const element = $(`
-			<div class="pushdown-tuple">
+			<div class="tuple">
 				<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
 				<p class="tuple-delimeter">,&nbsp;</p>
 				<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
@@ -62,12 +62,16 @@ class PushdownTransition extends Transition {
 		return element;
 	}
 
+	addEmptyTuple(editor) {
+		this.addTuple(editor, { char: "", push: "", pop: "" });
+	}
+
 	removeTuple(tuple) {
 		let i = 0;
 		let match;
 		this.labels.forEach((t) => {
 			if (tuple.char === t.char && tuple.pop === t.pop && tuple.push === t.push) {
-				this.element.children(".pushdown-tuple").eq(i).remove();
+				this.element.children(".tuple").eq(i).remove();
 				match = t;
 			}
 			i++;
@@ -82,12 +86,17 @@ class PushdownTransition extends Transition {
 	}
 
 	focusElement() {
-		this.element.children(".pushdown-tuple").last().children(".label-input").first().focus();
-		this.element.children(".pushdown-tuple").last().children(".label-input").first()[0].setSelectionRange(9999, 9999);
+		this.element.children(".tuple").last().children(".label-input").first().focus();
+		this.element
+			.children(".tuple")
+			.last()
+			.children(".label-input")
+			.first()[0]
+			.setSelectionRange(9999, 9999);
 	}
 
 	selectLabelText() {
 		// highlight the text of the tuple
-		this.element.children(".pushdown-tuple").last().children(".label-input").first()[0].setSelectionRange(0, 9999);
+		this.element.children(".tuple").last().children(".label-input").first()[0].setSelectionRange(0, 9999);
 	}
 }

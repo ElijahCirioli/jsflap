@@ -104,7 +104,15 @@ class Transition {
 				this.cache.end = this.from.radiusPoint(abovePoint, Math.PI / 5, 0);
 				this.cache.type = "self";
 			}
-			labelPoint = Arrow.drawSelfArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
+			labelPoint = Arrow.drawSelfArrow(
+				canvas,
+				this.cache,
+				needsCalculation,
+				scale,
+				offset,
+				height,
+				this.color
+			);
 		} else if (this.to.hasTransitionToState(this.from)) {
 			// matched inverse transitions
 			if (needsCalculation || this.cache.type !== "matched") {
@@ -113,7 +121,15 @@ class Transition {
 				this.cache.end = this.to.radiusPoint(this.from.getPos(), -Math.PI / 4, 0);
 				this.cache.type = "matched";
 			}
-			labelPoint = Arrow.drawCurvedArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
+			labelPoint = Arrow.drawCurvedArrow(
+				canvas,
+				this.cache,
+				needsCalculation,
+				scale,
+				offset,
+				height,
+				this.color
+			);
 		} else {
 			// normal straight arrow
 			if (needsCalculation || this.cache.type !== "straight") {
@@ -122,7 +138,15 @@ class Transition {
 				this.cache.end = this.to.radiusPoint(this.from.getPos(), 0, 0);
 				this.cache.type = "straight";
 			}
-			labelPoint = Arrow.drawArrow(canvas, this.cache, needsCalculation, scale, offset, height, this.color);
+			labelPoint = Arrow.drawArrow(
+				canvas,
+				this.cache,
+				needsCalculation,
+				scale,
+				offset,
+				height,
+				this.color
+			);
 		}
 
 		// only draw the labels sometimes to increase performance
@@ -152,7 +176,7 @@ class Transition {
 		this.element.children(".label-input").val(str);
 	}
 
-	adjustLabeSize() {
+	adjustLabelSize() {
 		// this function was giving me some trouble so now it's way over-engineered
 		const label = this.element.children(".label-input");
 		const sensor = $(`<p class="width-sensor">${label.val()}</p>`);
@@ -178,7 +202,7 @@ class Transition {
 	drawLabel(pos) {
 		// get the text and adjust the font size
 		this.generateLabelText();
-		this.adjustLabeSize();
+		this.adjustLabelSize();
 
 		// calculate the position of the element
 		const fromPos = this.from.getPos();

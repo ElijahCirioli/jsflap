@@ -171,12 +171,12 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 class PopupEditorChoiceMessage {
 	// choose what type of automaton to create
 
-	constructor(onFinite, onPushdown, doReturn) {
+	constructor(onFinite, onPushdown, onTuring, doReturn) {
 		this.content = $(`
         <div class="popup-message">
             <h2 class="popup-message-title">Create new</h2>
             <div class="popup-message-content">
-                <div class="popup-message-vertical-buttons"></div>
+                <div class="popup-message-vertical-buttons popup-editor-choice-buttons"></div>
             </div>
         </div>`);
 		this.buttons = this.content
@@ -197,6 +197,12 @@ class PopupEditorChoiceMessage {
 		this.buttons.append(this.pushdownButton);
 		this.pushdownButton.click((e) => {
 			onPushdown();
+		});
+
+		this.turingButton = $(`<button class="popup-message-button vertical-button">Turing Machine</button>`);
+		this.buttons.append(this.turingButton);
+		this.turingButton.click((e) => {
+			onTuring();
 		});
 
 		if (doReturn) {

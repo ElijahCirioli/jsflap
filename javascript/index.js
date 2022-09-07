@@ -6,6 +6,7 @@ let controlKey = false;
 let shiftKey = false;
 
 let lambdaChar = window.localStorage.getItem("jsflap lambda character") || "\u03BB";
+let blankTapeChar = "\u2610";
 let editorTheme = window.localStorage.getItem("jsflap theme color") || "dark";
 let stateColor = window.localStorage.getItem("jsflap state color") || "yellow";
 let initialStackChar = window.localStorage.getItem("jsflap initial stack character") || "Z";
