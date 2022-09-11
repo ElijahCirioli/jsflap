@@ -151,7 +151,7 @@ class Environment {
 			}
 		} else if (this.stepInput.isVisible()) {
 			// gather input from step-by-step sidebar
-			const word = this.stepInput.getInput() || this.editor.getType() === "turing" ? "" : undefined;
+			const word = this.stepInput.getInput() || (this.editor.getType() === "turing" ? "" : undefined);
 			if (word !== undefined) {
 				// make sure the input isn't empty
 				if (word.length === 0 && this.editor.getType() !== "turing") {
