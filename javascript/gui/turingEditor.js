@@ -20,16 +20,16 @@ class TuringEditor extends PushdownEditor {
 			const labelElement = $(`<form class="label-form tuple-form"></form>`);
 			if (autoLambda) {
 				labelElement.append(`
-                    <div class="tuple">
+                    <div class="tuple" tabindex="1">
                         <input type="text" spellcheck="false" maxlength="1" class="label-input read-input tuple-input">
                         <p class="tuple-delimeter">🠦</p>
                         <input type="text" spellcheck="false" maxlength="1" class="label-input write-input tuple-input">
                         <p class="tuple-delimeter">,&nbsp;</p>
                         <input type="text" spellcheck="false" maxlength="1" class="label-input move-input tuple-input">
                         <div class="move-input-dropdown">
-                            <p class="move-input-dropdown-item move-input-left">L</p>
-                            <p class="move-input-dropdown-item move-input-stay">S</p>
-                            <p class="move-input-dropdown-item move-input-right">R</p>
+                            <p class="move-input-dropdown-item">L</p>
+                            <p class="move-input-dropdown-item">S</p>
+                            <p class="move-input-dropdown-item">R</p>
                         </div>
                     </div>
                 `);
@@ -56,6 +56,48 @@ class TuringEditor extends PushdownEditor {
 		this.triggerTest();
 		this.startState = undefined;
 		return t;
+	}
+
+	setupLabelListeners(label, transition) {
+		label.on("focusout", (e) => {
+			if (label.is(":focus-within")) {
+				return;
+			}
+
+			setTimeout(() => {
+				if ($(document.activeElement).parent().parent()[0] === label[0]) {
+					return;
+				}
+
+				const foundTuples = new Set();
+				const removeTuples = [];
+				let i = 0;
+				transition.getLabels().forEach((tuple) => {
+					const key = tuple.read + "," + tuple.write + "," + tuple.move;
+
+					if (foundTuples.has(key)) {
+						label.children(".tuple").eq(i).remove();
+						removeTuples.push(tuple);
+					} else {
+						foundTuples.add(key);
+						i++;
+					}
+				});
+				for (const t of removeTuples) {
+					transition.removeLabel(t);
+				}
+
+				transition.clearCache();
+				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
+			}, 50);
+		});
+
+		let i = 0;
+		transition.getLabels().forEach((tuple) => {
+			const element = label.children(".tuple").eq(i);
+			this.setupTupleListeners(element, transition, tuple);
+			i++;
+		});
 	}
 
 	setupTupleCharacterInputListeners(element, transition, tuple) {
@@ -129,6 +171,7 @@ class TuringEditor extends PushdownEditor {
 				e.stopPropagation();
 				tuple.move = $(e.target).index() - 1;
 				moveInput.click();
+				element.focus();
 				this.automaton.drawAllTransitions(this.canvas, this.scale, this.offset, true);
 				this.triggerTest();
 			});

@@ -790,9 +790,6 @@ class Editor {
 			if (key === "Delete" || key === "Backspace") {
 				e.preventDefault();
 
-				this.selectedTransitions.forEach((t) => {
-					this.automaton.removeTransition(t);
-				});
 				this.selectedStates.forEach((s) => {
 					this.automaton.removeState(s);
 				});
@@ -805,8 +802,14 @@ class Editor {
 						const toState = this.automaton.getStateById(ids[1]);
 						if (fromState && toState) {
 							const transition = this.automaton.getTransitionsBetweenStates(fromState, toState);
-							transition.removeTuple(obj.tuple);
+							if (transition) {
+								transition.removeTuple(obj.tuple);
+							}
 						}
+					});
+				} else {
+					this.selectedTransitions.forEach((t) => {
+						this.automaton.removeTransition(t);
 					});
 				}
 

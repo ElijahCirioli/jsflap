@@ -1,9 +1,11 @@
 class StepInputContainer {
-	constructor(content, callback) {
-		this.stepWrap = content.children(".environment-sidebar").children(".step-wrap");
+	constructor(environment, callback) {
+		this.stepWrap = environment.getContent().children(".environment-sidebar").children(".step-wrap");
 		this.layers = []; // the layers of parsing steps
 		this.margin = 22; // the margin around the tree
 		this.prevWord = undefined; // the previous word parsed (to cut down on duplicate work)
+		this.selection = undefined;
+		this.environment = environment;
 
 		this.triggerTest = () => {
 			callback(false);
@@ -14,7 +16,7 @@ class StepInputContainer {
 	}
 
 	setupContainer() {
-		this.stepWrap[0].innerHTML = `
+		this.stepWrap.html(`
         <h1 class="environment-sidebar-title">Step-by-step test 
 			<button class="switch-button multiple-switch-button" title="Test multiple inputs">
 				<i class="fas fa-solid fa-align-justify"></i>
@@ -44,12 +46,42 @@ class StepInputContainer {
         </div>
         <div class="step-table-wrap">
             <table class="step-table"></table>
-        </div>`;
+        </div>`);
 
 		this.canvas = this.stepWrap.children(".step-tree-wrap").children("canvas");
 		this.context = this.canvas[0].getContext("2d");
 		this.nodesWrap = this.stepWrap.children(".step-tree-wrap").children(".step-tree-nodes-wrap");
 		this.table = this.stepWrap.children(".step-table-wrap").children("table");
+	}
+
+	setupContainerForTuringMachine() {
+		this.stepWrap.find(".inputs-form-item-input").attr("placeholder", "Input tape");
+
+		const button = $(`<button class="inputs-button inputs-blank-button">${blankTapeChar}</button>`);
+		this.stepWrap
+			.children(".step-input")
+			.children(".inputs-buttons-wrap")
+			.children(".inputs-lambda-button")
+			.replaceWith(button);
+
+		const textInput = this.stepWrap.children(".step-input").children(".inputs-form").children("input");
+		button.click((e) => {
+			if (this.selection) {
+				const currVal = textInput.val();
+				const newVal =
+					currVal.slice(0, this.selection.start) +
+					blankTapeChar +
+					currVal.slice(this.selection.end);
+				const newSelectionIndex = this.selection.start + 1;
+				textInput.val(newVal);
+				textInput[0].setSelectionRange(newSelectionIndex, newSelectionIndex);
+				textInput.focus();
+			} else {
+				textInput.val(blankTapeChar);
+			}
+
+			this.triggerTest();
+		});
 	}
 
 	setupListeners() {
@@ -76,6 +108,21 @@ class StepInputContainer {
 				e.preventDefault();
 				textInput.val(lambdaChar);
 				this.triggerTest();
+			}
+		});
+
+		textInput.on("focusin click change keyup mousedown mouseup mouseenter mouseleave", (e) => {
+			if (textInput.is(":focus")) {
+				this.selection = {
+					start: textInput[0].selectionStart,
+					end: textInput[0].selectionEnd,
+				};
+			}
+		});
+
+		textInput.on("focusout", (e) => {
+			if (!this.stepWrap.children(".step-input").is(":focus-within")) {
+				this.selection = undefined;
 			}
 		});
 
@@ -356,22 +403,37 @@ class StepInputContainer {
 	populateTable(layer, index) {
 		this.table.empty();
 
-		if (activeEnvironment.getType() === "none") {
+		if (this.environment.getType() === "none") {
 			return;
 		}
 
 		// create the header
-		const header = $("<tr><th>State</th><th>Input</th></tr>");
-		if (activeEnvironment.getType() === "pushdown") {
+		const header = $("<tr><th>State</th></tr>");
+		if (this.environment.getType() === "turing") {
+			header.append("<th>Tape</th><th>Cell</th>");
+		} else {
+			header.append("<th>Input</th>");
+		}
+		if (this.environment.getType() === "pushdown") {
 			header.append("<th>Stack</th>");
 		}
+
 		this.table.append(header);
 
 		// add the steps
 		for (let i = 0; i < layer.length; i++) {
 			const step = layer[i];
-			const row = $(`<tr><td>${step.state.getName()}</td><td>${step.word}</td></tr>`);
-			if (activeEnvironment.getType() === "pushdown") {
+			const row = $(`<tr><td>${step.state.getName()}</td></tr>`);
+			if (this.environment.getType() === "turing") {
+				const stringTape = step.tape.join("");
+				const highlightedTape = `${stringTape.substring(0, step.index)}<span class="tape-highlight">${
+					step.tape[step.index]
+				}</span>${stringTape.substring(step.index + 1)}`;
+				row.append(`<td>${highlightedTape}</td><td>${step.tape[step.index]}</td>`);
+			} else {
+				row.append(`<td>${step.word}</td>`);
+			}
+			if (this.environment.getType() === "pushdown") {
 				row.append(`<td>${step.stack}</td>`);
 			}
 

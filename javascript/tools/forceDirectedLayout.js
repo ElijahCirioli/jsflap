@@ -61,8 +61,8 @@ class ForceDirectedLayout {
 		const width = editor.canvas.width;
 		const height = editor.canvas.height;
 		const area = width * height;
-		// pushdown tuples need a little more space
-		const minDistance = editor instanceof PushdownEditor ? 140 : 100;
+		// tuples need a little more space
+		const minDistance = editor.getType() === "finite" ? 100 : 140;
 		// constant controlling ideal spacing between states
 		const k = Math.min(Math.sqrt(area / states.size), minDistance);
 

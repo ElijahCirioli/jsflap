@@ -182,6 +182,10 @@ class PushdownEditor extends Editor {
 
 	setupLabelListeners(label, transition) {
 		label.on("focusout", (e) => {
+			if (label.is(":focus-within")) {
+				return;
+			}
+
 			setTimeout(() => {
 				if ($(document.activeElement).parent().parent()[0] === label[0]) {
 					return;

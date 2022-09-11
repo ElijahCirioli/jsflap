@@ -13,8 +13,8 @@ Hosted at https://elijahcirioli.com/jsflap/
 -   Layout algorithms
 -   Step-by-step parsing
 -   Regular expression -> NFA conversion
+-   Turing machines
 
 ## Not yet implemented
 
 -   Product automata
--   Turing machines

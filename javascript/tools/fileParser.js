@@ -37,12 +37,14 @@ class FileParser {
 				const xml = parser.parseFromString(e.target.result, "text/xml");
 				const body = xml.getElementsByTagName("structure")[0];
 				const type = body.getElementsByTagName("type")[0].childNodes[0].nodeValue;
-				if (type === "fa" || type === "pda") {
+				if (type === "fa" || type === "pda" || type === "turing") {
 					const env = createEnvironment();
 					if (type === "fa") {
 						env.createFiniteEditor();
-					} else {
+					} else if (type === "pda") {
 						env.createPushdownEditor();
+					} else {
+						env.createTuringEditor();
 					}
 					const editor = env.getEditor();
 					const a = body.getElementsByTagName("automaton")[0];
@@ -84,10 +86,22 @@ class FileParser {
 							const char = FileParser.getTransitionElementJFF(t, "read", 1);
 							if (type === "fa") {
 								transitionObj.addLabel(char);
-							} else {
+							} else if (type === "pda") {
 								const pop = FileParser.getTransitionElementJFF(t, "pop", 1);
 								const push = FileParser.getTransitionElementJFF(t, "push");
 								const tuple = { char: char, pop: pop, push: push };
+								transitionObj.addTuple(editor, tuple);
+							} else {
+								const write = FileParser.getTransitionElementJFF(t, "write");
+								const moveLetter = FileParser.getTransitionElementJFF(t, "move", 1);
+								let move = 0;
+								if (moveLetter === "L") {
+									move = -1;
+								} else if (moveLetter === "R") {
+									move = 1;
+								}
+
+								const tuple = { read: char, write: write, move: move };
 								transitionObj.addTuple(editor, tuple);
 							}
 						}
@@ -159,6 +173,9 @@ class FileParser {
 				case "pushdown":
 					env.createPushdownEditor();
 					break;
+				case "turing":
+					env.createTuringEditor();
+					break;
 				default:
 					env.createFiniteEditor();
 					break;
@@ -204,10 +221,10 @@ class FileParser {
 				const transitionObj = editor.endTransition(toState, false);
 				for (const label of t.labels) {
 					if (label !== "PREVIEW") {
-						if (obj.type === "pushdown") {
-							transitionObj.addTuple(editor, label);
-						} else {
+						if (obj.type === "finite") {
 							transitionObj.addLabel(label);
+						} else {
+							transitionObj.addTuple(editor, label);
 						}
 					}
 				}

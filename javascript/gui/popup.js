@@ -232,11 +232,12 @@ class PopupSettingsMessage extends PopupCancelMessage {
 
 		this.settings = {
 			lambdaChar: lambdaChar,
+			blankTapeChar: blankTapeChar,
 			maxConfigurations: maxConfigurations,
 			initialStackChar: initialStackChar,
 		};
 
-		const choiceButtons = $(`
+		const lambdaChoiceButtons = $(`
 		<div class="popup-message-buttons-wrap">
 			<p class="popup-message-form-label" title="The character representing the empty string.">Lambda character:</p>
 			<div class="popup-message-buttons popup-message-characters"></div>
@@ -261,9 +262,40 @@ class PopupSettingsMessage extends PopupCancelMessage {
 			this.settings.lambdaChar = "\u03B5";
 		});
 
-		choiceButtons.children(".popup-message-characters").append(lambdaButton);
-		choiceButtons.children(".popup-message-characters").append(epsilonButton);
-		this.buttons.before(choiceButtons);
+		lambdaChoiceButtons.children(".popup-message-characters").append(lambdaButton);
+		lambdaChoiceButtons.children(".popup-message-characters").append(epsilonButton);
+		this.buttons.before(lambdaChoiceButtons);
+
+		const blankTapeChoiceButtons = $(`
+		<div class="popup-message-buttons-wrap">
+			<p class="popup-message-form-label" title="The character representing a blank cell on the tape.">Blank tape character:</p>
+			<div class="popup-message-buttons popup-message-characters"></div>
+		</div>`);
+		const boxButton = $(
+			`<button class="popup-message-button character-button character-button-box">\u2610</button>`
+		);
+		const nullButton = $(`<button class="popup-message-button character-button">\u2205</button>`);
+
+		if (blankTapeChar === "\u2610") {
+			boxButton.addClass("chosen-character");
+		} else {
+			nullButton.addClass("chosen-character");
+		}
+
+		boxButton.click((e) => {
+			boxButton.addClass("chosen-character");
+			nullButton.removeClass("chosen-character");
+			this.settings.blankTapeChar = "\u2610";
+		});
+		nullButton.click((e) => {
+			nullButton.addClass("chosen-character");
+			boxButton.removeClass("chosen-character");
+			this.settings.blankTapeChar = "\u2205";
+		});
+
+		blankTapeChoiceButtons.children(".popup-message-characters").append(boxButton);
+		blankTapeChoiceButtons.children(".popup-message-characters").append(nullButton);
+		this.buttons.before(blankTapeChoiceButtons);
 
 		const form = $(`
 		<form class="popup-message-form">

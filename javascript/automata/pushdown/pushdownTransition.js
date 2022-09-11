@@ -80,7 +80,7 @@ class PushdownTransition extends Transition {
 			this.labels.delete(match);
 			this.clearCache();
 			if (this.labels.size === 0) {
-				this.fromState.removeTransition(this.toState);
+				this.from.removeTransition(this.to);
 			}
 		}
 	}

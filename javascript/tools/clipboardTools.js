@@ -123,11 +123,11 @@ class ClipboardTools {
 				editor.startTransition(fromState);
 				const transitionObj = editor.endTransition(toState, false);
 				for (const label of t.labels) {
-					if (clipboard.type === "pushdown") {
+					if (clipboard.type === "finite") {
+						transitionObj.addLabel(label);
+					} else {
 						const element = transitionObj.addTuple(editor, label);
 						editor.selectTuple(label, element, transitionObj);
-					} else {
-						transitionObj.addLabel(label);
 					}
 				}
 				editor.selectTransition(transitionObj);

@@ -6,7 +6,7 @@ let controlKey = false;
 let shiftKey = false;
 
 let lambdaChar = window.localStorage.getItem("jsflap lambda character") || "\u03BB";
-let blankTapeChar = "\u2610";
+let blankTapeChar = window.localStorage.getItem("jsflap blank tape character") || "\u2610";
 let editorTheme = window.localStorage.getItem("jsflap theme color") || "dark";
 let stateColor = window.localStorage.getItem("jsflap state color") || "yellow";
 let initialStackChar = window.localStorage.getItem("jsflap initial stack character") || "Z";
@@ -236,14 +236,20 @@ $("document").ready(() => {
 						return v.replaceAll(lambdaChar, settings.lambdaChar);
 					});
 					$(".inputs-lambda-button").text(settings.lambdaChar);
+					$(".inputs-form-item-input").val((i, v) => {
+						return v.replaceAll(blankTapeChar, settings.blankTapeChar);
+					});
+					$(".inputs-blank-button").text(settings.blankTapeChar);
 
 					lambdaChar = settings.lambdaChar;
 					initialStackChar = settings.initialStackChar;
 					maxConfigurations = settings.maxConfigurations;
+					blankTapeChar = settings.blankTapeChar;
 
 					window.localStorage.setItem("jsflap initial stack character", initialStackChar);
 					window.localStorage.setItem("jsflap max configurations", maxConfigurations);
 					window.localStorage.setItem("jsflap lambda character", lambdaChar);
+					window.localStorage.setItem("jsflap blank tape character", blankTapeChar);
 
 					environments.forEach((env) => {
 						env.getContent().show();

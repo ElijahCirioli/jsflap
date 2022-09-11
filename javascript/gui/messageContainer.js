@@ -15,29 +15,46 @@ class MessagesContainer {
 	generateMessages(automaton) {
 		// generate all of the messages in some kind of priority queue
 		const messages = [];
+		const noun = automaton instanceof TuringAutomaton ? "Turing machine" : "automaton";
+
 		if (automaton.getStates().size > 0) {
 			if (!automaton.hasInitialState()) {
-				messages.push(new WarningMessage("The automaton has no initial state."));
+				messages.push(new WarningMessage(`The ${noun} has no initial state.`));
 			} else {
 				let hasUnreachable = false;
 				if (automaton.getUnreachableStates().size > 0) {
-					messages.push(new WarningMessage("The automaton has unreachable states.", 1));
+					messages.push(new WarningMessage(`The ${noun} has unreachable states.`, 1));
 					hasUnreachable = true;
 				}
 
 				const alphabet = automaton.getAlphabet();
 				if (alphabet.size > 0) {
 					let msgString = "The alphabet is <i>";
+					let hasChars = false;
 					alphabet.forEach((char) => {
 						if (char.length <= 1) {
-							msgString += char === "" ? lambdaChar : char;
+							if (char === "") {
+								if (automaton instanceof TuringAutomaton) {
+									return;
+								} else {
+									msgString += lambdaChar;
+									hasChars = true;
+								}
+							} else {
+								msgString += char;
+								hasChars = true;
+							}
 							msgString += ", ";
 						}
 					});
 					msgString = msgString.substring(0, msgString.length - 2) + "</i>.";
-					messages.push(new Message(msgString));
+					if (hasChars) {
+						messages.push(new Message(msgString));
+					}
 
-					if (automaton instanceof PushdownAutomaton) {
+					if (automaton instanceof TuringAutomaton) {
+						// nothing here for now
+					} else if (automaton instanceof PushdownAutomaton) {
 						const stackAlphabet = automaton.getStackAlphabet();
 
 						msgString = "The stack alphabet is <i>";
@@ -66,14 +83,21 @@ class MessagesContainer {
 					}
 
 					if (automaton.containsCycle()) {
-						messages.push(new Message("The automaton contains cycles."));
+						messages.push(new Message(`The ${noun} contains cycles.`));
 					} else {
-						messages.push(new Message("The automaton does not contain cycles."));
+						messages.push(new Message(`The ${noun} does not contain cycles.`));
 					}
+				}
+
+				if (automaton instanceof TuringAutomaton) {
+					const numStates = automaton.getStates().size;
+					let msgString = `The ${noun} has ${numStates} state`;
+					msgString += numStates > 1 ? "s." : ".";
+					messages.push(new Message(msgString));
 				}
 			}
 			if (!automaton.hasFinalState()) {
-				messages.push(new WarningMessage("The automaton has no final states."));
+				messages.push(new WarningMessage(`The ${noun} has no final states.`));
 			}
 		}
 

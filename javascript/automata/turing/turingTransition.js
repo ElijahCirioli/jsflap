@@ -8,9 +8,24 @@ class TuringTransition extends PushdownTransition {
 		const distance = this.from.getPos().distance(this.to.getPos()) - 45;
 
 		if (this.from !== this.to && this.element.outerWidth() > distance) {
-			this.element.children(".tuple").children().addClass("small-text-label");
+			this.element.children(".tuple").children(".label-input").addClass("small-text-label");
+			this.element.children(".tuple").children(".move-input-dropdown").addClass("small-text-dropdown");
+			this.element
+				.children(".tuple")
+				.children(".move-input-dropdown")
+				.children()
+				.addClass("small-text-label");
 		} else {
-			this.element.children(".tuple").children().removeClass("small-text-label");
+			this.element.children(".tuple").children(".label-input").removeClass("small-text-label");
+			this.element
+				.children(".tuple")
+				.children(".move-input-dropdown")
+				.removeClass("small-text-dropdown");
+			this.element
+				.children(".tuple")
+				.children(".move-input-dropdown")
+				.children()
+				.removeClass("small-text-label");
 		}
 	}
 
@@ -19,8 +34,8 @@ class TuringTransition extends PushdownTransition {
 		let i = 0;
 		this.labels.forEach((tuple) => {
 			const element = this.element.children(".tuple").eq(i);
-			element.children(".read-input").val(tuple.read.length > 0 ? tuple.read : lambdaChar);
-			element.children(".write-input").val(tuple.write.length > 0 ? tuple.write : lambdaChar);
+			element.children(".read-input").val(tuple.read.length > 0 ? tuple.read : blankTapeChar);
+			element.children(".write-input").val(tuple.write.length > 0 ? tuple.write : blankTapeChar);
 			if (tuple.move === -1) {
 				element.children(".move-input").val("L");
 			} else if (tuple.move === 1) {
@@ -39,7 +54,7 @@ class TuringTransition extends PushdownTransition {
 		}
 
 		const element = $(`
-            <div class="tuple">
+            <div class="tuple" tabindex="1">
                 <input type="text" spellcheck="false" maxlength="1" class="label-input read-input tuple-input">
                 <p class="tuple-delimeter">🠦</p>
                 <input type="text" spellcheck="false" maxlength="1" class="label-input write-input tuple-input">
@@ -75,7 +90,7 @@ class TuringTransition extends PushdownTransition {
 			this.labels.delete(match);
 			this.clearCache();
 			if (this.labels.size === 0) {
-				this.fromState.removeTransition(this.toState);
+				this.from.removeTransition(this.to);
 			}
 		}
 	}

@@ -304,7 +304,9 @@
 }
 .inputs-form-item-input {
 	flex-grow: 1;
-	padding: 0 0 0 5px;
+	flex-basis: 80px;
+	min-width: 50px;
+	padding: 0 2px 0 5px;
 	height: 100%;
 	border: none;
 	font-family: "Rubik", sans-serif;
@@ -315,6 +317,32 @@
 	outline: none;
 }
 .inputs-form-item:nth-child(2n) .inputs-form-item-input {
+	background-color: #d4d4d4;
+}
+.inputs-form-item-output-tape {
+	flex-grow: 1;
+	flex-basis: 90px;
+	min-width: 50px;
+	padding: 0 2px 0 5px;
+	height: 100%;
+	line-height: 25px;
+	border: none;
+	font-family: "Rubik", sans-serif;
+	color: var(--dark-text-color);
+	background-color: var(--text-color);
+	text-align: left;
+	font-size: 1rem;
+	outline: none;
+	overflow-x: auto;
+	overflow-y: hidden;
+	text-overflow: hidden;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+.inputs-form-item-output-tape::-webkit-scrollbar {
+	display: none;
+}
+.inputs-form-item:nth-child(2n) .inputs-form-item-output-tape {
 	background-color: #d4d4d4;
 }
 .inputs-buttons-wrap {
@@ -566,6 +594,10 @@
 	font-size: 1.2rem;
 	background-color: var(--secondary-text-color);
 	min-width: 40px;
+	height: 1.6rem;
+}
+.character-button-box {
+	line-height: 0.5rem;
 }
 .character-button:hover {
 	background-color: var(--text-color);
@@ -851,6 +883,7 @@
 .single-line-input {
 	width: calc(100% - 55px);
 	height: 25px;
+	max-height: 25px;
 	margin: 10px auto;
 }
 .step-wrap {
@@ -1118,4 +1151,18 @@
 .move-input-dropdown-item:hover {
 	background-color: rgba(210, 210, 210, 0.9);
 	outline: 1px solid var(--dark-text-color);
+}
+.move-input-dropdown-item.small-text-label {
+	font-size: 0.75rem;
+	height: 0.9rem;
+	width: 0.75rem;
+}
+.small-text-dropdown {
+	top: calc(0.9rem + 2px);
+}
+.tape-highlight {
+	background-color: var(--accent-color);
+}
+.tape-placeholder {
+	color: gray;
 }

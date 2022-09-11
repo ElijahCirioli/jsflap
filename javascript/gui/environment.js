@@ -15,8 +15,8 @@ class Environment {
 			this.testAllInputs(change);
 		};
 
-		this.input = new InputContainer(this.content, callback);
-		this.stepInput = new StepInputContainer(this.content, callback);
+		this.input = new InputContainer(this, callback);
+		this.stepInput = new StepInputContainer(this, callback);
 		this.messages = new MessagesContainer(this.content);
 		this.popups = this.content.children(".editor").children(".editor-popup-container");
 		this.addPopupMessage(
@@ -113,6 +113,8 @@ class Environment {
 		this.editor = new TuringEditor(this.content, callback);
 		this.updateHistory();
 		this.removePopupMessages();
+		this.input.setupContainerForTuringMachine();
+		this.stepInput.setupContainerForTuringMachine();
 	}
 
 	generateId() {
@@ -132,24 +134,38 @@ class Environment {
 
 		if (this.input.isVisible()) {
 			// gather all inputs from multiple run sidebar
-			const words = this.input.aggregateAllInputs();
-			for (const word of words) {
-				const sanitizedWord = word[0].replaceAll(lambdaChar, "");
-				// find whether it's in the language
-				words.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
+			const inputs = this.input.aggregateAllInputs();
+			if (this.editor.getType() === "turing") {
+				for (const tape of inputs) {
+					// get the Turing machine result
+					inputs.set(tape[0], this.editor.getAutomaton().parseInput(tape[0].split("")));
+				}
+				this.input.displayTapeOutputs(inputs);
+			} else {
+				for (const word of inputs) {
+					const sanitizedWord = word[0].replaceAll(lambdaChar, "");
+					// find whether it's in the language
+					inputs.set(word[0], this.editor.getAutomaton().languageContains(sanitizedWord));
+				}
+				this.input.displayValidity(inputs);
 			}
-			this.input.displayValidity(words);
 		} else if (this.stepInput.isVisible()) {
 			// gather input from step-by-step sidebar
-			const word = this.stepInput.getInput();
+			const word = this.stepInput.getInput() || this.editor.getType() === "turing" ? "" : undefined;
 			if (word !== undefined) {
 				// make sure the input isn't empty
-				if (word.length === 0) {
+				if (word.length === 0 && this.editor.getType() !== "turing") {
 					this.stepInput.restoreDefault();
 				} else {
 					// get the parsing steps
-					const sanitizedWord = word.replaceAll(lambdaChar, "");
-					const parseSteps = this.editor.getAutomaton().getParseSteps(sanitizedWord);
+					let parseSteps;
+					if (this.editor.getType() === "turing") {
+						parseSteps = this.editor.getAutomaton().getParseSteps(word.split(""));
+					} else {
+						const sanitizedWord = word.replaceAll(lambdaChar, "");
+						parseSteps = this.editor.getAutomaton().getParseSteps(sanitizedWord);
+					}
+
 					if (parseSteps.length > 0) {
 						this.stepInput.drawTree(parseSteps);
 						if (!automataChanged) {

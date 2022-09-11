@@ -29,9 +29,11 @@ class TuringAutomaton extends PushdownAutomaton {
 	}
 
 	parseInput(tape) {
+		// run the Turing machine with a given tape as input
+
 		// make sure there's an initial state
 		if (!this.initialState) {
-			return false;
+			return { accept: false };
 		}
 
 		// step through instantaneous descriptions in a breadth-first manner
@@ -56,9 +58,10 @@ class TuringAutomaton extends PushdownAutomaton {
 			curr.state.getTransitions().forEach((t) => {
 				// look at every tuple we can use to get there
 				t.getLabels().forEach((tuple) => {
-					if (curr.tape[curr.index] === tuple.read) {
+					const readVal = tuple.read === "" ? blankTapeChar : tuple.read;
+					if (curr.tape[curr.index] === readVal) {
 						const newTape = curr.tape.slice();
-						newTape[curr.index] = tuple.write;
+						newTape[curr.index] = tuple.write === "" ? blankTapeChar : tuple.write;
 
 						let newIndex = curr.index + tuple.move;
 						if (newIndex < 0) {
@@ -88,19 +91,22 @@ class TuringAutomaton extends PushdownAutomaton {
 	}
 
 	getParseSteps(tape) {
-		// get a step-by-step process for parsing whether a word is in the language
+		// get a step-by-step process for parsing an input tape
 
 		// make sure there's an initial state
 		if (!this.initialState) {
 			return [];
 		}
 
+		// make sure the tape isn't totally empty
+		if (tape.length === 0) {
+			tape.push(blankTapeChar);
+		}
+
 		let foundAccept = false;
 		let totalConfigurations = 0;
 		const steps = [];
-		const queue = [
-			{ word: word, stack: initialStackChar, state: this.initialState, depth: 0, accept: undefined },
-		];
+		const queue = [{ tape: tape, index: 0, state: this.initialState, depth: 0, accept: undefined }];
 
 		while (queue.length > 0) {
 			// take from front of the queue
@@ -119,7 +125,7 @@ class TuringAutomaton extends PushdownAutomaton {
 			totalConfigurations++;
 
 			// see if we're at an accept state
-			if (curr.word.length === 0 && curr.state.isFinal()) {
+			if (curr.state.isFinal()) {
 				curr.accept = true;
 				foundAccept = true;
 				continue;
@@ -130,22 +136,31 @@ class TuringAutomaton extends PushdownAutomaton {
 
 			// look at every transition we can take
 			curr.state.getTransitions().forEach((t) => {
-				const toState = t.getToState();
 				// look at every tuple we can use to get there
 				t.getLabels().forEach((tuple) => {
-					if (this.canUseTransitionTuple(curr, tuple)) {
-						const newWord = tuple.char === "" ? curr.word : curr.word.substring(1);
-						const newStack =
-							tuple.pop === "" ? tuple.push + curr.stack : tuple.push + curr.stack.substring(1);
+					const readVal = tuple.read === "" ? blankTapeChar : tuple.read;
+					if (curr.tape[curr.index] === readVal) {
+						const newTape = curr.tape.slice();
+						newTape[curr.index] = tuple.write === "" ? blankTapeChar : tuple.write;
 
+						let newIndex = curr.index + tuple.move;
+						if (newIndex < 0) {
+							newIndex = 0;
+							newTape.unshift(blankTapeChar);
+						} else if (newIndex >= newTape.length) {
+							newTape.push(blankTapeChar);
+						}
+
+						// make sure we haven't computed this description before
 						const next = {
-							word: newWord,
-							stack: newStack,
-							state: toState,
+							tape: newTape,
+							index: newIndex,
+							state: t.getToState(),
 							depth: curr.depth + 1,
 							accept: undefined,
 							predecessor: index,
 						};
+
 						queue.push(next);
 						foundTransition = true;
 					}
