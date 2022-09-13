@@ -369,11 +369,13 @@ $("document").ready(() => {
 			$("#menu-convert-dfa-button").show();
 			$("#menu-convert-regex-button").show();
 			$("#menu-layout-subgroup").css("top", "calc(2 * 1.3rem)");
+			$("#menu-cross-product-button").show();
 		} else {
 			$("#menu-compare-equivalence-button").hide();
 			$("#menu-convert-dfa-button").hide();
 			$("#menu-convert-regex-button").hide();
 			$("#menu-layout-subgroup").css("top", 0);
+			$("#menu-cross-product-button").hide();
 		}
 
 		if (activeEnvironment.getInput().isVisible()) {
@@ -417,7 +419,7 @@ $("document").ready(() => {
 			activeEnvironment.addPopupMessage(
 				new PopupMessage(
 					"Error",
-					"Equivalence comparison is only available for Finite State Automata.",
+					"Equivalence comparison is only available for finite state automata.",
 					() => {
 						activeEnvironment.removePopupMessages();
 					},
@@ -435,7 +437,7 @@ $("document").ready(() => {
 			activeEnvironment.addPopupMessage(
 				new PopupMessage(
 					"Error",
-					"Only Finite State Automata can be converted to DFAs.",
+					"Only finite state automata can be converted to DFAs.",
 					() => {
 						activeEnvironment.removePopupMessages();
 					},
@@ -495,6 +497,57 @@ $("document").ready(() => {
 		activeEnvironment.addPopupMessage(popup);
 		popup.find("input").focus();
 	});
+
+	$("#menu-cross-product-subgroup")
+		.children()
+		.click(function (e) {
+			hideDropdowns();
+			if (activeEnvironment.getType() === "finite") {
+				if (CrossProduct.isApplicable()) {
+					activeEnvironment.addPopupMessage(
+						new PopupEnvironmentChoiceMessage(
+							(env) => {
+								activeEnvironment.removePopupMessages();
+
+								if ($(this).attr("id") === "menu-cross-product-union-button") {
+									CrossProduct.createUnionAutomaton(activeEnvironment, env);
+								} else if ($(this).attr("id") === "menu-cross-product-intersection-button") {
+									CrossProduct.createIntersectionAutomaton(activeEnvironment, env);
+								} else if ($(this).attr("id") === "menu-cross-product-difference-button") {
+									CrossProduct.createDifferenceAutomaton(activeEnvironment, env);
+								}
+							},
+							() => {
+								activeEnvironment.removePopupMessages();
+							},
+							true
+						)
+					);
+				} else {
+					activeEnvironment.addPopupMessage(
+						new PopupMessage(
+							"Error",
+							"No other finite state automata were found.",
+							() => {
+								activeEnvironment.removePopupMessages();
+							},
+							true
+						)
+					);
+				}
+			} else {
+				activeEnvironment.addPopupMessage(
+					new PopupMessage(
+						"Error",
+						"Cross product is only available for finite state automata.",
+						() => {
+							activeEnvironment.removePopupMessages();
+						},
+						true
+					)
+				);
+			}
+		});
 
 	updateColors();
 });

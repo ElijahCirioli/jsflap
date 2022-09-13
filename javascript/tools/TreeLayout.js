@@ -63,6 +63,9 @@ class TreeLayout {
 				node.state.getPos().y = yAvg;
 			});
 
+		if (editor.isAlignToGrid()) {
+			AlignToGrid.action(environment);
+		}
 		editor.draw();
 		editor.zoomFit();
 		environment.updateHistory();

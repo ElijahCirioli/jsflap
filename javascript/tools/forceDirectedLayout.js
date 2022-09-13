@@ -72,6 +72,9 @@ class ForceDirectedLayout {
 			ForceDirectedLayout.applyForces(states, neighborhoods, k, temperature);
 		}
 
+		if (editor.isAlignToGrid()) {
+			AlignToGrid.action(environment);
+		}
 		editor.draw();
 		editor.zoomFit();
 		environment.updateHistory();

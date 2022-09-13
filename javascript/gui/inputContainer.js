@@ -65,6 +65,10 @@ class InputContainer {
 				const itemInput = $(item).children(".inputs-form-item-input");
 				const inputTape = itemInput.val();
 				$(item).children(".inputs-form-item-output").children().hide();
+				$(item)
+					.children(".inputs-form-item-output-tape")
+					.html(`	<span class="tape-placeholder">Output tape</span>`);
+
 				if (inputTape.length > 0 && inputs.has(inputTape)) {
 					const accepted = inputs.get(inputTape).accept;
 					if (accepted === undefined) {

@@ -93,6 +93,10 @@ class Editor {
 		return "finite";
 	}
 
+	isAlignToGrid() {
+		return this.alignToGrid;
+	}
+
 	setAlignToGrid(newSetting) {
 		this.alignToGrid = newSetting;
 	}
@@ -102,8 +106,8 @@ class Editor {
 		this.automaton.drawAllStates();
 	}
 
-	createState(pos, autoFinal) {
-		const firstState = autoFinal && this.automaton.getStates().size === 0;
+	createState(pos, autoInitial) {
+		const firstState = autoInitial && this.automaton.getStates().size === 0;
 		const name = this.automaton.getNextName();
 		const element = $(`<div class="state"><p class="state-name">${name}</p></div>`);
 		this.statesWrap.append(element);
@@ -1037,11 +1041,6 @@ class Editor {
 
 		name.on("keyup", (e) => {
 			stateObj.setName(name.text());
-			if (name.text().length > 5) {
-				name.addClass("state-name-small");
-			} else {
-				name.removeClass("state-name-small");
-			}
 		});
 	}
 

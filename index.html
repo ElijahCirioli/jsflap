@@ -51,6 +51,7 @@
 		<script src="javascript/tools/forceDirectedLayout.js"></script>
 		<script src="javascript/tools/alignToGrid.js"></script>
 		<script src="javascript/tools/regexConstructor.js"></script>
+		<script src="javascript/tools/crossProduct.js"></script>
 		<script src="javascript/index.js"></script>
 	</head>
 	<body>
@@ -133,6 +134,29 @@
 							Test multiple inputs
 						</button>
 						<button class="menu-child-item" id="menu-test-step-button">Test step-by-step</button>
+						<button class="menu-child-item" id="menu-cross-product-button">
+							Create product automaton
+						</button>
+						<div class="menu-child-subgroup" id="menu-cross-product-subgroup">
+							<button
+								class="menu-child-item menu-child-subgroup-item"
+								id="menu-cross-product-union-button"
+							>
+								Union
+							</button>
+							<button
+								class="menu-child-item menu-child-subgroup-item"
+								id="menu-cross-product-intersection-button"
+							>
+								Intersection
+							</button>
+							<button
+								class="menu-child-item menu-child-subgroup-item"
+								id="menu-cross-product-difference-button"
+							>
+								Difference
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>

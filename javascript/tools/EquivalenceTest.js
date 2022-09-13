@@ -137,12 +137,12 @@ class EquivalenceTest {
 	}
 
 	static isApplicable() {
-		const finiteEnvironments = [];
+		let numFinite = 0;
 		for (const env of environments) {
 			if (env.getType() === "finite") {
-				finiteEnvironments.push(env);
+				numFinite++;
 			}
 		}
-		return finiteEnvironments.length > 1;
+		return numFinite > 1;
 	}
 }
