@@ -171,6 +171,8 @@ class Environment {
 						if (!automataChanged) {
 							this.stepInput.selectStep(0, 0, true, true);
 						}
+					} else {
+						this.stepInput.restoreDefault();
 					}
 				}
 			}
