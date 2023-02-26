@@ -119,6 +119,11 @@ class TuringEditor extends PushdownEditor {
 			e.preventDefault();
 			e.stopPropagation();
 
+			// make sure holding shift doesn't cause updates
+			if (key === "Shift") {
+				return;
+			}
+
 			// make sure deleting text doesn't delete the whole transition
 			if (key === "Delete" || key === "Backspace") {
 				e.stopPropagation();

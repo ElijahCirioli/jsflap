@@ -1146,6 +1146,12 @@ class Editor {
 				e.stopPropagation();
 			}
 
+			// make sure holding shift doesn't cause updates
+			if (key === "Shift") {
+				e.stopPropagation();
+				return;
+			}
+
 			if (key === "Enter") {
 				// lose focus when they press enter
 				input.blur();
