@@ -13,7 +13,9 @@ class State {
 
 	setName(newName) {
 		this.name = newName;
-		this.element.children(".state-name").text(newName);
+		if (this.element.children(".state-name").text() !== newName) {
+			this.element.children(".state-name").text(newName);
+		}
 		if (newName.length > 5) {
 			this.element.children(".state-name").addClass("state-name-small");
 		} else {
