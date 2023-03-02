@@ -32,6 +32,7 @@ function createEnvironment() {
 		newEnv.getContent().show();
 		newEnv.forgetMousePos();
 		newEnv.testAllInputs(true);
+		newEnv.resizeCanvas();
 		newTab.addClass("active");
 		activeEnvironment = newEnv;
 

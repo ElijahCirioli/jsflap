@@ -426,7 +426,9 @@ class Environment {
 	setupListeners() {
 		// resize window
 		$(window).resize((e) => {
-			this.resizeCanvas();
+			if (this.content.is(":visible")) {
+				this.resizeCanvas();
+			}
 		});
 
 		// change tools
