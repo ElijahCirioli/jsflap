@@ -242,19 +242,22 @@ class Environment {
 	}
 
 	resizeCanvas() {
-		const canvas = this.content.children(".editor").children(".editor-canvas")[0];
-		canvas.width = 0;
-		canvas.height = 0;
+		const canvas = this.content.children(".editor").children(".editor-canvas");
+		canvas.hide();
 
-		const width = this.content.children(".editor").css("width");
-		canvas.width = width.substring(width, width.length - 2);
+		requestAnimationFrame(() => {
+			const width = this.content.children(".editor").css("width");
+			canvas[0].width = width.substring(width, width.length - 2);
 
-		const height = this.content.children(".editor").css("height");
-		canvas.height = height.substring(height, height.length - 2);
+			const height = this.content.children(".editor").css("height");
+			canvas[0].height = height.substring(height, height.length - 2);
 
-		if (this.editor) {
-			this.editor.draw();
-		}
+			canvas.show();
+
+			if (this.editor) {
+				this.editor.draw();
+			}
+		});
 	}
 
 	addPopupMessage(message) {
