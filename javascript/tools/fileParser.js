@@ -231,6 +231,20 @@ class FileParser {
 			}
 		}
 
+		// load inputs if this is a new environment
+		if (environment === undefined) {
+			// multiple run
+			if ("inputs" in obj && obj.inputs.length > 0) {
+				const normalizedInputs = obj.inputs.map(FileParser.normalizeInput);
+				env.getInput().loadInputs(normalizedInputs);
+			}
+
+			// step-by-step
+			if ("stepInput" in obj && obj.stepInput.length > 0) {
+				env.getStepInput().loadInput(FileParser.normalizeInput(obj.stepInput));
+			}
+		}
+
 		editor.getAutomaton().removeEmptyTransitions();
 		env.testAllInputs(false);
 		editor.draw();
@@ -248,5 +262,14 @@ class FileParser {
 		} else {
 			nameElement.removeClass("state-name-small");
 		}
+	}
+
+	static normalizeInput(input) {
+		// standardize the lambda and blank tape characters to whatever the user prefers
+		return input
+			.replaceAll("\u03BB", lambdaChar)
+			.replaceAll("\u03B5", lambdaChar)
+			.replaceAll("\u2610", blankTapeChar)
+			.replaceAll("\u2205", blankTapeChar);
 	}
 }

@@ -303,6 +303,7 @@ class InputContainer {
 				this.selection = undefined;
 			}
 		});
+		return input;
 	}
 
 	setupListeners() {
@@ -357,5 +358,13 @@ class InputContainer {
 
 	isVisible() {
 		return this.inputWrap.is(":visible");
+	}
+
+	loadInputs(inputs) {
+		this.inputContent.children(".inputs-form").empty();
+		for (const word of inputs) {
+			this.createSingleInput().val(word);
+		}
+		this.createSingleInput();
 	}
 }

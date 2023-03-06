@@ -476,10 +476,18 @@ class StepInputContainer {
 	}
 
 	getInput() {
-		const word = this.stepWrap.children(".step-input").children(".inputs-form").children("input").val();
+		return this.stepWrap.children(".step-input").children(".inputs-form").children("input").val();
+	}
+
+	getNewInput() {
+		const word = this.getInput();
 		if (this.prevWord === undefined || this.prevWord !== word) {
 			return word;
 		}
 		return undefined;
+	}
+
+	loadInput(input) {
+		this.stepWrap.children(".step-input").children(".inputs-form").children("input").val(input);
 	}
 }

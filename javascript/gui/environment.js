@@ -82,6 +82,10 @@ class Environment {
 		return this.input;
 	}
 
+	getStepInput() {
+		return this.stepInput;
+	}
+
 	createFiniteEditor() {
 		// wrap the callback function to preserve "this"
 		const callback = (change) => {
@@ -151,7 +155,8 @@ class Environment {
 			}
 		} else if (this.stepInput.isVisible()) {
 			// gather input from step-by-step sidebar
-			const word = this.stepInput.getInput() || (this.editor.getType() === "turing" ? "" : undefined);
+			const word =
+				this.stepInput.getNewInput() || (this.editor.getType() === "turing" ? "" : undefined);
 			if (word !== undefined) {
 				// make sure the input isn't empty
 				if (word.length === 0 && this.editor.getType() !== "turing") {
@@ -180,6 +185,7 @@ class Environment {
 
 		// generate messages about the automaton
 		this.messages.generateMessages(this.editor.getAutomaton());
+
 		// save to undo/browser history if requested
 		if (automataChanged) {
 			this.updateHistory();
@@ -393,6 +399,8 @@ class Environment {
 			updated: Date.now(),
 			states: [],
 			transitions: [],
+			inputs: Array.from(this.input.aggregateAllInputs().keys()),
+			stepInput: this.stepInput.getInput(),
 		};
 
 		if (this.editor === undefined) {
