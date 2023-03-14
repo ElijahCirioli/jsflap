@@ -1,0 +1,106 @@
+#header-wrap {
+	height: 3.3rem;
+}
+#logo-link {
+	color: var(--text-color);
+	text-decoration: none;
+}
+#content-wrap {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 30px;
+	align-items: flex-start;
+	padding: 25px 20px 5px 20px;
+	width: calc(100% - 40px);
+	height: calc(100vh - 140px);
+}
+.grading-item {
+	background-color: var(--regular-color);
+	height: 100%;
+}
+.grading-item-content {
+	padding: 15px;
+	width: calc(100% - 30px);
+	height: calc(100% - 30px - 1.8rem);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 15px;
+}
+#automata-panel {
+	width: 50%;
+	min-width: 320px;
+}
+#inputs-panel {
+	width: 30%;
+	min-width: 250px;
+}
+#automata-table-wrap {
+	width: 100%;
+	overflow: auto;
+}
+#automata-table {
+	width: 100%;
+}
+#automata-table-head {
+	background-color: var(--selected-color);
+}
+#automata-table-head th {
+	height: 1.6rem;
+	padding: 0 4px;
+	border-right: 1px solid #979797;
+}
+#automata-table-head th:last-of-type {
+	border-right: none;
+}
+#load-files-button {
+	height: 25px;
+}
+.automaton-file {
+	height: 1.8rem;
+	background-color: var(--text-color);
+	text-align: left;
+	color: var(--dark-text-color);
+}
+.automaton-file:nth-child(2n) {
+	background-color: #d4d4d4;
+}
+.automaton-file td {
+	padding: 0 5px;
+	border-right: 1px solid #979797;
+}
+.automaton-file td:last-of-type {
+	border-right: none;
+}
+.automaton-file-score {
+	text-align: center;
+}
+.automaton-file-actions {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	height: 1.8rem;
+}
+.automaton-file-button {
+	outline: none;
+	border: none;
+	width: 1.1rem;
+	height: 0.95rem;
+	padding: 0;
+	background-color: transparent;
+	color: var(--dark-text-color);
+	cursor: pointer;
+	font-size: 0.95rem;
+	transition: color 0.1s;
+}
+.automaton-file-button:hover {
+	color: var(--accent-color);
+}
+.delete-button:hover {
+	color: #f04d41;
+}
