@@ -122,7 +122,7 @@ class Environment {
 	}
 
 	generateId() {
-		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		const idLength = 32;
 		let id = "";
 		for (let i = 0; i < idLength; i++) {

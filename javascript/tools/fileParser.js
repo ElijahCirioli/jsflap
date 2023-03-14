@@ -1,31 +1,33 @@
 class FileParser {
-	constructor(files) {
+	constructor(files, callback) {
 		if (files) {
 			this.files = files;
-			this.handleFileInputs();
+			this.handleFileInputs({ callback: callback });
 		} else {
 			// open a file select window
 			const input = $(`<input type="file" class="file-input" multiple>`);
 			$("#content-wrap").append(input);
 			input.click();
 			input.remove();
-			input.on("change", this.handleFileInputs);
+			input.on("change", { callback: callback }, this.handleFileInputs);
 		}
 	}
 
-	handleFileInputs() {
+	handleFileInputs(e) {
 		// "this" means different things depending on where this was called from
 		// split files into .jff and .jsf
 		for (const f of this.files) {
 			if (f.name.endsWith(".jff")) {
-				FileParser.parseJFF(f);
+				FileParser.parseJFF(f, e.data.callback);
 			} else if (f.name.endsWith(".jsf")) {
-				FileParser.parseJSF(f);
+				FileParser.parseJSF(f, e.data.callback);
+			} else if (e.data.callback) {
+				e.data.callback(f, undefined);
 			}
 		}
 	}
 
-	static parseJFF(file) {
+	static parseJFF(file, callback) {
 		// helper function to read in .jff files
 
 		const fileName = file.name.substring(0, file.name.length - 4);
@@ -108,9 +110,11 @@ class FileParser {
 					}
 
 					editor.zoomFit();
+					if (callback) {
+						callback(file, env);
+					}
 				}
 			} catch (ex) {
-				console.log(ex);
 				activeEnvironment.addPopupMessage(
 					new PopupMessage(
 						"Error",
@@ -121,6 +125,9 @@ class FileParser {
 						true
 					)
 				);
+				if (callback) {
+					callback(file, undefined);
+				}
 			}
 		};
 	}
@@ -136,7 +143,7 @@ class FileParser {
 		return "";
 	}
 
-	static parseJSF(file) {
+	static parseJSF(file, callback) {
 		// helper function to read in .jsf files
 
 		const reader = new FileReader();
@@ -144,7 +151,10 @@ class FileParser {
 		reader.onload = (e) => {
 			const obj = JSON.parse(e.target.result);
 			try {
-				FileParser.parseJSON(obj, true);
+				const env = FileParser.parseJSON(obj, true);
+				if (callback) {
+					callback(file, env);
+				}
 			} catch (ex) {
 				activeEnvironment.addPopupMessage(
 					new PopupMessage(
@@ -156,6 +166,9 @@ class FileParser {
 						true
 					)
 				);
+				if (callback) {
+					callback(file, undefined);
+				}
 			}
 		};
 	}
@@ -251,6 +264,7 @@ class FileParser {
 		if (environment === undefined) {
 			editor.zoomFit();
 		}
+		return env;
 	}
 
 	static setStateName(state, newName) {

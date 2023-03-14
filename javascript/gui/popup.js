@@ -146,7 +146,7 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 			stateColor = color;
 			$(".chosen-state-color").removeClass("chosen-state-color");
 			button.addClass("chosen-state-color");
-			updateColors();
+			Colors.update();
 		});
 
 		return button;
@@ -161,7 +161,7 @@ class PopupThemeChoiceMessage extends PopupCancelMessage {
 			editorTheme = theme;
 			$(".chosen-color").removeClass("chosen-color");
 			button.addClass("chosen-color");
-			updateColors();
+			Colors.update();
 		});
 
 		return button;

@@ -392,7 +392,7 @@ class Automaton {
 	}
 
 	getNextId() {
-		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+		const possibleChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		const idLength = 15;
 		while (true) {
 			let str = "";

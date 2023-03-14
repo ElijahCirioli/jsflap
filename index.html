@@ -38,6 +38,7 @@
 		<script src="javascript/automata/turing/turingState.js"></script>
 		<script src="javascript/automata/turing/turingTransition.js"></script>
 		<script src="javascript/automata/turing/turingAutomaton.js"></script>
+		<script src="javascript/gui/colors.js"></script>
 		<script src="javascript/gui/editor.js"></script>
 		<script src="javascript/gui/pushdownEditor.js"></script>
 		<script src="javascript/gui/turingEditor.js"></script>
@@ -57,14 +58,12 @@
 		<script src="javascript/tools/alignToGrid.js"></script>
 		<script src="javascript/tools/regexConstructor.js"></script>
 		<script src="javascript/tools/crossProduct.js"></script>
+		<script src="../javascript/tools/URLTransfer.js"></script>
 		<script src="javascript/index.js"></script>
 	</head>
 	<body>
 		<div id="header-wrap">
-			<div id="logo">
-				<span class="yellow-text">js</span>FLAP
-				<a href="https://elijahcirioli.com" target="_blank" id="sub-logo">by Elijah Cirioli</a>
-			</div>
+			<h1 id="logo"><span class="yellow-text">js</span>FLAP</h1>
 			<div id="menu-bar">
 				<div class="menu-item" id="file-menu">
 					<p class="menu-item-title">File</p>
@@ -172,6 +171,12 @@
 					<i class="fas fa-plus"></i>
 				</button>
 			</div>
+		</div>
+		<div id="footer-wrap">
+			<a href="https://elijahcirioli.com/" class="footer-link">Created by Elijah Cirioli </a>
+			<a href="https://elijahcirioli.com/jsflap/about" class="footer-link">About</a>
+			<a href="https://github.com/ElijahCirioli/jsflap" class="footer-link">GitHub</a>
+			<a href="grading" class="footer-link">Grading</a>
 		</div>
 	</body>
 </html>

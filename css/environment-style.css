@@ -45,8 +45,8 @@
 .editor {
 	min-height: 200px;
 	min-width: 200px;
-	height: calc(100vh - 150px);
-	max-height: calc(100vh - 150px);
+	height: calc(100vh - 168px);
+	max-height: calc(100vh - 168px);
 	flex-grow: 1;
 	background-color: var(--text-color);
 	overflow: hidden;
@@ -369,7 +369,7 @@
 	transition: 0.2s;
 }
 .inputs-button:hover {
-	background-color: var(--state-color);
+	background-color: var(--accent-color);
 	transform: scale(1.05);
 }
 .inputs-button:active {

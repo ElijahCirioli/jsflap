@@ -13,7 +13,6 @@ body {
 	margin: 0;
 	padding: 0;
 	width: 100%;
-	padding-bottom: 30px;
 	background-color: var(--background-color);
 	color: var(--text-color);
 	font-family: "Rubik", sans-serif;
@@ -31,11 +30,7 @@ body {
 	margin: 0;
 	text-align: left;
 	font-family: "Fredoka One", cursive;
-}
-#sub-logo {
-	font-size: 1rem;
-	color: var(--text-color);
-	text-decoration: none;
+	font-weight: normal;
 }
 .yellow-text {
 	color: var(--accent-color);
@@ -249,4 +244,26 @@ body {
 	visibility: hidden;
 	z-index: -10;
 	position: absolute;
+}
+#footer-wrap {
+	width: 100%;
+	margin: 15px 0 0 0;
+	height: 37px;
+	background-color: var(--regular-color);
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 30px;
+	font-size: 0.9rem;
+}
+.footer-link {
+	color: var(--secondary-text-color);
+	text-decoration: underline;
+	transition: color 0.1s;
+}
+.footer-link:hover {
+	color: var(--text-color);
+	text-decoration: none;
 }
