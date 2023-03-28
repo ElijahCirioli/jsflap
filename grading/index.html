@@ -58,7 +58,9 @@
 		<script src="../javascript/tools/forceDirectedLayout.js"></script>
 		<script src="../javascript/tools/URLTransfer.js"></script>
 		<script src="javascript/automatonFile.js"></script>
-		<script src="javascript/automataLoader.js"></script>
+		<script src="javascript/automatonLoader.js"></script>
+		<script src="javascript/testCase.js"></script>
+		<script src="javascript/gradingInputContainer.js"></script>
 		<script src="javascript/index.js"></script>
 	</head>
 	<body>
@@ -72,8 +74,8 @@
 				<h1 class="environment-sidebar-title">Automata</h1>
 				<div class="grading-item-content">
 					<div id="automata-table-wrap">
-						<table id="automata-table" border="0" cellspacing="0" cellpadding="0">
-							<thead id="automata-table-head" border="0" cellspacing="0" cellpadding="0">
+						<table class="grading-table" border="0" cellspacing="0" cellpadding="0">
+							<thead class="grading-table-head" border="0" cellspacing="0" cellpadding="0">
 								<tr>
 									<th>File</th>
 									<th>Name</th>
@@ -94,13 +96,53 @@
 			</div>
 			<div class="grading-item" id="inputs-panel">
 				<h1 class="environment-sidebar-title">Test cases</h1>
-				<div class="grading-item-content"></div>
+				<div class="grading-item-content">
+					<div id="grading-input-options">
+						<p class="grading-input-options-label">Type:</p>
+						<div class="environment-dropdown-container">
+							<div class="dropdown-down-arrow">
+								<i class="fas fa-chevron-down"></i>
+							</div>
+							<div class="dropdown-up-arrow">
+								<i class="fas fa-chevron-up"></i>
+							</div>
+							<div class="environment-dropdown" tabindex="1">
+								<button class="dropdown-item dropdown-selected">Finite</button>
+								<button class="dropdown-item">Pushdown</button>
+								<button class="dropdown-item">Turing</button>
+							</div>
+						</div>
+						<p class="grading-input-options-label">Allow nondeterminism:</p>
+						<button id="allow-nondeterminism" class="checkbox checkbox-checked" tabindex="2">
+							<i class="fa-solid fa-check"></i>
+						</button>
+					</div>
+					<form id="grading-input-form">
+						<table class="grading-table" border="0" cellspacing="0" cellpadding="0">
+							<thead class="grading-table-head" border="0" cellspacing="0" cellpadding="0">
+								<tr>
+									<th>Input</th>
+									<th>Expected</th>
+									<th>Actual</th>
+									<th>Passed</th>
+								</tr>
+							</thead>
+							<tbody id="input-table-body" border="0" cellspacing="0" cellpadding="0"></tbody>
+						</table>
+					</form>
+					<div id="grading-input-buttons-wrap">
+						<button class="inputs-button" class="load-input-file-button">Load inputs</button>
+						<button class="inputs-button" id="save-input-file-button">Save inputs</button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="footer-wrap">
-			<a href="https://elijahcirioli.com/" class="footer-link">Created by Elijah Cirioli </a>
-			<a href="https://elijahcirioli.com/jsflap/about" class="footer-link">About</a>
-			<a href="https://github.com/ElijahCirioli/jsflap" class="footer-link">GitHub</a>
+			<a href="https://elijahcirioli.com/" target="_blank" class="footer-link"
+				>Created by Elijah Cirioli
+			</a>
+			<a href="https://elijahcirioli.com/jsflap/about" target="_blank" class="footer-link">About</a>
+			<a href="https://github.com/ElijahCirioli/jsflap" target="_blank" class="footer-link">GitHub</a>
 			<a href="./" class="footer-link">Grading</a>
 		</div>
 	</body>

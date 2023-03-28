@@ -46,7 +46,6 @@ class URLTransfer {
 
 		// save back to local storage
 		window.localStorage.setItem("jsflap url transfers", JSON.stringify(transfers));
-		console.log(transfers);
 	}
 
 	static checkForImport() {
@@ -73,6 +72,15 @@ class URLTransfer {
 
 		// load the specified automaton
 		URLTransfer.import(params.get("load"));
+
+		// delete the empty default environments
+		if (environments.size > 1) {
+			environments.forEach((env) => {
+				if (env !== activeEnvironment && env.isEmpty()) {
+					removeEnvironment(env);
+				}
+			});
+		}
 
 		// remove the key from the url
 		window.history.replaceState({}, document.title, "/");

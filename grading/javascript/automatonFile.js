@@ -4,11 +4,15 @@ class AutomatonFile {
 		if (environment) {
 			this.name = environment.getName();
 			this.automaton = environment.getEditor().getAutomaton();
+			this.type = environment.getEditor().getType();
 			this.saveObject = environment.getSaveObject();
+			this.cachedWordResults = new Map();
 			environment.getContent().remove();
 		}
 		this.createElement();
 		this.setupListeners();
+
+		gradeAutomaton(this);
 	}
 
 	createElement() {
@@ -73,5 +77,27 @@ class AutomatonFile {
 			const url = URLTransfer.export(this.saveObject);
 			window.open(url, "_blank");
 		});
+	}
+
+	getAutomaton() {
+		return this.automaton;
+	}
+
+	getType() {
+		return this.type;
+	}
+
+	getCachedResult(word) {
+		return this.cachedWordResults.get(word);
+	}
+
+	setCachedResults(results) {
+		this.cachedWordResults = results;
+	}
+
+	setTestOutput(results) {
+		this.testResults = results;
+		const numPassed = results.filter((res) => res.pass).length;
+		this.element.children(".automaton-file-score").text(`${numPassed}/${results.length}`);
 	}
 }

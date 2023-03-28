@@ -35,25 +35,25 @@
 	min-width: 320px;
 }
 #inputs-panel {
-	width: 30%;
+	width: 35%;
 	min-width: 250px;
 }
 #automata-table-wrap {
 	width: 100%;
 	overflow: auto;
 }
-#automata-table {
+.grading-table {
 	width: 100%;
 }
-#automata-table-head {
+.grading-table-head {
 	background-color: var(--selected-color);
 }
-#automata-table-head th {
+.grading-table-head th {
 	height: 1.6rem;
 	padding: 0 4px;
 	border-right: 1px solid #979797;
 }
-#automata-table-head th:last-of-type {
+.grading-table-head th:last-of-type {
 	border-right: none;
 }
 #load-files-button {
@@ -103,4 +103,103 @@
 }
 .delete-button:hover {
 	color: #f04d41;
+}
+#grading-input-options {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: 5px;
+	align-items: center;
+	width: 100%;
+}
+.environment-dropdown-container {
+	margin: 0 5px 0 0;
+	width: 120px;
+	padding-bottom: 8px;
+}
+.grading-input-options-label {
+	margin: 0;
+}
+.inputs-button {
+	min-width: fit-content;
+	padding: 0 5px;
+}
+.checkbox {
+	outline: none;
+	border: none;
+	width: 18px;
+	height: 18px;
+	padding: 0;
+	background-color: var(--text-color);
+	color: var(--dark-text-color);
+	cursor: pointer;
+	transition: background-color 0.1s;
+}
+.checkbox:hover {
+	background-color: #d4d4d4;
+}
+.checkbox-checked {
+	background-color: var(--accent-color);
+}
+.checkbox-checked:hover {
+	background-color: var(--accent-color);
+}
+.checkbox i {
+	display: none;
+}
+.checkbox-checked i {
+	display: block;
+}
+#grading-input-form {
+	width: 100%;
+	flex-grow: 1;
+	overflow: auto;
+}
+.test-case {
+	height: 25px;
+	background-color: var(--text-color);
+	text-align: left;
+	color: var(--dark-text-color);
+}
+.test-case:nth-child(2n) {
+	background-color: #d4d4d4;
+}
+.test-case td {
+	padding: 0 5px;
+	border-right: 1px solid #979797;
+}
+.test-case td:last-of-type {
+	border-right: none;
+}
+.inputs-form-item-input {
+	height: 25px;
+	width: 100%;
+	padding: 0;
+	background: none;
+}
+.test-case-output {
+	text-align: center;
+}
+.test-case-output-expected {
+	transition: background-color 0.1s;
+	cursor: pointer;
+}
+.test-case-output-expected:hover {
+	background-color: var(--accent-color);
+}
+#grading-input-buttons-wrap {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: center;
+	gap: 30px;
+	align-items: center;
+	width: 100%;
+}
+#load-input-file-button {
+	height: 25px;
+}
+#save-input-file-button {
+	height: 25px;
 }

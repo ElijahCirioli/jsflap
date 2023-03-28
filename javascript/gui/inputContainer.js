@@ -203,7 +203,7 @@ class InputContainer {
 			if (key === "Tab" || key === "Enter") {
 				if (input.val().length === 0) {
 					// make a new input if there are no empty ones
-					if (this.environment.getType() == "turing") {
+					if (this.environment.getType() === "turing") {
 						input.val(blankTapeChar);
 					} else {
 						input.val(lambdaChar);
