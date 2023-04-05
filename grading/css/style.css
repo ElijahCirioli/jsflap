@@ -68,6 +68,12 @@
 .automaton-file:nth-child(2n) {
 	background-color: #d4d4d4;
 }
+.selected-automaton-file {
+	background-color: var(--accent-color);
+}
+.selected-automaton-file:nth-child(2n) {
+	background-color: var(--accent-color);
+}
 .automaton-file td {
 	padding: 0 5px;
 	border-right: 1px solid #979797;
@@ -192,14 +198,18 @@
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
-	justify-content: center;
-	gap: 30px;
+	justify-content: space-between;
+	gap: 20px;
 	align-items: center;
 	width: 100%;
 }
-#load-input-file-button {
+.inputs-button {
 	height: 25px;
 }
-#save-input-file-button {
+.unknown {
+	color: #f1b433;
+}
+.test-case-failure {
 	height: 25px;
+	text-align: center;
 }

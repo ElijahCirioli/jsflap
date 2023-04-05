@@ -63,6 +63,10 @@ class AutomatonFile {
 		// delete row
 		this.deleteButton.click((e) => {
 			e.stopPropagation();
+
+			if (selectAutomatonFile === this) {
+				selectAutomatonFile(undefined);
+			}
 			automatonFiles.splice(automatonFiles.indexOf(this), 1);
 			this.element.remove();
 		});
@@ -77,6 +81,21 @@ class AutomatonFile {
 			const url = URLTransfer.export(this.saveObject);
 			window.open(url, "_blank");
 		});
+
+		// view results
+		this.element.click((e) => {
+			e.stopPropagation();
+
+			selectAutomatonFile(this);
+		});
+	}
+
+	highlight() {
+		this.element.addClass("selected-automaton-file");
+	}
+
+	unhighlight() {
+		this.element.removeClass("selected-automaton-file");
 	}
 
 	getAutomaton() {
@@ -89,6 +108,10 @@ class AutomatonFile {
 
 	getCachedResult(word) {
 		return this.cachedWordResults.get(word);
+	}
+
+	getTestResults() {
+		return this.testResults;
 	}
 
 	setCachedResults(results) {
