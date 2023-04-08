@@ -24,7 +24,7 @@ class InputContainer {
 				const itemInput = $(item).children(".inputs-form-item-input");
 				if (itemInput.val().length > 0) {
 					// set it's validity as false for now
-					if (this.environment.getType() == "turing") {
+					if (this.environment.getType() === "turing") {
 						allInputs.set(itemInput.val(), { accept: false, tape: [], index: 0 });
 					} else {
 						allInputs.set(itemInput.val(), false);
@@ -158,7 +158,7 @@ class InputContainer {
 		const form = this.inputContent.children(".inputs-form");
 
 		let input, output, tapeOutput;
-		if (this.environment.getType() == "turing") {
+		if (this.environment.getType() === "turing") {
 			input = $(
 				`<input type="text" spellcheck="false" maxlength="256" placeholder="Input tape" class="inputs-form-item-input">`
 			);

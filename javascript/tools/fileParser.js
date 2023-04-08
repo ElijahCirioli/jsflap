@@ -32,7 +32,6 @@ class FileParser {
 
 		const fileName = file.name.substring(0, file.name.length - 4);
 		const reader = new FileReader();
-		reader.readAsText(file, "UTF-8");
 		reader.onload = (e) => {
 			try {
 				const parser = new DOMParser();
@@ -115,21 +114,24 @@ class FileParser {
 					}
 				}
 			} catch (ex) {
-				activeEnvironment.addPopupMessage(
-					new PopupMessage(
-						"Error",
-						`Unable to parse file ${file.name}`,
-						() => {
-							activeEnvironment.removePopupMessages();
-						},
-						true
-					)
-				);
+				if (typeof activeEnvironment !== "undefined") {
+					activeEnvironment.addPopupMessage(
+						new PopupMessage(
+							"Error",
+							`Unable to parse file ${file.name}`,
+							() => {
+								activeEnvironment.removePopupMessages();
+							},
+							true
+						)
+					);
+				}
 				if (callback) {
 					callback(file, undefined);
 				}
 			}
 		};
+		reader.readAsText(file, "UTF-8");
 	}
 
 	static getTransitionElementJFF(transition, element, maxLength) {
@@ -147,7 +149,6 @@ class FileParser {
 		// helper function to read in .jsf files
 
 		const reader = new FileReader();
-		reader.readAsText(file, "UTF-8");
 		reader.onload = (e) => {
 			const obj = JSON.parse(e.target.result);
 			try {
@@ -156,21 +157,24 @@ class FileParser {
 					callback(file, env);
 				}
 			} catch (ex) {
-				activeEnvironment.addPopupMessage(
-					new PopupMessage(
-						"Error",
-						`Unable to parse file ${file.name}`,
-						() => {
-							activeEnvironment.removePopupMessages();
-						},
-						true
-					)
-				);
+				if (typeof activeEnvironment !== "undefined") {
+					activeEnvironment.addPopupMessage(
+						new PopupMessage(
+							"Error",
+							`Unable to parse file ${file.name}`,
+							() => {
+								activeEnvironment.removePopupMessages();
+							},
+							true
+						)
+					);
+				}
 				if (callback) {
 					callback(file, undefined);
 				}
 			}
 		};
+		reader.readAsText(file, "UTF-8");
 	}
 
 	static parseJSON(obj, autoId, environment) {

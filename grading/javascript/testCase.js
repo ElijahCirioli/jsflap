@@ -145,6 +145,14 @@ class TestCase {
 		return this.element.is(":last-child");
 	}
 
+	setWord(word) {
+		this.input.val(word);
+	}
+
+	setExpectedResult(accept) {
+		this.showResultIcon(this.expectedOutput, accept);
+	}
+
 	setActualResult(result) {
 		this.showResultIcon(this.actualOutput, result.actual);
 		this.showResultIcon(this.passOutput, result.pass);

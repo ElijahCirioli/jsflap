@@ -18,6 +18,7 @@
 .grading-item {
 	background-color: var(--regular-color);
 	height: 100%;
+	outline: none;
 }
 .grading-item-content {
 	padding: 15px;

@@ -61,6 +61,7 @@
 		<script src="javascript/automatonLoader.js"></script>
 		<script src="javascript/testCase.js"></script>
 		<script src="javascript/gradingInputContainer.js"></script>
+		<script src="javascript/testCaseLoader.js"></script>
 		<script src="javascript/index.js"></script>
 	</head>
 	<body>
@@ -70,7 +71,7 @@
 			</a>
 		</div>
 		<div id="content-wrap">
-			<div class="grading-item" id="automata-panel">
+			<div class="grading-item" id="automata-panel" tabindex="0">
 				<h1 class="environment-sidebar-title">Automata</h1>
 				<div class="grading-item-content">
 					<div id="automata-table-wrap">
@@ -131,7 +132,7 @@
 						</table>
 					</form>
 					<div id="grading-input-buttons-wrap">
-						<button class="inputs-button" class="load-input-file-button">Load inputs</button>
+						<button class="inputs-button" id="load-input-file-button">Load inputs</button>
 						<button class="inputs-button" id="save-input-file-button">Save inputs</button>
 						<button class="inputs-button" id="input-lambda-button">λ</button>
 						<button class="inputs-button" id="input-clear-button">Clear</button>

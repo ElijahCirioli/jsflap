@@ -64,11 +64,7 @@ class AutomatonFile {
 		this.deleteButton.click((e) => {
 			e.stopPropagation();
 
-			if (selectAutomatonFile === this) {
-				selectAutomatonFile(undefined);
-			}
-			automatonFiles.splice(automatonFiles.indexOf(this), 1);
-			this.element.remove();
+			this.delete();
 		});
 
 		// open in editor
@@ -96,6 +92,14 @@ class AutomatonFile {
 
 	unhighlight() {
 		this.element.removeClass("selected-automaton-file");
+	}
+
+	delete() {
+		if (selectAutomatonFile === this) {
+			selectAutomatonFile(undefined);
+		}
+		automatonFiles.splice(automatonFiles.indexOf(this), 1);
+		this.element.remove();
 	}
 
 	getAutomaton() {
