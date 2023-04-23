@@ -68,15 +68,17 @@ class AutomatonFile {
 		});
 
 		// open in editor
-		this.openButton.click((e) => {
-			e.stopPropagation();
+		if (this.openButton) {
+			this.openButton.click((e) => {
+				e.stopPropagation();
 
-			this.saveObject.stepInput = "";
-			this.saveObject.input = [];
+				this.saveObject.stepInput = "";
+				this.saveObject.input = [];
 
-			const url = URLTransfer.export(this.saveObject);
-			window.open(url, "_blank");
-		});
+				const url = URLTransfer.export(this.saveObject);
+				window.open(url, "_blank");
+			});
+		}
 
 		// view results
 		this.element.click((e) => {

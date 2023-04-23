@@ -11,7 +11,6 @@ function loadTestCaseFile() {
 		if (testCases.length === 1) {
 			// if there are no existing test cases then change the type to match
 			const envType = environment.getType().charAt().toUpperCase() + environment.getType().slice(1);
-			console.log(envType);
 			$(`.dropdown-item:contains(${envType})`).click();
 		} else if (
 			(environment.getType() === "turing" || automataType === "turing") &&

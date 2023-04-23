@@ -32,11 +32,11 @@
 	gap: 15px;
 }
 #automata-panel {
-	width: 50%;
+	width: 45%;
 	min-width: 320px;
 }
 #inputs-panel {
-	width: 35%;
+	width: 40%;
 	min-width: 250px;
 }
 #automata-table-wrap {
@@ -206,6 +206,10 @@
 }
 .inputs-button {
 	height: 25px;
+}
+#save-input-file-button {
+	text-decoration: none;
+	line-height: 26px;
 }
 .unknown {
 	color: #f1b433;

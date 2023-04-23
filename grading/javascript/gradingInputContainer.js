@@ -1,17 +1,29 @@
 function setupGrading() {
 	$(".dropdown-item").click(function (e) {
-		let doClear = false;
-		if (!$(this).hasClass("dropdown-selected")) {
-			$(this).blur();
-			const prevType = $(".dropdown-selected").text();
-			const newType = $(this).text();
-			doClear = prevType === "Turing" || newType === "Turing";
+		if ($(this).hasClass("dropdown-selected")) {
+			return;
 		}
+		$(this).blur();
+		const prevType = $(".dropdown-selected").text();
+		const newType = $(this).text();
 		$(".dropdown-item").removeClass("dropdown-selected");
 		$(this).addClass("dropdown-selected");
-		if (doClear) {
+		if (prevType === "Turing" || newType === "Turing") {
 			$("#input-clear-button").click();
+			setupLambdaButton();
+		} else {
+			for (const testCase of testCases) {
+				testCase.setType(newType.toLowerCase());
+			}
 		}
+		if (newType === "Turing") {
+			$("#allow-nondeterminism-label").hide();
+			$("#allow-nondeterminism").hide();
+		} else {
+			$("#allow-nondeterminism-label").show();
+			$("#allow-nondeterminism").show();
+		}
+		gradeAllAutomata();
 	});
 
 	$(".checkbox").click(function (e) {
@@ -35,6 +47,13 @@ function setupGrading() {
 		loadTestCaseFile();
 	});
 
+	$("#save-input-file-button").on("mouseenter focus", (e) => {
+		const file = generateTestCasesFile();
+		const link = $("#save-input-file-button");
+		link.attr("href", URL.createObjectURL(file));
+		link.attr("download", "jsFLAP Grading Inputs.jsf");
+	});
+
 	$("#input-clear-button").click((e) => {
 		testCases = [];
 		$(".test-case").remove();
@@ -42,18 +61,7 @@ function setupGrading() {
 		gradeAllAutomata();
 	});
 
-	// make sure the lambda button has the user's preferred character
-	$("#input-lambda-button").text(lambdaChar);
-
-	$("#input-lambda-button").click((e) => {
-		console.log($(".inputs-form-item-input"));
-		if ($(".inputs-form-item-input").last().val().length > 0) {
-			createSingleInput();
-		}
-		$(".inputs-form-item-input").last().val(lambdaChar);
-		createSingleInput();
-		gradeAllAutomata();
-	});
+	setupLambdaButton();
 
 	createSingleInput();
 }
@@ -81,4 +89,47 @@ function removeEmptyInputs() {
 		return true;
 	});
 	createSingleInputIfNeeded();
+}
+
+function setupLambdaButton() {
+	// make sure the lambda button has the user's preferred character
+	if ($(".dropdown-selected").text() === "Turing") {
+		$("#input-lambda-button").text(blankTapeChar);
+	} else {
+		$("#input-lambda-button").text(lambdaChar);
+	}
+
+	$("#input-lambda-button").off("click");
+	$("#input-lambda-button").click((e) => {
+		if ($(".inputs-form-item-input").last().val().length > 0) {
+			createSingleInput();
+		}
+		$(".inputs-form-item-input").last().val(lambdaChar);
+		createSingleInput();
+		gradeAllAutomata();
+	});
+}
+
+function generateTestCasesFile() {
+	const allowNondeterminism = $("#allow-nondeterminism").hasClass("checkbox-checked");
+	const type = $(".dropdown-selected").text();
+	const data = {
+		isTestCases: true,
+		allowNondeterminism: allowNondeterminism,
+		type: type,
+		inputs: [],
+	};
+
+	for (const testCase of testCases) {
+		const word = testCase.getWord();
+		if (word.length === 0) {
+			continue;
+		}
+		data.inputs.push({
+			word: word,
+			accept: testCase.getExpectedResult(),
+		});
+	}
+
+	return new Blob([JSON.stringify(data, null, 4)], { type: "text/plain" });
 }

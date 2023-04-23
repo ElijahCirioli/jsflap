@@ -2,7 +2,11 @@ class TestCase {
 	constructor(type) {
 		this.type = type;
 
-		this.createElement();
+		if (this.type === "turing") {
+			this.createTuringElement();
+		} else {
+			this.createElement();
+		}
 		this.setupListeners();
 	}
 
@@ -48,9 +52,42 @@ class TestCase {
 		$("#input-table-body").append(this.element);
 	}
 
+	createTuringElement() {
+		this.element = $(`<tr class="test-case"></tr>`);
+		const inputCell = $(`<td class="test-case-input"></td>`);
+		this.input = $(
+			`<input type="text" spellcheck="false" maxlength="256" placeholder="Input tape" class="inputs-form-item-input" />`
+		);
+		inputCell.append(this.input);
+		const expectedOutputCell = $(`<td class="test-case-output test-case-output-expected"></td>`);
+		this.expectedOutput = $(
+			`<input type="text" spellcheck="false" maxlength="256" placeholder="Result tape" class="inputs-form-item-input"/>`
+		);
+		expectedOutputCell.append(this.expectedOutput);
+
+		this.actualOutput = $(`<td class="test-case-output test-case-output-actual"></td>`);
+		this.passOutput = $(
+			`<td class="test-case-output test-case-output-pass">
+				<i title="The test case did not pass." class="fas fa-times-circle rejected"></i>
+				<i title="The test case passed." class="fas fa-check-circle accepted"></i>
+			</td>`
+		);
+
+		// hide output icon
+		this.passOutput.children().hide();
+
+		// add to row
+		this.element.append(inputCell);
+		this.element.append(expectedOutputCell);
+		this.element.append(this.actualOutput);
+		this.element.append(this.passOutput);
+
+		$("#input-table-body").append(this.element);
+	}
+
 	setupListeners() {
 		// setup events for changing expected output
-		this.expectedOutput.click((e) => {
+		this.expectedOutput.on("click keyup change", (e) => {
 			if (this.expectedOutput.children(".accepted").is(":visible")) {
 				this.expectedOutput.children(".accepted").hide();
 				this.expectedOutput.children(".rejected").show();
@@ -122,6 +159,9 @@ class TestCase {
 	}
 
 	getExpectedResult() {
+		if (this.type === "turing") {
+			return this.expectedOutput.val();
+		}
 		return this.expectedOutput.children(".accepted").is(":visible");
 	}
 
@@ -153,13 +193,33 @@ class TestCase {
 		this.showResultIcon(this.expectedOutput, accept);
 	}
 
+	setType(type) {
+		this.type = type;
+	}
+
 	setActualResult(result) {
-		this.showResultIcon(this.actualOutput, result.actual);
+		if (this.type === "turing") {
+			console.log(result.actual);
+			if (result.actual === false) {
+				this.actualOutput.text("");
+				this.actualOutput.append(
+					`<i title="The Turing Machine did not halt." class="fas fa-times-circle rejected"></i>`
+				);
+			} else {
+				this.actualOutput.text(result.actual);
+			}
+		} else {
+			this.showResultIcon(this.actualOutput, result.actual);
+		}
 		this.showResultIcon(this.passOutput, result.pass);
 	}
 
 	removeActualResult() {
-		this.actualOutput.children().hide();
+		if (this.type === "turing") {
+			this.actualOutput.text("");
+		} else {
+			this.actualOutput.children().hide();
+		}
 		this.passOutput.children().hide();
 	}
 

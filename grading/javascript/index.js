@@ -24,7 +24,9 @@ function gradeAutomaton(automatonFile) {
 	const automaton = automatonFile.getAutomaton();
 	const testResults = [];
 	const wordResults = new Map();
-	const deterministic = automaton ? automaton.isDeterministic(automaton.getAlphabet()) : false;
+	const deterministic = automaton
+		? automatonFile.getType() === "turing" || automaton.isDeterministic(automaton.getAlphabet())
+		: false;
 
 	for (const testCase of testCases) {
 		if (testCase.isEmpty()) {
@@ -35,10 +37,22 @@ function gradeAutomaton(automatonFile) {
 		const determinismPass = testCase.isNondeterminismAllowed() || deterministic;
 
 		if (typePass) {
-			const word = testCase.getWord().replaceAll(lambdaChar, "");
-			const actual = automatonFile.getCachedResult(word) ?? automaton.languageContains(word);
-			wordResults.set(word, actual);
-			const wordPass = actual === testCase.getExpectedResult();
+			let wordPass;
+			let actual;
+			if (automatonFile.getType() === "turing") {
+				const inputTape = testCase.getWord();
+				const turingResult =
+					automatonFile.getCachedResult(inputTape) ?? automaton.parseInput(inputTape.split(""));
+				wordResults.set(inputTape, turingResult);
+				actual = turingResult.accept ? turingMachineStripTape(turingResult.tape.join("")) : false;
+				wordPass =
+					turingResult.accept && actual === turingMachineStripTape(testCase.getExpectedResult());
+			} else {
+				const word = testCase.getWord().replaceAll(lambdaChar, "");
+				actual = automatonFile.getCachedResult(word) ?? automaton.languageContains(word);
+				wordResults.set(word, actual);
+				wordPass = actual === testCase.getExpectedResult();
+			}
 			testResults.push({
 				pass: wordPass && determinismPass,
 				actual: actual,
@@ -58,6 +72,22 @@ function gradeAutomaton(automatonFile) {
 	automatonFile.setTestOutput(testResults);
 }
 
+function turingMachineStripTape(tape) {
+	let firstIndex = 0;
+	let lastIndex = 0;
+	let foundNonBlank = false;
+	for (let i = 0; i < tape.length; i++) {
+		if (tape[i] !== blankTapeChar) {
+			lastIndex = i;
+			if (!foundNonBlank) {
+				firstIndex = i;
+				foundNonBlank = true;
+			}
+		}
+	}
+	return tape.substring(firstIndex, lastIndex + 1);
+}
+
 function selectAutomatonFile(automatonFile) {
 	if (selectedAutomatonFile) {
 		selectedAutomatonFile.unhighlight();
@@ -65,6 +95,8 @@ function selectAutomatonFile(automatonFile) {
 	selectedAutomatonFile = automatonFile;
 	if (selectedAutomatonFile) {
 		selectedAutomatonFile.highlight();
+	}
+	if (selectedAutomatonFile && selectedAutomatonFile.getType()) {
 		displayTestOutputs();
 	} else {
 		removeTestOutputs();
