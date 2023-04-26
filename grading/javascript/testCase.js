@@ -109,6 +109,7 @@ class TestCase {
 					// make a new input if there are no empty ones
 					if (this.type === "turing") {
 						this.input.val(blankTapeChar);
+						this.expectedOutput.val(blankTapeChar);
 					} else {
 						this.input.val(lambdaChar);
 					}
@@ -146,6 +147,24 @@ class TestCase {
 		});
 
 		this.input.on("keyup", createSingleInputIfNeeded);
+
+		this.element
+			.find("input")
+			.on("focusin click change keyup mousedown mouseup mouseenter mouseleave", function (e) {
+				if ($(this).is(":focus")) {
+					selection = {
+						element: $(this),
+						start: this.selectionStart,
+						end: this.selectionEnd,
+					};
+				}
+			});
+
+		this.element.find("input").on("focusout", (e) => {
+			if (!$("#inputs-panel").is(":focus-within")) {
+				selection = undefined;
+			}
+		});
 
 		this.element.on("focusout", removeEmptyInputs);
 	}
@@ -199,7 +218,6 @@ class TestCase {
 
 	setActualResult(result) {
 		if (this.type === "turing") {
-			console.log(result.actual);
 			if (result.actual === false) {
 				this.actualOutput.text("");
 				this.actualOutput.append(

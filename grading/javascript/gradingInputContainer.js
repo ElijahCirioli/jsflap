@@ -99,13 +99,29 @@ function setupLambdaButton() {
 		$("#input-lambda-button").text(lambdaChar);
 	}
 
+	selection = undefined;
 	$("#input-lambda-button").off("click");
 	$("#input-lambda-button").click((e) => {
 		if ($(".inputs-form-item-input").last().val().length > 0) {
 			createSingleInput();
 		}
-		$(".inputs-form-item-input").last().val(lambdaChar);
-		createSingleInput();
+		if ($(".dropdown-selected").text() === "Turing") {
+			if (selection) {
+				const currVal = selection.element.val();
+				const newVal =
+					currVal.slice(0, selection.start) + blankTapeChar + currVal.slice(selection.end);
+				const newSelectionIndex = selection.start + 1;
+				selection.element.val(newVal);
+				selection.element[0].setSelectionRange(newSelectionIndex, newSelectionIndex);
+				selection.element.focus();
+			} else {
+				$(".test-case-input").last().children().val(blankTapeChar);
+				$(".test-case-output-expected").last().children().val(blankTapeChar);
+			}
+		} else {
+			$(".inputs-form-item-input").last().val(lambdaChar);
+		}
+		createSingleInputIfNeeded();
 		gradeAllAutomata();
 	});
 }

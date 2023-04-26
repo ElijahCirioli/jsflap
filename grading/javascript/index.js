@@ -3,6 +3,7 @@ let automatonFiles = [];
 let testCases = [];
 
 let selectedAutomatonFile = undefined;
+let selection = undefined;
 
 let lambdaChar = window.localStorage.getItem("jsflap lambda character") || "\u03BB";
 let blankTapeChar = window.localStorage.getItem("jsflap blank tape character") || "\u2610";

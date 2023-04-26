@@ -106,7 +106,7 @@
 	transition: color 0.1s;
 }
 .automaton-file-button:hover {
-	color: var(--accent-color);
+	color: var(--glow-color);
 }
 .delete-button:hover {
 	color: #f04d41;
