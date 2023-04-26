@@ -38,4 +38,7 @@
 		padding-top: 2px;
 		font-size: 14px;
 	}
+	#footer-wrap {
+		gap: 15px;
+	}
 }

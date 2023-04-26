@@ -1,0 +1,21 @@
+@media only screen and (max-width: 500px) {
+	#content-wrap {
+		flex-direction: column;
+		align-items: center;
+		gap: 25px;
+	}
+	#automata-panel {
+		width: 96%;
+		min-width: 0;
+	}
+	#inputs-panel {
+		width: 96%;
+		min-width: 0;
+	}
+	#grading-input-buttons-wrap {
+		gap: 10px;
+	}
+	.inputs-button {
+		font-size: 0.9rem;
+	}
+}
