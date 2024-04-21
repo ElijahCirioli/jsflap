@@ -1139,7 +1139,7 @@ class Editor {
 			const str = input.val();
 			const selectionStart = input[0].selectionStart;
 			const selectionEnd = input[0].selectionEnd;
-			const chunkLength = transition.getDelimeter().length + 1;
+			const chunkLength = transition.getDelimiter().length + 1;
 
 			// make sure deleting text doesn't delete the whole transition
 			if (key === "Delete" || key === "Backspace") {
@@ -1164,7 +1164,7 @@ class Editor {
 						const startAdjusted = chunkLength * Math.ceil(selectionStart / chunkLength);
 						const endAdjusted = chunkLength * Math.floor((selectionEnd - 1) / chunkLength) + 1;
 						const adjustedSelection = str.substring(startAdjusted, endAdjusted);
-						const chars = adjustedSelection.split(transition.getDelimeter());
+						const chars = adjustedSelection.split(transition.getDelimiter());
 						for (const c of chars) {
 							if (c !== "") {
 								if (c === lambdaChar) {
@@ -1174,7 +1174,7 @@ class Editor {
 								}
 							}
 						}
-						newCursorPos = Math.max(startAdjusted - transition.getDelimeter().length, 0);
+						newCursorPos = Math.max(startAdjusted - transition.getDelimiter().length, 0);
 					}
 				} else {
 					if (key === "Backspace" || key === "Delete") {
@@ -1193,7 +1193,7 @@ class Editor {
 								transition.removeLabel(char);
 							}
 						}
-						newCursorPos = Math.max(startAdjusted - transition.getDelimeter().length, 0);
+						newCursorPos = Math.max(startAdjusted - transition.getDelimiter().length, 0);
 					}
 				}
 

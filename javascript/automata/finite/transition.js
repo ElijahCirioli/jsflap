@@ -5,7 +5,7 @@ class Transition {
 		this.labels = new Set();
 		this.color = "#2c304d";
 		this.id = fromState.getId() + "-" + toState.getId();
-		this.delimeter = ", ";
+		this.delimiter = ", ";
 		this.cache = {};
 		if (label !== undefined) {
 			this.labels.add(label);
@@ -24,8 +24,8 @@ class Transition {
 		return this.id;
 	}
 
-	getDelimeter() {
-		return this.delimeter;
+	getDelimiter() {
+		return this.delimiter;
 	}
 
 	getLabels() {
@@ -167,12 +167,12 @@ class Transition {
 		let str = "";
 		this.labels.forEach((char) => {
 			if (char === "") {
-				str += lambdaChar + this.delimeter;
+				str += lambdaChar + this.delimiter;
 			} else {
-				str += char + this.delimeter;
+				str += char + this.delimiter;
 			}
 		});
-		str = str.substring(0, str.length - this.delimeter.length);
+		str = str.substring(0, str.length - this.delimiter.length);
 		this.element.children(".label-input").val(str);
 	}
 

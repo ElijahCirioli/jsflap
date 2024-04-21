@@ -834,7 +834,7 @@
 	gap: 0;
 	position: relative;
 }
-.tuple-delimeter {
+.tuple-delimiter {
 	margin: 0;
 	padding: 0;
 	height: 1.1rem;
@@ -843,6 +843,9 @@
 	font-size: 1rem;
 	text-align: center;
 	color: var(--dark-text-color);
+}
+.tuple-delimiter-arrow {
+	font-size: 0.75rem;
 }
 .tuple-input {
 	background-color: transparent;
@@ -881,6 +884,10 @@
 }
 .small-text-label.move-input {
 	width: 0.7rem;
+}
+.small-text-label.tuple-delimiter-arrow {
+	font-size: 0.6rem;
+	height: 0.9rem;
 }
 .single-line-input {
 	width: calc(100% - 55px);

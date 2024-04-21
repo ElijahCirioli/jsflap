@@ -22,9 +22,9 @@ class TuringEditor extends PushdownEditor {
 				labelElement.append(`
                     <div class="tuple" tabindex="1">
                         <input type="text" spellcheck="false" maxlength="1" class="label-input read-input tuple-input">
-                        <p class="tuple-delimeter">🠦</p>
+                        <p class="tuple-delimiter tuple-delimiter-arrow"><i class="fas fa-long-arrow-alt-right"></i></p>
                         <input type="text" spellcheck="false" maxlength="1" class="label-input write-input tuple-input">
-                        <p class="tuple-delimeter">,&nbsp;</p>
+                        <p class="tuple-delimiter">,&nbsp;</p>
                         <input type="text" spellcheck="false" maxlength="1" class="label-input move-input tuple-input">
                         <div class="move-input-dropdown">
                             <p class="move-input-dropdown-item">L</p>
