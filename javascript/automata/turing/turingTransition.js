@@ -56,7 +56,7 @@ class TuringTransition extends PushdownTransition {
 		const element = $(`
             <div class="tuple" tabindex="1">
                 <input type="text" spellcheck="false" maxlength="1" class="label-input read-input tuple-input">
-                <p class="tuple-delimiter tuple-delimiter-arrow"><i class="fas fa-long-arrow-alt-right"></i></p>
+                <p class="tuple-delimiter tuple-delimiter-arrow"><i class="fas fa-arrow-right-long"></i></p>
                 <input type="text" spellcheck="false" maxlength="1" class="label-input write-input tuple-input">
                 <p class="tuple-delimiter">,&nbsp;</p>
                 <input type="text" spellcheck="false" maxlength="1" class="label-input move-input tuple-input">

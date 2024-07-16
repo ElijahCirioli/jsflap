@@ -206,7 +206,7 @@ class Environment {
 						<i class="fas fa-circle"></i>
 					</button>
 					<button title="Transition tool" class="tool-item" id="transition-tool">
-						<i class="fas fa-long-arrow-alt-right"></i>
+						<i class="fas fa-arrow-right-long"></i>
 					</button>
 					<button title="Chain tool" class="tool-item" id="chain-tool">
 						<i class="fas fa-link"></i>

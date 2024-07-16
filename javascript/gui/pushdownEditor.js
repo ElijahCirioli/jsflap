@@ -79,7 +79,7 @@ class PushdownEditor extends Editor {
 						<input type="text" spellcheck="false" maxlength="1" class="label-input char-input tuple-input">
 						<p class="tuple-delimiter">,&nbsp;</p>
 						<input type="text" spellcheck="false" maxlength="1" class="label-input pop-input tuple-input">
-						<p class="tuple-delimiter tuple-delimiter-arrow"><i class="fas fa-long-arrow-alt-right"></i></p>
+						<p class="tuple-delimiter tuple-delimiter-arrow"><i class="fas fa-arrow-right-long"></i></p>
 						<input type="text" spellcheck="false" maxlength="256" class="label-input push-input tuple-input">
 					</div>
 				`);

@@ -208,7 +208,7 @@ body {
 	width: 22px;
 	min-width: 22px;
 	min-height: 22px;
-	padding: 2px 0 0 0;
+	padding: 0;
 	margin: 4px;
 	text-align: center;
 	background-color: var(--regular-color);
